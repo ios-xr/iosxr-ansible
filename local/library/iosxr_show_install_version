@@ -1,0 +1,65 @@
+#!/usr/bin/python
+#------------------------------------------------------------------
+# Copyright 2016 Cisco Systems
+#------------------------------------------------------------------
+
+from ansible.module_utils.basic import *
+from ydk.providers import NetconfServiceProvider
+from ydk.services import CRUDService
+from ydk.models.spirit.Cisco_IOS_XR_spirit_install_instmgr_oper import SoftwareInstall
+import sys
+import logging
+
+def init_logging(logfile):
+  # Initialize the logging infra and add a handler
+  logger = logging.getLogger('ydk') 
+  logger.setLevel(logging.DEBUG)
+
+  # create file handler             
+  fh = logging.FileHandler(logfile)
+  fh.setLevel(logging.DEBUG)
+
+  # create a console logger too
+  ch = logging.StreamHandler()
+  ch.setLevel(logging.ERROR)
+
+  # add the handlers to the logger
+  logger.addHandler(fh)
+  logger.addHandler(ch)
+
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            host = dict(required=True),
+            username = dict(required=False, default='root'),
+            password = dict(required=False, default='lab'),
+        ),
+        supports_check_mode = True
+    )
+
+    args = module.params
+
+    init_logging("iosxr_show_install_version.log")
+
+    # establish ssh connection
+    provider = NetconfServiceProvider(address=args['host'],
+                                      port=830,
+                                      username=args['username'],
+                                      password=args['password'],
+                                      protocol='ssh')
+    # establish CRUD service
+    crud = CRUDService()
+
+    # retrieve software install version
+    install = SoftwareInstall()
+    info = crud.read(provider, install)
+
+    result = dict(changed=False)
+    result['stdout'] = info.version.log
+
+    # return active packages
+    return module.exit_json(**result)
+
+
+if __name__ == "__main__":
+    main()

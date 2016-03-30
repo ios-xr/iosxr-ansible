@@ -1,0 +1,20 @@
+---
+- hosts: ss-xr
+  connection: local
+
+  tasks:
+  - iosxr_cli:
+      host: '{{ ansible_ssh_host }}'
+      username: root
+      password: lab
+      command: 'show version'
+    register: str
+  - debug: var=str
+
+  - iosxr_command:
+      host: '{{ ansible_ssh_host }}'
+      username: root
+      password: lab
+      commands: 'show version'
+    register: str
+  - debug: var=str

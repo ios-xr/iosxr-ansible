@@ -1,0 +1,13 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  vars:
+    pkgpath: "tftp://192.168.1.1"
+    pkgname: "xrv9k-ospf-1.0.0.0-r60125I.x86_64.rpm"
+
+  tasks:
+  - name: "add and activate package {{ pkgname }}"
+    shell: "source /etc/profile ; nsenter -t 1 -n -- install update source {{ pkgpath }} {{ pkgname }}"
+    register: str
+  - debug: var=str.stdout_lines

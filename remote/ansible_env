@@ -1,0 +1,7 @@
+export LOCAL=/home/aermongk
+export ANSIBLE_HOME=$LOCAL/ansible/ansible
+export ANSIBLE_INVENTORY=$LOCAL/ansible/iosxr/remote/ansible_hosts
+export ANSIBLE_LIBRARY=$LOCAL/ansible/iosxr/remote/library
+export ANSIBLE_CONFIG=$LOCAL/ansible/iosxr/remote/ansible_cfg
+export YDK_DIR=$LOCAL/ydk/ydk-py
+export PYTHONPATH=$YDK_DIR:$LOCAL/ansible/ansible/lib

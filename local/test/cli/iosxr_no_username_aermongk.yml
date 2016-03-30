@@ -1,0 +1,18 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+  vars:
+    node_name: "{{ ansible_ssh_host }}"
+    user: root
+    passwd: lab
+
+  tasks:
+  - name: remove user aermongk
+    iosxr_config:
+      commands: "no username aermongk"
+      host: "{{ node_name }}"
+      username: "{{ user }}"
+      password: "{{ passwd }}"
+    register: str
+  - debug: var=str.updates

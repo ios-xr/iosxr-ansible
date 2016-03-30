@@ -1,0 +1,5 @@
+export BASEDIR=/home/aermongk
+export ANSIBLE_INVENTORY=$BASEDIR/ansible/iosxr/local/ansible_hosts
+export ANSIBLE_LIBRARY=$BASEDIR/ansible/iosxr/local/library
+export YDK_DIR=$BASEDIR/ydk/ydk-py
+export PYTHONPATH=$YDK_DIR:$BASEDIR/ansible/ansible/lib

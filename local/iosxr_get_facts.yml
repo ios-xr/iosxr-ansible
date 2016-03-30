@@ -1,0 +1,10 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - iosxr_get_facts:
+      host: "{{ ansible_ssh_host }}"
+    register: facts
+  - debug: var=facts

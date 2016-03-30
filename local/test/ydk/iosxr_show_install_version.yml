@@ -1,0 +1,12 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - iosxr_show_install_version:
+      host: "{{ ansible_ssh_host }}"
+      username: root
+      password: lab
+    register: str
+  - debug: var=str.stdout_lines

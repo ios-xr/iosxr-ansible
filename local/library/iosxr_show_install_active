@@ -1,0 +1,51 @@
+#!/usr/bin/python
+#------------------------------------------------------------------
+# Copyright 2016 Cisco Systems
+#------------------------------------------------------------------
+
+from ansible.module_utils.basic import *
+from ydk.providers import NetconfServiceProvider
+from ydk.services import CRUDService
+from ydk.models.spirit.Cisco_IOS_XR_spirit_install_instmgr_oper import SoftwareInstall
+
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            host = dict(required=True),
+            username = dict(required=False, default='root'),
+            password = dict(required=False, default='lab'),
+        ),
+        supports_check_mode = True
+    )
+
+    args = module.params
+
+    # establish ssh connection
+    provider = NetconfServiceProvider(address=args['host'],
+                                      port=830,
+                                      username=args['username'],
+                                      password=args['password'],
+                                      protocol='ssh')
+    # establish CRUD service
+    crud = CRUDService()
+
+    # retrieve software install version
+    install = SoftwareInstall()
+    info = crud.read(provider, install)
+    result = dict(changed=False)
+    result['stdout'] = "no active package"
+    for package in info.active.active_package_info:
+      result['stdout'] = \
+        "active_packages: %sboot_partition_name: %s\nlocation: %s\n" \
+        "node_type: %s\nnumber_of_active_packages: %d" % \
+        (package.active_packages, \
+         package.boot_partition_name, \
+         package.location, \
+         package.node_type, \
+         package.number_of_active_packages)
+
+    # return active packages
+    return module.exit_json(**result)
+
+if __name__ == "__main__":
+    main()
