@@ -6,10 +6,13 @@ Ansible Test Setup
   * http://tc-midnight.cisco.com:8080/wiki/MB%20Cloud%20XR
 
   NOTE:
-    The nightly build images provided on the MB Cloud is based on xr-dev.
-    Unfortunately, the missing Python libraries were committed to r60y
+    The nightly build images provided on the MB Cloud is based on xr-dev lineup.
+    Unfortunately, the missing Python libraries were committed only to r60y
     (CSCux90222).  These missing libraries are required for Ansible to run
-    in "remote" mode.  The tests that were exercising here run on "local" mode
+    in "remote" mode. The playbooks under "local" directory use local mode and
+    playbooks under "remote" use remote mode.  If you want to run playbooks
+    under "remote" directory, you will need to build your own XRV9K image from 
+    r60y lineup and install it on your VMs.
 
 - You will also need k9sec security package to be installed in your XRV9K VMs.
   Using the following example command to install the k9sec pacakge.
