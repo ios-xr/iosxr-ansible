@@ -1,2 +1,2 @@
-echo ../../../ansible/hacking/test-module -m iosxr_install_package.py -a "host=192.168.1.3 pkgname=xrv9k-li-x-1.0.0.0-r61102I state=deactivate"
-../../../ansible/hacking/test-module -m iosxr_install_package.py -a "host=192.168.1.3 pkgname=xrv9k-li-x-1.0.0.0-r61102I state=deactivate"
+echo $BASEDIR/ansible/ansible/hacking/test-module -m $IOSXRDIR/local/library/iosxr_install_package -a "host=192.168.1.3 pkgname=xrv9k-ospf-1.0.0.0-r60125I state=deactivate"
+$BASEDIR/ansible/ansible/hacking/test-module -m $IOSXRDIR/local/library/iosxr_install_package -a "host=192.168.1.3 pkgname=xrv9k-ospf-1.0.0.0-r60125I state=deactivate"

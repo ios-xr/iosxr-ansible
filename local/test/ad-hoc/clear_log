@@ -1,0 +1,2 @@
+echo $BASEDIR/ansible/ansible/hacking/test-module -m $IOSXRDIR/local/library/iosxr_clear_log -a "host=192.168.1.5 username=root password=lab"
+$BASEDIR/ansible/ansible/hacking/test-module -m $IOSXRDIR/local/library/iosxr_clear_log -a "host=192.168.1.5 username=root password=lab"

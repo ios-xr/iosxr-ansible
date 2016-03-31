@@ -10,7 +10,7 @@
       username: root
       password: lab
       pkgpath: "tftp://192.168.1.1"
-      pkgname: "xrv9k-ospf-1.0.0.0-r61102I"
+      pkgname: "xrv9k-ospf-1.0.0.0-r60125I"
       state: present
     register: str
   - debug: var=str.stdout_lines

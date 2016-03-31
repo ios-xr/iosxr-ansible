@@ -1,0 +1,13 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: clear config and log data
+    iosxr_clear_log:
+      host: '{{ ansible_ssh_host }}'
+      username: root
+      password: lab
+    register: str
+  - debug: var=str
