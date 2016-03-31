@@ -1,0 +1,12 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  vars:
+    pkgname: "xrv9k-ospf-1.0.0.0-r60125I"
+
+  tasks:
+  - name: "remove package {{ pkgname }}"
+    shell: "source /etc/profile ; nsenter -t 1 -n -- sdr_instcmd install remove pkg {{ pkgname }} || true"
+    register: str
+  - debug: var=str.stdout_lines

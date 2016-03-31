@@ -1,0 +1,12 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  vars:
+    pkgname: "xrv9k-ospf-1.0.0.0-r60125I"
+
+  tasks:
+  - name: "deactivate package {{ pkgname }}"
+    shell: "source /etc/profile ; nsenter -t 1 -n -- sdr_instcmd install deactivate pkg 0x0 {{ pkgname }} || true"
+    register: str
+  - debug: var=str.stdout_lines
