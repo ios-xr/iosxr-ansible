@@ -1,0 +1,54 @@
+#!/usr/bin/python
+#------------------------------------------------------------------------------
+# Copyright 2016 Cisco Systems
+#------------------------------------------------------------------------------
+
+DOCUMENTATION = """
+---
+module: iosxr_get_facts
+author: "Adisorn Ermongkonchai"
+short_description: Get IOS-XR information
+description:
+  - Get IOS-XR configuration and status
+"""
+
+EXAMPLES = """
+- iosxr_get_facts:
+"""
+
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            data=dict(required=False, default=None),
+        ),
+        supports_check_mode = True
+    )
+    # make sure "terminal length 0" is set on XR console
+    cmds = [ 'show platform',
+             'show version',
+             'show inventory all',
+             'show memory summary',
+             'show install active',
+             'show filesystem',
+             'show media',
+             'show license all',
+             'show route',
+             'show running-config',
+             'show arp',
+             'show ipv4 int brief',
+             'show ipv6 int brief' ]
+
+    result = dict(changed=False)
+    for cmd in cmds:
+        command = "source /etc/profile ; nsenter -t 1 -n -- xr_cli '%s'" % cmd
+        (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+        result[cmd] = str(out).splitlines()
+  
+    # return active packages
+    return module.exit_json(**result)
+
+from ansible.module_utils.shell import *
+from ansible.module_utils.basic import *
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,19 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+  vars:
+    src_name: "/tftp://192.168.1.1/add_user.cfg"
+    cfg_name: "/disk0:/add_user.cfg"
+
+  tasks:
+  - name: copy configuration file to IOS-XR node
+    shell: "cp {{ src_name }} {{ cfg_name }}"
+    register: str
+  - debug: var=str.stdout_lines
+
+  - name: apply configuration file on the IOS-XR node
+    iosxr_install_config:
+      cfgname: "{{ cfg_name }}"
+      #label: "add_user_5"
+    register: str
+  - debug: var=str.stdout_lines

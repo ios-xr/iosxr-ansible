@@ -1,0 +1,9 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  tasks:
+  - name: clear config and log data
+    iosxr_clear_log:
+    register: str
+  - debug: var=str

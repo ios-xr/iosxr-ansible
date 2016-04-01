@@ -5,4 +5,4 @@ export ANSIBLE_INVENTORY=$IOSXRDIR/remote/ansible_hosts
 export ANSIBLE_LIBRARY=$IOSXRDIR/remote/library:$BASEDIR/ansible/ansible-modules-core/network/iosxr
 export ANSIBLE_CONFIG=$IOSXRDIR/remote/ansible_cfg
 export YDK_DIR=$BASEDIR/ydk/ydk-py
-export PYTHONPATH=$YDK_DIR:$BASEDIR/ansible/ansible/lib
+export PYTHONPATH=$YDK_DIR

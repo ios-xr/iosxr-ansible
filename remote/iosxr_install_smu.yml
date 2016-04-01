@@ -1,0 +1,21 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+  vars:
+    smu_name: "xrv9k-ospf-1.0.0.0-r60125I"
+
+  tasks:
+  - name: add SMU package
+    iosxr_install_package:
+      pkgpath: "tftp://192.168.1.1"
+      pkgname: "{{ smu_name }}"
+      state: present
+    register: str
+  - debug: var=str.stdout_lines
+
+  - name: activate SMU package
+    iosxr_install_package:
+      pkgname: "{{ smu_name }}"
+      state: activate
+    register: str
+  - debug: var=str.stdout_lines

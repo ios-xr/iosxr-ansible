@@ -1,0 +1,9 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  tasks:
+  - name: get system facts
+    iosxr_get_facts:
+    register: facts
+  - debug: var=facts
