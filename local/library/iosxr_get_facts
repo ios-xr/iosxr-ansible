@@ -1,43 +1,44 @@
 #!/usr/bin/python
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Copyright 2016 Cisco Systems
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import *
 from ansible.module_utils.shell import *
+from ansible.module_utils.basic import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
+from iosxr_common import *
 
 def main():
-  module = get_module(
-    argument_spec = dict(
-      host = dict(required=True),
-      username = dict(required=False, default='root'),
-      password = dict(required=False, default='lab'),
-    ),
-    supports_check_mode = True
-  )
+    module = get_module(
+        argument_spec = dict(
+            host = dict(required=True),
+            username = dict(required=False, default='root'),
+            password = dict(required=False, default='lab'),
+        ),
+        supports_check_mode = True
+    )
+    # make sure "terminal length 0" is set on XR console
+    cmds = [ 'show platform',
+             'show version',
+             'show inventory all',
+             'show memory summary',
+             'show install active',
+             'show filesystem',
+             'show media',
+             'show license all',
+             'show route',
+             'show running-config',
+             'show arp',
+             'show ipv4 int brief',
+             'show ipv6 int brief' ]
 
-  result = dict(changed=False)
-  result['show_platform'] = str(module.execute('show platform')).split(r'\n')
-  result['show_version'] = str(module.execute('show version')).split(r'\n')
-  result['show_inventory_all'] = str(module.execute('show inventory all')).split(r'\n')
-  result['show_memory_summary'] = str(module.execute('show memory summary')).split(r'\n')
-  result['show_install_active'] = str(module.execute('show install active')).split(r'\n')
-  result['show_interface_brief'] = str(module.execute('show interface brief')).split(r'\n')
-  result['show_filesystem'] = str(module.execute('show filesystem')).split(r'\n')
-  result['show_media'] = str(module.execute('show media')).split(r'\n')
-  result['show_license_all'] = str(module.execute('show license all')).split(r'\n')
-  result['show_route'] = str(module.execute('show route')).split(r'\n')
-  result['show_running_config'] = str(module.get_config()).split('\n')
-  result['show_arp'] = str(module.execute('show arp')).split(r'\n')
-  result['show_v4if_brief'] = str(module.execute('show ipv4 interface brief')).split(r'\n')
-  result['show_v6if_brief'] = str(module.execute('show ipv6 interface brief')).split(r'\n')
-  result['show_tcp_brief'] = str(module.execute('show tcp brief')).split(r'\n')
-  result['show_udp_brief'] = str(module.execute('show udp brief')).split(r'\n')
-
-  # return active packages
-  return module.exit_json(**result)
+    result = dict(changed=False)
+    for cmd in cmds:
+        result[cmd] = str(execute_command(module, cmd)).split(r'\n')
+  
+    # return active packages
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
     main()

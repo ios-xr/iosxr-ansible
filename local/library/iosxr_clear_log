@@ -1,39 +1,40 @@
 #!/usr/bin/python
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Copyright 2016 Cisco Systems
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
+
+def main():
+    module = get_module(
+        argument_spec = dict(
+            host = dict(required=True),
+            username = dict(required=False, default='root'),
+            password = dict(required=False, default='lab'),
+        ),
+        supports_check_mode = True
+    )
+  
+    host = module.params['host']
+    username = module.params['username']
+    password = module.params['password']
+  
+    clear_command = 'clear logging'
+    commands = to_list(clear_command)
+    commands.append('y')
+    response = execute_command(module, commands)
+  
+    # return active packages
+    result = dict(changed=False)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
+    return module.exit_json(**result)
 
 from ansible.module_utils.basic import *
 from ansible.module_utils.shell import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
-
-CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
-
-def main():
-  module = get_module(
-    argument_spec = dict(
-      host = dict(required=True),
-      username = dict(required=False, default='root'),
-      password = dict(required=False, default='lab'),
-    ),
-    supports_check_mode = True
-  )
-
-  host = module.params['host']
-  username = module.params['username']
-  password = module.params['password']
-
-  clear_command = 'clear logging'
-  commands = to_list(clear_command)
-  commands.append('y')
-  response = module.execute(commands)
-
-  # return active packages
-  result = dict(changed=False)
-  result['stdout'] = response
-  result['stdout_lines'] = str(result['stdout']).split(r'\n')
-  return module.exit_json(**result)
+from iosxr_common import *
 
 if __name__ == "__main__":
     main()

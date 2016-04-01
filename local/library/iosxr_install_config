@@ -68,51 +68,54 @@ stdout:
 """
 
 def main():
-  module = get_module(
-    argument_spec = dict(
-      username = dict(required=True),
-      password = dict(required=True),
-      cfgname  = dict(required=True),
-      label    = dict(required=False, default=None),
-      replace  = dict(required=False, type='bool', default=False),
-      force    = dict(required=False, type='bool', default=False),
-      logfile  = dict(required=False, default='/tmp/iosxr_install_config.log'),
-    ),
-    supports_check_mode=True
-  )
-  args = module.params
-  cfg_name = args['cfgname']
-  label = args['label']
-  force = args['force']
-  replace = args['replace']
-  result = dict(changed=False)
-
-  load_command = 'load ' + cfg_name
-  commands = to_list(load_command)
-  commands.insert(0, 'configure terminal')
-
-  commit_command = 'commit '
-  if replace is True:
-    commit_command = commit_command + 'replace '
-  if force is True:
-    commit_command = commit_command + 'force '
-  if label != None:
-    commit_command = commit_command + 'label ' + label
-  commands.append(commit_command)
-  if replace is True:
-    commands.append('yes')
-  response = module.execute(commands)
-
-  result['changed'] = True
-  result['stdout'] = response
-  result['stdout_lines'] = str(result['stdout']).split(r'\n')
-  with open(args['logfile'], "a") as logfile:
-    logfile.write(result['stdout'][0])
-  module.exit_json(**result)
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=True),
+            password = dict(required=True),
+            cfgname  = dict(required=True),
+            label    = dict(required=False, default=None),
+            replace  = dict(required=False, type='bool', default=False),
+            force    = dict(required=False, type='bool', default=False),
+            logfile  = dict(required=False,
+                            default='/tmp/iosxr_install_config.log'),
+        ),
+        supports_check_mode=True
+    )
+    args = module.params
+    cfg_name = args['cfgname']
+    label = args['label']
+    force = args['force']
+    replace = args['replace']
+    result = dict(changed=False)
+  
+    load_command = 'load ' + cfg_name
+    commands = to_list(load_command)
+    commands.insert(0, 'configure terminal')
+  
+    commit_command = 'commit '
+    if replace is True:
+        commit_command = commit_command + 'replace '
+    if force is True:
+        commit_command = commit_command + 'force '
+    if label != None:
+        commit_command = commit_command + 'label ' + label
+    commands.append(commit_command)
+    if replace is True:
+        commands.append('yes')
+    response = execute_command(module, commands)
+  
+    result['changed'] = True
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
+    with open(args['logfile'], "a") as logfile:
+        logfile.write(result['stdout'][0])
+    module.exit_json(**result)
 
 from ansible.module_utils.basic import *
 from ansible.module_utils.shell import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
+from iosxr_common import *
+
 if __name__ == "__main__":
   main()
