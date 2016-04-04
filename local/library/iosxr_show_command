@@ -1,12 +1,13 @@
 #!/usr/bin/python
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Copyright 2016 Cisco Systems
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import *
 from ansible.module_utils.shell import *
+from ansible.module_utils.basic import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
+from iosxr_common import *
 
 def main():
     module = get_module(
@@ -14,13 +15,16 @@ def main():
             host = dict(required=True),
             username = dict(required=False, default='root'),
             password = dict(required=False, default='lab'),
+            command = dict(required=True)
         ),
         supports_check_mode = True
     )
+    args = module.params
+    command = args['command']
 
     result = dict(changed=False)
-    result['stdout'] = module.get_config()
-
+    result[command] = str(execute_command(module, command)).split(r'\n')
+  
     # return active packages
     return module.exit_json(**result)
 

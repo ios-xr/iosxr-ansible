@@ -1,0 +1,11 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - iosxr_show_command:
+      host: "{{ ansible_ssh_host }}"
+      command: "{{ cmd }}"
+    register: src
+  - debug: var=src

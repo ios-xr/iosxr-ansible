@@ -3,11 +3,16 @@
   connection: local
   gather_facts: no
 
+  vars_prompt:
+    - name: yesno
+      prompt: "Are you sure you want to reload the router (yes/no)? "
+
   tasks:
   - iosxr_reload:
       host: "{{ ansible_ssh_host }}"
       username: root
       password: lab
+      confirm: "{{ yesno }}"
       location: "0/RP0/CPU0"
       force: True
     register: src

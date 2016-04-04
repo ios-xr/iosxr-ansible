@@ -35,7 +35,7 @@ options:
     required: true
   force:
     description:
-      - override the memory checks
+      - override commit blocks
     required: true
   label:
     description:
@@ -70,8 +70,8 @@ stdout:
 def main():
     module = get_module(
         argument_spec = dict(
-            username = dict(required=True),
-            password = dict(required=True),
+            username = dict(required=False, default='root'),
+            password = dict(required=False, default='lab'),
             cfgname  = dict(required=True),
             label    = dict(required=False, default=None),
             replace  = dict(required=False, type='bool', default=False),

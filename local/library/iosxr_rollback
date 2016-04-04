@@ -1,0 +1,113 @@
+#!/usr/bin/python
+#
+# Copyright 2016 Cisco Systems
+#
+
+DOCUMENTATION = """
+---
+module: iosxr_rollback
+author: "Adisorn Ermongkonchai"
+short_description: Rollback configuration
+description:
+  - Rollback IOS-XR configuration
+options:
+  host:
+    description:
+      - IP address or hostname (resolvable by Ansible control host) of
+        the target IOS-XR node.
+    required: true
+  rollback_id:
+    description:
+      - rollback configuration to a committted id value
+        e.g. 1000000012
+    required: false
+    default: None
+  last_n_committed:
+    description:
+      - rollback configuration last N committted made
+        e.g. 5
+    required: false
+    default: None
+  label:
+    description:
+      - assign a label to this commit
+    required: false
+  force:
+    description:
+      - force reaload without doing any cleanup
+    required: false
+    default: false
+  logfile:
+    description:
+      - log output to file
+    required: false
+    default: /tmp/iosxr_rollback.log
+
+"""
+
+EXAMPLES = """
+- iosxr_rollback:
+    username: cisco
+    password: cisco
+    last_n_committed: 3
+    label: rollback_3
+"""
+
+RETURN = """
+stdout:
+  description: the set of responses from the commands
+  returned: always
+  type: list
+  sample: ['...', '...']
+"""
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from ansible.module_utils.iosxr import *
+from iosxr_common import *
+
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default='root'),
+            password = dict(required=False, default='lab'),
+            rollback_id = dict(required=False, default=None),
+            last_n_committed = dict(required=False, default=None),
+            label    = dict(required=False, default=None),
+            force    = dict(required=False, type='bool', default=False),
+            logfile  = dict(required=False,
+                            default='/tmp/iosxr_rollback.log')
+        ),
+        mutually_exclusive = (
+            [ 'rollback_id', 'last_n_committed' ],
+        ),
+        supports_check_mode=True
+    )
+    args = module.params
+    force = args['force']
+    rollback_id = args['rollback_id']
+    last_n = args['last_n_committed']
+    label = args['label']
+    force = args['force']
+  
+    reload_command = 'rollback configuration '
+    if rollback_id != None:
+        reload_command = reload_command + str(rollback_id)
+    if last_n != None:
+        reload_command = reload_command + 'last %s ' % last_n
+    if force is True:
+        reload_command = reload_command + 'force '
+    if label != None:
+        reload_command = reload_command + 'label %s ' % label
+    response = execute_command(module, reload_command)
+  
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
+    with open(args['logfile'], "a") as logfile:
+        logfile.write(result['stdout'][0])
+    module.exit_json(**result)
+
+if __name__ == "__main__":
+  main()

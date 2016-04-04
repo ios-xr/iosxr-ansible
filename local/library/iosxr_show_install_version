@@ -11,21 +11,21 @@ import sys
 import logging
 
 def init_logging(logfile):
-  # Initialize the logging infra and add a handler
-  logger = logging.getLogger('ydk') 
-  logger.setLevel(logging.DEBUG)
-
-  # create file handler             
-  fh = logging.FileHandler(logfile)
-  fh.setLevel(logging.DEBUG)
-
-  # create a console logger too
-  ch = logging.StreamHandler()
-  ch.setLevel(logging.ERROR)
-
-  # add the handlers to the logger
-  logger.addHandler(fh)
-  logger.addHandler(ch)
+    # Initialize the logging infra and add a handler
+    logger = logging.getLogger('ydk') 
+    logger.setLevel(logging.DEBUG)
+  
+    # create file handler             
+    fh = logging.FileHandler(logfile)
+    fh.setLevel(logging.DEBUG)
+  
+    # create a console logger too
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.ERROR)
+  
+    # add the handlers to the logger
+    logger.addHandler(fh)
+    logger.addHandler(ch)
 
 def main():
     module = AnsibleModule(

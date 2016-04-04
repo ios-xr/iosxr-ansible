@@ -7,10 +7,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_reload
 author: "Adisorn Ermongkonchai"
-short_description: Commit configuration file on IOS-XR devices.
+short_description: Reload IOS-XR device
 description:
-  - Install IOS-XR package or SMU (Software Maintenance Updates)
-    on the IOS-XR node.
+  - Restart specified IOS-XR device
 options:
   host:
     description:
@@ -25,6 +24,11 @@ options:
     description:
       - password used to login to IOS-XR
     required: true
+  confirm:
+    description:
+      - make sure user really want to reload
+    required: true
+    value: "yes" or other string
   location:
     description:
       - location of the node that needs to be reboot
@@ -65,8 +69,9 @@ CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[a-zA-Z]{1}[a-zA-Z0-9-]*[]]'))
 def main():
     module = get_module(
         argument_spec = dict(
-            username = dict(required=True),
-            password = dict(required=True),
+            username = dict(required=False, default='root'),
+            password = dict(required=False, default='lab'),
+            confirm  = dict(required=True),
             location = dict(required=False, default=None),
             force    = dict(required=False, type='bool', default=False)
         ),
@@ -75,6 +80,10 @@ def main():
     args = module.params
     force = args['force']
     location = args['location']
+    result = dict(changed=False)
+    if args['confirm'] != 'yes':
+        result['stdout'] = "reload aborted"
+        module.exit_json(**result)
   
     reload_command = 'reload '
     if location != None:
@@ -86,7 +95,7 @@ def main():
     commands.append('y')
     response = execute_command(module, commands)
   
-    result = dict(changed=True)
+    result['changed'] = True
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
     module.exit_json(**result)

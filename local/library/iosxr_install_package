@@ -216,6 +216,8 @@ def install_commit(module, pkg_path, pkg_name):
 def main():
     module = get_module(
         argument_spec = dict(
+            username = dict(required=False, default='root'),
+            password = dict(required=False, default='lab'),
             pkgpath = dict(required=False, default=None),
             pkgname = dict(required=True, default=None),
             logfile = dict(required=False,
