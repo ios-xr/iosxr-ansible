@@ -10,4 +10,4 @@
       username: root
       password: lab
     register: str
-  - debug: var=str
+  - debug: var=str.stdout_lines

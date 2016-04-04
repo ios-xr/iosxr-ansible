@@ -1,0 +1,95 @@
+#!/usr/bin/python
+#
+# Copyright 2016 Cisco Systems
+#
+
+DOCUMENTATION = """
+---
+module: iosxr_reload
+author: "Adisorn Ermongkonchai"
+short_description: Commit configuration file on IOS-XR devices.
+description:
+  - Install IOS-XR package or SMU (Software Maintenance Updates)
+    on the IOS-XR node.
+options:
+  host:
+    description:
+      - IP address or hostname (resolvable by Ansible control host) of
+        the target IOS-XR node.
+    required: true
+  username:
+    description:
+      - username used to login to IOS-XR
+    required: true
+  password:
+    description:
+      - password used to login to IOS-XR
+    required: true
+  location:
+    description:
+      - location of the node that needs to be reboot
+        e.g. 0/RP0/CPU0
+    required: false
+    default: None
+  force:
+    description:
+      - force reaload without doing any cleanup
+    required: false
+    default: false
+
+"""
+
+EXAMPLES = """
+
+- iosxr_reload:
+    username: cisco
+    password: cisco
+"""
+
+RETURN = """
+stdout:
+  description: the set of responses from the commands
+  returned: always
+  type: list
+  sample: ['...', '...']
+"""
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from ansible.module_utils.iosxr import *
+from iosxr_common import *
+
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[a-zA-Z]{1}[a-zA-Z0-9-]*[]]'))
+
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=True),
+            password = dict(required=True),
+            location = dict(required=False, default=None),
+            force    = dict(required=False, type='bool', default=False)
+        ),
+        supports_check_mode=True
+    )
+    args = module.params
+    force = args['force']
+    location = args['location']
+  
+    reload_command = 'reload '
+    if location != None:
+        reload_command = reload_command + 'location %s ' % location
+    if force is True:
+        reload_command = reload_command + 'force '
+    commands = to_list(reload_command)
+    commands.append('y')
+    commands.append('y')
+    response = execute_command(module, commands)
+  
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
+    module.exit_json(**result)
+
+if __name__ == "__main__":
+  main()
