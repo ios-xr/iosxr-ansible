@@ -4,9 +4,9 @@
   gather_facts: no
   vars:
     node_name: "{{ ansible_ssh_host }}"
-    src_name: "mod_user.cfg"
     user: root
     passwd: lab
+    src_name: "user_mod.cfg"
 
   tasks:
   - name: copy configuration file to IOS-XR node
@@ -24,7 +24,5 @@
       cfgname: "{{ src_name }}"
       username: "{{ user }}"
       password: "{{ passwd }}"
-      #force: True
-      #label: "add_user"
     register: str
   - debug: var=str.stdout_lines

@@ -1,8 +1,0 @@
-Connected to ncserver...
-<rpc xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="101">
-  <get>
-    <filter type="subtree">
-      <platform xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-plat-chas-invmgr-oper"/>
-    </filter>
-  </get>
-</rpc>
