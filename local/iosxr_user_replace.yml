@@ -1,0 +1,30 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+  vars:
+    node_name: "{{ ansible_ssh_host }}"
+    src_name: "mod_user.cfg"
+    user: root
+    passwd: lab
+
+  tasks:
+  - name: copy configuration file to IOS-XR node
+    iosxr_command:
+      commands: "run cp /tftp://192.168.1.1/{{ src_name }} /disk0:"
+      host: "{{ node_name }}"
+      username: "{{ user }}"
+      password: "{{ passwd }}"
+    register: str
+  - debug: var=str.stdout
+
+  - name: apply configuration file on the IOS-XR node
+    iosxr_install_config:
+      host: "{{ node_name }}"
+      cfgname: "{{ src_name }}"
+      username: "{{ user }}"
+      password: "{{ passwd }}"
+      #force: True
+      #label: "add_user"
+    register: str
+  - debug: var=str.stdout_lines

@@ -227,7 +227,7 @@ def main():
                                     'deactivate',
                                     'commit'])
         ),
-        supports_check_mode=False
+        supports_check_mode=True
     )
     args = module.params
     state = args['state']
