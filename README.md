@@ -101,21 +101,21 @@ Remote mode setup
 Local VS. Remote
 ================
 
-- The different between local and remote mode in Ansible is basically
-  where the script is being run.  For the remote mode, Ansible automatically
-  attempts to establish ssh connection to the remote node.  Once established,
-  it copies the script, so-called Ansible module, and runs it on the remote
-  node. The script responses to the server in json format. This mode requires
-  TPNNS running on the IOS-XR node (see earlier section on TPNNS setup)
+The different between local and remote mode in Ansible is basically
+where the script is being run.  For the remote mode, Ansible automatically
+attempts to establish ssh connection to the remote node.  Once established,
+it copies the script, so-called Ansible module, and runs it on the remote
+node. The script responses to the server in json format. This mode requires
+TPNNS running on the IOS-XR node (see earlier section on TPNNS setup)
 
-  As for the local mode, Ansible run the module script on the local server.
-  The script has to establish a connection to the remote node itself. The
-  "local" IOS-XR Ansible module uses Ansible core network module to connect
-  to IOS-XR console to run CLI command.
+As for the local mode, Ansible run the module script on the local server.
+The script has to establish a connection to the remote node itself. The
+"local" IOS-XR Ansible module uses Ansible core network module to connect
+to IOS-XR console to run CLI command.
 
-  There are 2 implemention of "local" mode, CLI and Yang/netconf options.
-  Yang/netconf option requires ydk-py python libraries from github and 
-  IOS-XR netconf config to be enabled as mentioned earlier.
+There are 2 implemention of "local" mode, CLI and Yang/netconf options.
+Yang/netconf option requires ydk-py python libraries from github and 
+IOS-XR netconf config to be enabled as mentioned earlier.
 
 
 Additional Notes
