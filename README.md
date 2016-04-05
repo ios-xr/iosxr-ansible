@@ -14,7 +14,7 @@ Ansible Test Setup
     under "remote" directory, you will need to build your own XRV9K image from 
     r60y lineup and install it on your VMs.
 
-- You will also need k9sec security package to be installed in your XRV9K VMs.
+- You will also need k9sec security package to be installed on your XRV9K VMs.
   Using the following example command to install the k9sec pacakge.
   * install update source tftp://192.168.1.1 xrv9k-iosxr-security-1.0.0.0-r60125I
   * show install active
@@ -28,8 +28,8 @@ Ansible Test Setup
   Addition read on Ansible installation is here
   * http://docs.ansible.com/ansible/intro_installation.html#getting-ansible
 
-Running Ansible
-===============
+Setup Ansible and IOS-XR
+========================
 
 - Edit and source Ansible, YDK, and Python environment to point to your
   installed applications
@@ -64,10 +64,11 @@ Running Ansible
 Remote mode setup
 =================
 
-- Additional steps are required to setup XR for use with Ansible in "remote"
-  mode.  As mentioned earlier, it will also require IOS-XR image with correct
-  Python Libraries installed
-  On IOS-XR console prompt, enter following commands
+- Additional steps are required for setting up XR for use with Ansible in
+  "remote" mode.  As mentioned earlier, it will also require IOS-XR image
+  with correct Python Libraries installed
+
+  At IOS-XR console prompt, enter following commands
   * run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
   * run service sshd_tpnns restart
   * run chkconfig --add sshd_tpnns
@@ -82,9 +83,29 @@ Remote mode setup
     
     [defaults]
     remote_port = 57722
+
     [ssh_connection]
     ssh_args = -o "User=root"
   
+Local VS. Remote
+================
+
+- The different between local and remote mode in Ansible is basically
+  where the script is being run.  For the remote mode, Ansible automatically
+  attempts to establish ssh connection to the remote node.  Once established,
+  it copies the script, so-called Ansible module, and runs it on the remote
+  node. The script responses to the server in json format. This mode requires
+  TPNNS running on the IOS-XR node (see earlier section on TPNNS setup)
+
+  As for the local mode, Ansible run the module script on the local server.
+  The script has to establish a connection to the remote node itself. The
+  "local" IOS-XR Ansible module uses Ansible core network module to connect
+  to IOS-XR console to run CLI command.
+
+  There are 2 implemention of "local" mode, CLI and Yang/netconf options.
+  Yang/netconf option requires ydk-py python libraries from github and 
+  IOS-XR netconf config to be enabled as mentioned earlier.
+
 
 Additional Notes
 ================
