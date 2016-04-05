@@ -39,7 +39,7 @@ Setup Ansible and IOS-XR
 
 - Edit "ansible_hosts" file to change "ss-xr" host IP to your 2 XRV9K VMs
 
-- Create default crypto key in your XRV9K VMs (select default 1024 bits)
+- Create default crypto key on your XRV9K VMs (select default 1024 bits)
   * crypto key generate rsa 
   * show crypto key mypubkey rsa
 
@@ -72,10 +72,21 @@ Remote mode setup
   * run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
   * run service sshd_tpnns restart
   * run chkconfig --add sshd_tpnns
+  NOTE:
+    Currently, crypto key import is not working (CSCuy80921) so when
+    using Ansible playbook, password is required.
 
 - Testing TPNNS on XR by ssh to XR management address on port 57722
   * ssh -p 57722 root@x.x.x.x
   * ssh -p 57722 root@x.x.x.x ifconfig
+  * ssh -p 57722 root@x.x.x.x nsenter -t 1 -n -- ifconfig
+  * ssh -p 57722 root@x.x.x.x ip netns exec default ifconfig
+  
+  NOTE: "nsenter" is part of the util-linux package which allows program to
+        be running in other process namespace.  In the example, "ifconfig" is
+        run in "init" process namespace.  Alternatively, you can use "ip netns"
+        command to do the same thing.  The "default" namespace used by
+        "ip netns" is defined in /var/run/netns.
   
 - Configure Ansible to use port 57722
   * edit your ansible config file (default is /etc/ansible/ansible.cfg) with
