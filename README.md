@@ -52,7 +52,7 @@ Running Ansible
   * xml agent ssl
   * netconf agent tty
   * netconf-yang agent ssh
-
+  
 - Make sure you can connect to both XRV9K VMs management port
   * ssh root@x.x.x.x
   * ssh root@x.x.x.x "show run"
@@ -60,6 +60,31 @@ Running Ansible
   NOTE:
     Currently, crypto key import is not working (CSCuy80921) so when
     using Ansible playbook, password is required.
+
+Remote mode setup
+=================
+
+- Additional steps are required to setup XR for use with Ansible in "remote"
+  mode.  As mentioned earlier, it will also require IOS-XR image with correct
+  Python Libraries installed
+  On IOS-XR console prompt, enter following commands
+  * run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
+  * run service sshd_tpnns restart
+  * run chkconfig --add sshd_tpnns
+
+- Testing TPNNS on XR by ssh to XR management address on port 57722
+  * ssh -p 57722 root@x.x.x.x
+  * ssh -p 57722 root@x.x.x.x ifconfig
+  
+- Configure Ansible to use port 57722
+  * edit your ansible config file (default is /etc/ansible/ansible.cfg) with
+    following values
+    
+    [defaults]
+    remote_port = 57722
+    [ssh_connection]
+    ssh_args = -o "User=root"
+  
 
 Additional Notes
 ================
