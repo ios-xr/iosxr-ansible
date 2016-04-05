@@ -19,8 +19,8 @@ Ansible Test Setup
   * install update source tftp://192.168.1.1 xrv9k-iosxr-security-1.0.0.0-r60125I
   * show install active
 
-- Pull YDK from the gitlab.cisco.com into the Linux server created
-  * git clone git@gitlab.cisco.com:ydk-dev/ydk-py.git
+- Pull YDK from the github into the Linux server created
+  * git clone https://github.com/CiscoDevNet/ydk-py
 
 - Pull Ansible Core modules
   * git clone git://github.com/ansible/ansible.git --recursive
