@@ -1,0 +1,1 @@
+ansible-playbook iosxr_show_command.yml --extra-vars='cmd="show install active"'
