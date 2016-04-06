@@ -1,0 +1,14 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  vars_prompt:
+    - name: yesno
+      prompt: "Are you sure you want to reload the router (yes/no)? "
+
+  tasks:
+  - iosxr_reload:
+      confirm: "{{ yesno }}"
+      force: True
+    register: src
+  - debug: var=src.stdout_lines

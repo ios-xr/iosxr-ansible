@@ -1,0 +1,61 @@
+#!/usr/bin/python
+#------------------------------------------------------------------------------
+# Copyright 2016 Cisco Systems
+#------------------------------------------------------------------------------
+
+DOCUMENTATION = """
+---
+module: iosxr_clear_log
+author: "Adisorn Ermongkonchai"
+short_description: Clear log
+description:
+  - Clear system log
+options:
+  confirm:
+    description:
+      - make sure user really want to reload
+    required: true
+    value: "yes" or other string
+  force:
+    description:
+      - force reaload without doing any cleanup
+    required: false
+    default: false
+"""
+
+EXAMPLES = """
+- iosxr_reload:
+    force: True
+
+"""
+
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            confirm  = dict(required=True),
+            force    = dict(required=False, type='bool', default=False)
+        ),
+        supports_check_mode = True
+    )
+    args = module.params
+    result = dict(changed=False)
+    if args['confirm'] != 'yes':
+        result['stdout'] = "reload aborted"
+        module.exit_json(**result)
+ 
+    command = '/bin/echo y > yes'
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+    reload_command = 'source /etc/profile ; nsenter -t 1 -n -- reload -t 0x0 '
+    reload_options = '-a' if args['force'] is True else '-d'
+    command = reload_command + reload_options + ' < yes'
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+  
+    result['changed'] = True
+    result['stdout'] = out
+    result['stdout_lines'] = out if out != "" else err
+    return module.exit_json(**result)
+
+from ansible.module_utils.basic import *
+
+if __name__ == "__main__":
+    main()
