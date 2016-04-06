@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  - iosxr_show_command:
+  - iosxr_cli:
       host: "{{ ansible_ssh_host }}"
       command: "{{ cmd }}"
     register: src
