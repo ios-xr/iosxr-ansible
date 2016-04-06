@@ -7,5 +7,5 @@
   - iosxr_cli:
       host: "{{ ansible_ssh_host }}"
       command: "{{ cmd }}"
-    register: src
-  - debug: var=src
+    register: output
+  - debug: var=output

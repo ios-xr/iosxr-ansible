@@ -8,12 +8,12 @@
   tasks:
   - name: copy configuration file to IOS-XR node
     shell: "cp {{ src_name }} {{ cfg_name }}"
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines
 
   - name: apply configuration file on the IOS-XR node
     iosxr_install_config:
       cfgname: "{{ cfg_name }}"
       #label: "add_user_5"
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines

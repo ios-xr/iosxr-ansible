@@ -9,5 +9,5 @@
   tasks:
   - name: "show current install operation"
     shell: "source /etc/profile ; nsenter -t 1 -n -- sdr_instcmd show install request || true"
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines

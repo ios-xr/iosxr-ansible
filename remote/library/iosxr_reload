@@ -52,7 +52,7 @@ def main():
   
     result['changed'] = True
     result['stdout'] = out
-    result['stdout_lines'] = out if out != "" else err
+    result['stdout_lines'] = err if err != "" else out
     return module.exit_json(**result)
 
 from ansible.module_utils.basic import *

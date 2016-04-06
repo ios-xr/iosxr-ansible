@@ -9,5 +9,5 @@
       host: "{{ ansible_ssh_host }}"
       username: "root"
       password: "lab"
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines

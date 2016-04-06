@@ -5,5 +5,5 @@
   tasks:
   - iosxr_cli:
       command: "{{ cmd }}"
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines

@@ -15,8 +15,8 @@
       host: "{{ node_name }}"
       username: "{{ user }}"
       password: "{{ passwd }}"
-    register: str
-  - debug: var=str.stdout
+    register: output
+  - debug: var=output.stdout
 
   - name: apply configuration file on the IOS-XR node
     iosxr_install_config:
@@ -24,5 +24,5 @@
       cfgname: "{{ src_name }}"
       username: "{{ user }}"
       password: "{{ passwd }}"
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines

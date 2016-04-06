@@ -15,5 +15,5 @@
       confirm: "{{ yesno }}"
       location: "0/RP0/CPU0"
       force: True
-    register: src
-  - debug: var=src.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines

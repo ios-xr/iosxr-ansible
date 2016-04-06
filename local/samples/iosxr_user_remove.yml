@@ -14,5 +14,5 @@
       host: "{{ node_name }}"
       username: "{{ user }}"
       password: "{{ passwd }}"
-    register: str
-  - debug: var=str.updates
+    register: output
+  - debug: var=output.updates

@@ -3,6 +3,6 @@
 
   tasks:
   - command: ifconfig
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines
 

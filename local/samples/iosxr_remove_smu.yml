@@ -15,8 +15,8 @@
       password: "{{ passwd }}"
       pkgname: "{{ smu_name }}"
       state: deactivate
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines
 
   - name: remove SMU package
     iosxr_install_package:
@@ -25,5 +25,5 @@
       password: "{{ passwd }}"
       pkgname: "{{ smu_name }}"
       state: absent
-    register: str
-  - debug: var=str.stdout_lines
+    register: output
+  - debug: var=output.stdout_lines

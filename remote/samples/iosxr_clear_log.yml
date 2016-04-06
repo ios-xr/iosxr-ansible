@@ -5,5 +5,5 @@
   tasks:
   #- name: clear config and log data
   - iosxr_clear_log:
-    register: str
-  - debug: var=str
+    register: output
+  - debug: var=output
