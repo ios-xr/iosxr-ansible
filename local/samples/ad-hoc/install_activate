@@ -1,2 +1,0 @@
-echo $BASEDIR/ansible/ansible/hacking/test-module -m $IOSXRDIR/local/library/iosxr_install_package -a "host=192.168.1.3 pkgname=xrv9k-ospf-1.0.0.0-r60125I state=activate"
-$BASEDIR/ansible/ansible/hacking/test-module -m $IOSXRDIR/local/library/iosxr_install_package -a "host=192.168.1.3 pkgname=xrv9k-ospf-1.0.0.0-r60125I state=activate"

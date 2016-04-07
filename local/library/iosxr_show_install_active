@@ -38,10 +38,10 @@ def main():
       result['stdout'] = \
         "active_packages: %sboot_partition_name: %s\nlocation: %s\n" \
         "node_type: %s\nnumber_of_active_packages: %d" % \
-        (package.active_packages, \
-         package.boot_partition_name, \
-         package.location, \
-         package.node_type, \
+        (package.active_packages,
+         package.boot_partition_name,
+         package.location,
+         package.node_type,
          package.number_of_active_packages)
 
     # return active packages

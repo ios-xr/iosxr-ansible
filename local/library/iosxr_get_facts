@@ -3,18 +3,56 @@
 # Copyright 2016 Cisco Systems
 #------------------------------------------------------------------------------
 
-from ansible.module_utils.shell import *
 from ansible.module_utils.basic import *
-from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
 from iosxr_common import *
+
+DOCUMENTATION = """
+---
+module: iosxr_get_facts
+author: "Adisorn Ermongkonchai"
+short_description: Get IOS-XR information
+description:
+  - Get IOS-XR configuration and status
+options:
+  host:
+    description:
+      - IP address or hostname (resolvable by Ansible control host) of
+        the target IOS-XR node.
+    required: true
+  username:
+    description:
+      - username used to login to IOS-XR
+    required: false
+    default: none
+  password:
+    description:
+      - password used to login to IOS-XR
+    required: false
+    default: none
+"""
+
+EXAMPLES = """
+- iosxr_get_facts:
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
+"""
+
+RETURN = """
+stdout:
+  description: raw response
+  returned: always
+stdout_lines:
+  description: list of response lines
+  returned: always
+"""
 
 def main():
     module = get_module(
         argument_spec = dict(
-            host = dict(required=True),
-            username = dict(required=False, default='root'),
-            password = dict(required=False, default='lab'),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
         ),
         supports_check_mode = True
     )

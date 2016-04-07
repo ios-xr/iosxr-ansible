@@ -3,6 +3,9 @@
 # Copyright 2016 Cisco Systems
 #------------------------------------------------------------------------------
 
+from ansible.module_utils.shell import *
+from ansible.module_utils.basic import *
+
 DOCUMENTATION = """
 ---
 module: iosxr_get_facts
@@ -14,6 +17,15 @@ description:
 
 EXAMPLES = """
 - iosxr_get_facts:
+"""
+
+RETURN = """
+stdout:                               
+  description: raw response
+  returned: always
+stdout_lines:   
+  description: list of response lines
+  returned: always
 """
 
 def main():
@@ -46,9 +58,6 @@ def main():
   
     # return active packages
     return module.exit_json(**result)
-
-from ansible.module_utils.shell import *
-from ansible.module_utils.basic import *
 
 if __name__ == "__main__":
     main()

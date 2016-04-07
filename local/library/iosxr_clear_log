@@ -4,27 +4,60 @@
 #------------------------------------------------------------------------------
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.shell import *
-from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
 from iosxr_common import *
+
+DOCUMENTATION = """
+---
+module: iosxr_clear_log
+author: "Adisorn Ermongkonchai"
+short_description: Clear log
+description:
+  - Clear system log
+options:
+  host:
+    description:
+      - IP address or hostname (resolvable by Ansible control host) of
+        the target IOS-XR node.
+    required: true
+  username:
+    description:
+      - username used to login to IOS-XR
+    required: false
+    default: none
+  password:
+    description:
+      - password used to login to IOS-XR
+    required: false
+    default: none
+"""
+
+EXAMPLES = """
+- iosxr_clear_log:
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
+"""
+
+RETURN = """
+stdout:
+  description: raw response
+  returned: always
+stdout_lines:
+  description: list of response lines
+  returned: always
+"""
 
 CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
 
 def main():
     module = get_module(
         argument_spec = dict(
-            host = dict(required=True),
-            username = dict(required=False, default='root'),
-            password = dict(required=False, default='lab'),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
         ),
         supports_check_mode = True
     )
-  
-    host = module.params['host']
-    username = module.params['username']
-    password = module.params['password']
-  
     clear_command = 'clear logging'
     commands = to_list(clear_command)
     commands.append('y')

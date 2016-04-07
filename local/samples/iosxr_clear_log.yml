@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: clear config and log data
+  - name: clear log data
     iosxr_clear_log:
       host: '{{ ansible_ssh_host }}'
       username: root

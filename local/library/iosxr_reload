@@ -1,7 +1,11 @@
 #!/usr/bin/python
-#
+#------------------------------------------------------------------------------
 # Copyright 2016 Cisco Systems
-#
+#------------------------------------------------------------------------------
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.iosxr import *
+from iosxr_common import *
 
 DOCUMENTATION = """
 ---
@@ -20,10 +24,12 @@ options:
     description:
       - username used to login to IOS-XR
     required: true
+    default: none
   password:
     description:
       - password used to login to IOS-XR
     required: true
+    default: none
   confirm:
     description:
       - make sure user really want to reload
@@ -44,33 +50,28 @@ options:
 """
 
 EXAMPLES = """
-
 - iosxr_reload:
+    host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
 """
 
 RETURN = """
 stdout:
-  description: the set of responses from the commands
+  description: raw response
   returned: always
-  type: list
-  sample: ['...', '...']
+stdout_lines:
+  description: list of response lines
+  returned: always
 """
-
-from ansible.module_utils.basic import *
-from ansible.module_utils.shell import *
-from ansible.module_utils.netcfg import *
-from ansible.module_utils.iosxr import *
-from iosxr_common import *
 
 CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[a-zA-Z]{1}[a-zA-Z0-9-]*[]]'))
 
 def main():
     module = get_module(
         argument_spec = dict(
-            username = dict(required=False, default='root'),
-            password = dict(required=False, default='lab'),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
             confirm  = dict(required=True),
             location = dict(required=False, default=None),
             force    = dict(required=False, type='bool', default=False)
@@ -80,7 +81,6 @@ def main():
     args = module.params
     force = args['force']
     location = args['location']
-    result = dict(changed=False)
     if args['confirm'] != 'yes':
         result['stdout'] = "reload aborted"
         module.exit_json(**result)
@@ -95,7 +95,7 @@ def main():
     commands.append('y')
     response = execute_command(module, commands)
   
-    result['changed'] = True
+    result = dict(changed=False)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
     module.exit_json(**result)

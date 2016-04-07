@@ -3,68 +3,47 @@
 # Copyright 2016 Cisco Systems
 #------------------------------------------------------------------------------
 
+from ansible.module_utils.basic import *
+
 DOCUMENTATION = """
 ---
 module: iosxr_install_config
 author: "Adisorn Ermongkonchai"
-short_description: Commit configuration file on IOS-XR devices.
+short_description: Commit configuration file on IOS-XR node.
 description:
   - Install IOS-XR package or SMU (Software Maintenance Updates)
     on the IOS-XR node.
 options:
-  host:
-    description:
-      - IP address or hostname (resolvable by Ansible control host) of
-        the target IOS-XR node.
-    required: true
-  username:
-    description:
-      - username used to login to IOS-XR
-    required: true
-  password:
-    description:
-      - password used to login to IOS-XR
-    required: true
   cfgname:
     description:
-      - configuration file must already be in /disk0: directory
-    required: true
-  replace:
-    description:
-      - remove all current running-config and apply new config
-    required: true
-  force:
-    description:
-      - override the memory checks
+      - fully qualified config filename, e.g. tftp://192.168.1.1/user_add.cfg
     required: true
   label:
     description:
       - assign a label to this commit
-    required: true
+    required: false
+    default: none
   logfile:
     description:
       - log output to file
     required: false
     default: /tmp/iosxr_install_config.log
-
 """
 
 EXAMPLES = """
-
 - iosxr_install_config:
-    username: cisco
-    password: cisco
-    cfgname: "add_user.cfg"
+    cfgname: "/tftp://192.168.1.1/user_add.cfg"
     label: "bgp_config_commit"
 
 """
 
 RETURN = """
-stdout:
-  description: the set of responses from the commands
+stdout:                               
+  description: raw response
   returned: always
-  type: list
-  sample: ['...', '...']
+stdout_lines:   
+  description: list of response lines
+  returned: always
 """
 
 def main():
@@ -81,14 +60,16 @@ def main():
     cfg_name = args['cfgname']
     label = args['label']
   
-    # prepare options
-    options = "-f %s" % cfg_name
+    load_command = 'config -f %s ' % cfg_name
     if label != None:
-        options = "-l %s %s" % (label, options)
-    cmd = "source /etc/profile ; nsenter -t 1 -n -- config %s" % options
+        load_label = load_label + '-l "%s"' % label
+    command = "source /etc/profile ; nsenter -t 1 -n -- %s" % \
+              load_command
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
 
-    # load configuration
-    (rc, out, err) = module.run_command(cmd, use_unsafe_shell=True)
+    # check for error
+    if err != "":
+        module.fail_json(msg=err)
   
     # prepare result
     result = dict(changed=True)
@@ -98,10 +79,7 @@ def main():
     # log to file and return result
     with open(args['logfile'], "a") as logfile:
         logfile.write(result['stdout'])
-        logfile.close()
     module.exit_json(**result)
-
-from ansible.module_utils.basic import *
 
 if __name__ == "__main__":
     main()

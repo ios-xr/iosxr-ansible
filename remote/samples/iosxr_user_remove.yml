@@ -1,0 +1,10 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  tasks:
+  - name: remove user aermongk
+    iosxr_install_config:
+      cfgname: '/tftp://192.168.1.1/user_remove.cfg'
+    register: output
+  - debug: var=output

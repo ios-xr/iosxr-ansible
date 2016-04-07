@@ -4,6 +4,9 @@
 
   tasks:
   - iosxr_rollback:
-      to_rollback_id: 1000000007
+      last_n_committed: 1
+      #rollback_id: 1000000016
+      #to_rollback_id: 1000000017
+      #to_exclude_rollback_id: 1000000018
     register: output
   - debug: var=output.stdout_lines

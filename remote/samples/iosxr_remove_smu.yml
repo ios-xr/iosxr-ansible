@@ -2,19 +2,19 @@
 - hosts: ss-xr
   gather_facts: no
   vars:
-    smu_name: "xrv9k-ospf-1.0.0.0-r60125I"
+    smu_name: 'xrv9k-ospf-1.0.0.0-r60125I'
 
   tasks:
   - name: deactivate SMU package
     iosxr_install_package:
-      pkgname: "{{ smu_name }}"
+      pkgname: '{{ smu_name }}'
       state: deactivate
     register: output
   - debug: var=output.stdout_lines
 
   - name: remove SMU package
     iosxr_install_package:
-      pkgname: "{{ smu_name }}"
+      pkgname: '{{ smu_name }}'
       state: absent
     register: output
   - debug: var=output.stdout_lines

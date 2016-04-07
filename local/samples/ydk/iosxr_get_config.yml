@@ -6,5 +6,7 @@
   tasks:
   - iosxr_get_config:
       host: "{{ ansible_ssh_host }}"
-    register: str
-  - debug: var=str.stdout_lines
+      username: root
+      password: lab
+    register: output
+  - debug: var=output.stdout_lines

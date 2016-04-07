@@ -4,7 +4,10 @@
   gather_facts: no
 
   tasks:
-  - iosxr_get_facts:
+  - name: get system facts
+    iosxr_get_facts:
       host: "{{ ansible_ssh_host }}"
+      username: root
+      password: lab
     register: facts
   - debug: var=facts

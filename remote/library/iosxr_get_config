@@ -7,21 +7,15 @@ from ansible.module_utils.basic import *
 
 DOCUMENTATION = """
 ---
-module: iosxr_cli
+module: iosxr_get_config
 author: "Adisorn Ermongkonchai"
-short_description: Run a command on IOS-XR devices.
+short_description: show running-config
 description:
-  - Run an IOS-XR CLI command
-options:
-  command:
-    description:
-      - IOS-XR CLI command string
-    required: true
+  - Get running configuration from IOS-XR node.
 """
 
 EXAMPLES = """
-- iosxr_cli:
-    command: 'show version'
+- iosxr_get_config:
 """
 
 RETURN = """
@@ -36,17 +30,17 @@ stdout_lines:
 def main():
     module = AnsibleModule(
         argument_spec = dict(
-            command=dict(required=True),
+            data=dict(required=False, default=None),
         ),
         supports_check_mode = True
     )
-    command = 'source /etc/profile ; nsenter -t 1 -n -- xr_cli "%s"' % \
-              module.params['command']
-    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
-  
     result = dict(changed=False)
-    result['stdout'] = out if out != "" else err
+    command = 'source /etc/profile ; nsenter -t 1 -n -- xr_cli "show run"'
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+    result['stdout'] = out
+  
+    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":
-  main()
+    main()

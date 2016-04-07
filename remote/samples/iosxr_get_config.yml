@@ -3,7 +3,7 @@
   gather_facts: no
 
   tasks:
-  - name: clear log data
-    iosxr_clear_log:
+  - name: get IOS-XR running configuration
+    iosxr_get_config:
     register: output
   - debug: var=output.stdout_lines

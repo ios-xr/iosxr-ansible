@@ -3,6 +3,8 @@
 # Copyright 2016 Cisco Systems
 #------------------------------------------------------------------------------
 
+from ansible.module_utils.basic import *
+
 DOCUMENTATION = """
 ---
 module: iosxr_clear_log
@@ -14,6 +16,15 @@ description:
 
 EXAMPLES = """
 - iosxr_clear_log:
+"""
+
+RETURN = """
+stdout:                               
+  description: raw response
+  returned: always
+stdout_lines:   
+  description: list of response lines
+  returned: always
 """
 
 def main():
@@ -32,8 +43,6 @@ def main():
     result = dict(changed=True)
     result['stdout'] = out if out != "" else err
     return module.exit_json(**result)
-
-from ansible.module_utils.basic import *
 
 if __name__ == "__main__":
     main()

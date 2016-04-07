@@ -1,7 +1,11 @@
 #!/usr/bin/python
-#
+#------------------------------------------------------------------------------
 # Copyright 2016 Cisco Systems
-#
+#------------------------------------------------------------------------------
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.iosxr import *
+from iosxr_common import *
 
 DOCUMENTATION = """
 ---
@@ -67,37 +71,35 @@ options:
 
 EXAMPLES = """
 - iosxr_rollback:
+    host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
-    last_n_committed: 3
-    label: rollback_3
+    last_n_committed: 2
+    label: bgp_rollback
 """
 
 RETURN = """
 stdout:
-  description: the set of responses from the commands
+  description: raw response
   returned: always
-  type: list
-  sample: ['...', '...']
+stdout_lines:
+  description: list of response lines
+  returned: always
 """
-
-from ansible.module_utils.basic import *
-from ansible.module_utils.shell import *
-from ansible.module_utils.netcfg import *
-from ansible.module_utils.iosxr import *
-from iosxr_common import *
 
 def main():
     module = get_module(
         argument_spec = dict(
-            username = dict(required=False, default='root'),
-            password = dict(required=False, default='lab'),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            to_rollback_id = dict(required=False, default=None),
+            to_exclude_rollback_id = dict(required=False, default=None),
             rollback_id = dict(required=False, default=None),
             last_n_committed = dict(required=False, default=None),
-            label    = dict(required=False, default=None),
-            force    = dict(required=False, type='bool', default=False),
-            logfile  = dict(required=False,
-                            default='/tmp/iosxr_rollback.log')
+            label = dict(required=False, default=None),
+            force = dict(required=False, type='bool', default=False),
+            logfile = dict(required=False,
+                           default='/tmp/iosxr_rollback.log')
         ),
         mutually_exclusive = (
             [ 'rollback_id', 

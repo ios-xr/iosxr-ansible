@@ -4,9 +4,9 @@
   gather_facts: no
 
   tasks:
-  - iosxr_command:
-      commands: "show install active"
-      host: "{{ ansible_ssh_host }}"
+  - name: get IOS-XR running configuration
+    iosxr_get_config:
+      host: '{{ ansible_ssh_host }}'
       username: root
       password: lab
     register: output

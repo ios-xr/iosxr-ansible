@@ -3,13 +3,15 @@
 # Copyright 2016 Cisco Systems
 #------------------------------------------------------------------------------
 
+from ansible.module_utils.basic import *
+
 DOCUMENTATION = """
 ---
-module: iosxr_clear_log
+module: iosxr_reload
 author: "Adisorn Ermongkonchai"
-short_description: Clear log
+short_description: Reload IOS-XR device
 description:
-  - Clear system log
+  - Restart specified IOS-XR device
 options:
   confirm:
     description:
@@ -26,19 +28,26 @@ options:
 EXAMPLES = """
 - iosxr_reload:
     force: True
+"""
 
+RETURN = """
+stdout:                               
+  description: raw response
+  returned: always
+stdout_lines:   
+  description: list of response lines
+  returned: always
 """
 
 def main():
     module = AnsibleModule(
         argument_spec = dict(
-            confirm  = dict(required=True),
-            force    = dict(required=False, type='bool', default=False)
+            confirm = dict(required=True),
+            force   = dict(required=False, type='bool', default=False)
         ),
         supports_check_mode = True
     )
     args = module.params
-    result = dict(changed=False)
     if args['confirm'] != 'yes':
         result['stdout'] = "reload aborted"
         module.exit_json(**result)
@@ -50,12 +59,10 @@ def main():
     command = reload_command + reload_options + ' < yes'
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
   
-    result['changed'] = True
+    result = dict(changed=False)
     result['stdout'] = out
     result['stdout_lines'] = err if err != "" else out
     return module.exit_json(**result)
-
-from ansible.module_utils.basic import *
 
 if __name__ == "__main__":
     main()

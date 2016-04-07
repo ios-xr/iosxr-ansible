@@ -1,0 +1,1 @@
+ansible ss-xr -c local -m iosxr_show_install_active -a "host='{{ansible_ssh_host}}' username=root password=lab"

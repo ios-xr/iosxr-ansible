@@ -1,14 +1,10 @@
 ---
 - hosts: ss-xr
-  connection: local
   gather_facts: no
 
   tasks:
   - name: replace configuration file on the IOS-XR node
     iosxr_install_config:
-      host: '{{ ansible_ssh_host }}'
-      username: root
-      password: lab
-      cfgname: 'tftp://192.168.1.1/user_mod.cfg'
+      cfgname: '/tftp://192.168.1.1/user_mod.cfg'
     register: output
   - debug: var=output.stdout_lines

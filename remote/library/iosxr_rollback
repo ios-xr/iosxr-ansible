@@ -3,9 +3,11 @@
 # Copyright 2016 Cisco Systems
 #------------------------------------------------------------------------------
 
+from ansible.module_utils.basic import *
+
 DOCUMENTATION = """
 ---
-module: iosxr_clear_log
+module: iosxr_rollback
 author: "Adisorn Ermongkonchai"
 short_description: Rollback configuration
 description:
@@ -52,9 +54,19 @@ options:
 """
 
 EXAMPLES = """
-- iosxr_reload:
+- iosxr_rollback:
+    last_n_committed: 1
+    label: bgp_rollback
     force: True
+"""
 
+RETURN = """
+stdout:                               
+  description: raw response
+  returned: always
+stdout_lines:   
+  description: list of response lines
+  returned: always
 """
 
 def main():
@@ -64,10 +76,10 @@ def main():
             to_rollback_id = dict(required=False, default=None),
             to_exclude_rollback_id = dict(required=False, default=None),
             last_n_committed = dict(required=False, type='int', default=None),
-            label    = dict(required=False, default=None),
-            force    = dict(required=False, type='bool', default=False),
-            logfile  = dict(required=False,
-                            default='/tmp/iosxr_rollback.log')
+            label = dict(required=False, default=None),
+            force = dict(required=False, type='bool', default=False),
+            logfile = dict(required=False,
+                           default='/tmp/iosxr_rollback.log')
         ),
         mutually_exclusive = (
             [ 'rollback_id',
@@ -99,7 +111,6 @@ def main():
         reload_command = reload_command + '-f '
     if label != None:
         reload_command = reload_command + '-l %s ' % label
-    #return module.fail_json(msg=reload_command)
     (rc, out, err) = module.run_command(reload_command, use_unsafe_shell=True)
   
     result = dict(changed=False)
@@ -112,8 +123,6 @@ def main():
         return module.exit_json(**result)
     else:
         return module.fail_json(msg=result['stdout'])
-
-from ansible.module_utils.basic import *
 
 if __name__ == "__main__":
     main()

@@ -5,9 +5,9 @@
 
   tasks:
   - iosxr_command:
-      commands: "show logging"
       host: "{{ ansible_ssh_host }}"
       username: "root"
       password: "lab"
+      commands: "show logging"
     register: output
   - debug: var=output.stdout_lines

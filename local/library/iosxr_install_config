@@ -3,11 +3,15 @@
 # Copyright 2016 Cisco Systems
 #
 
+from ansible.module_utils.basic import *
+from ansible.module_utils.iosxr import *
+from iosxr_common import *
+
 DOCUMENTATION = """
 ---
 module: iosxr_install_config
 author: "Adisorn Ermongkonchai"
-short_description: Commit configuration file on IOS-XR devices.
+short_description: Commit configuration file on IOS-XR node.
 description:
   - Install IOS-XR package or SMU (Software Maintenance Updates)
     on the IOS-XR node.
@@ -20,58 +24,63 @@ options:
   username:
     description:
       - username used to login to IOS-XR
-    required: true
+    required: false
+    default: none
   password:
     description:
       - password used to login to IOS-XR
-    required: true
+    required: false
+    default: none
   cfgname:
     description:
-      - configuration file must already be in /disk0: directory
+      - fully qualified config filename, e.g. tftp://192.168.1.1/user_add.cfg
     required: true
   replace:
     description:
       - remove all current running-config and apply new config
-    required: true
+    required: false
+    default: false
   force:
     description:
       - override commit blocks
-    required: true
+    required: false
+    default: false
   label:
     description:
       - assign a label to this commit
-    required: true
+    required: false
+    default: none
   logfile:
     description:
       - log output to file
     required: false
     default: /tmp/iosxr_install_config.log
-
 """
 
 EXAMPLES = """
-
 - iosxr_install_config:
+    host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
-    cfgname: "add_user.cfg"
-    label: "bgp_config_commit"
+    cfgname: 'tftp://192.168.1.1/add_user.cfg'
+    label: 'bgp_config_commit'
 
 """
 
 RETURN = """
 stdout:
-  description: the set of responses from the commands
+  description: raw response
   returned: always
-  type: list
-  sample: ['...', '...']
+stdout_lines:
+  description: list of response lines
+  returned: always
 """
 
 def main():
     module = get_module(
         argument_spec = dict(
-            username = dict(required=False, default='root'),
-            password = dict(required=False, default='lab'),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
             cfgname  = dict(required=True),
             label    = dict(required=False, default=None),
             replace  = dict(required=False, type='bool', default=False),
@@ -86,7 +95,6 @@ def main():
     label = args['label']
     force = args['force']
     replace = args['replace']
-    result = dict(changed=False)
   
     load_command = 'load ' + cfg_name
     commands = to_list(load_command)
@@ -104,18 +112,12 @@ def main():
         commands.append('yes')
     response = execute_command(module, commands)
   
-    result['changed'] = True
+    result = dict(changed=True)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
     with open(args['logfile'], "a") as logfile:
         logfile.write(result['stdout'][0])
     module.exit_json(**result)
-
-from ansible.module_utils.basic import *
-from ansible.module_utils.shell import *
-from ansible.module_utils.netcfg import *
-from ansible.module_utils.iosxr import *
-from iosxr_common import *
 
 if __name__ == "__main__":
   main()
