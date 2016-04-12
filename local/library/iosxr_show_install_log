@@ -33,10 +33,9 @@ def main():
     install = SoftwareInstall()
     info = crud.read(provider, install)
     logger = info.all_operations_log
+
     result = dict(changed=False)
     result['stdout'] = logger.summary.log
-
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

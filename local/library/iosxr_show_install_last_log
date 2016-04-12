@@ -32,12 +32,11 @@ def main():
     # retrieve software install version
     install = SoftwareInstall()
     info = crud.read(provider, install)
+
     result = dict(changed=False)
     result['stdout'] = "no log available"
     for logger in info.last_n_operation_logs.last_n_operation_log:
       result['stdout'] = logger.summary.log
-
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

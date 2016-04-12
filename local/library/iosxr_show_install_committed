@@ -33,10 +33,9 @@ def main():
     install = SoftwareInstall()
     info = crud.read(provider, install)
     committed = info.committed.committed_package_info[0]
+
     result = dict(changed=False)
     result['stdout'] = committed.committed_packages
-
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

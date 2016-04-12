@@ -37,9 +37,8 @@ def main():
     result = dict(changed=False)
     command = 'source /etc/profile ; nsenter -t 1 -n -- xr_cli "show run"'
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+
     result['stdout'] = out
-  
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

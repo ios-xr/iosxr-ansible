@@ -55,8 +55,6 @@ def main():
         command = "source /etc/profile ; nsenter -t 1 -n -- xr_cli '%s'" % cmd
         (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
         result[cmd] = str(out).splitlines()
-  
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

@@ -33,10 +33,9 @@ def main():
     install = SoftwareInstall()
     info = crud.read(provider, install)
     inactive = info.inactive
+
     result = dict(changed=False)
     result['stdout'] = inactive.log
-
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

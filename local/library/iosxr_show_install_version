@@ -56,8 +56,6 @@ def main():
 
     result = dict(changed=False)
     result['stdout'] = info.version.log
-
-    # return active packages
     return module.exit_json(**result)
 
 

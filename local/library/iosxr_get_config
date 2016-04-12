@@ -58,8 +58,6 @@ def main():
     )
     result = dict(changed=False)
     result['stdout'] = module.get_config()
-
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

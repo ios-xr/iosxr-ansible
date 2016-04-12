@@ -68,9 +68,6 @@ def main():
     result = dict(changed=False)
     result['stdout'] = execute_command(module, command)
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
-    #result[command] = str(execute_command(module, command)).split(r'\n')
-  
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

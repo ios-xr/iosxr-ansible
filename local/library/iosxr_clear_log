@@ -63,7 +63,6 @@ def main():
     commands.append('y')
     response = execute_command(module, commands)
   
-    # return active packages
     result = dict(changed=False)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')

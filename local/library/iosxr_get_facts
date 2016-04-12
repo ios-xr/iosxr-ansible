@@ -74,8 +74,6 @@ def main():
     result = dict(changed=False)
     for cmd in cmds:
         result[cmd] = str(execute_command(module, cmd)).split(r'\n')
-  
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

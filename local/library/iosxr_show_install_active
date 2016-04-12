@@ -44,7 +44,6 @@ def main():
          package.node_type,
          package.number_of_active_packages)
 
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

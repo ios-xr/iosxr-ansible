@@ -32,11 +32,10 @@ def main():
     # retrieve software install version
     install = SoftwareInstall()
     info = crud.read(provider, install)
+
     result = dict(changed=False)
     request = info.request;
     result['stdout'] = request.log
-
-    # return active packages
     return module.exit_json(**result)
 
 if __name__ == "__main__":

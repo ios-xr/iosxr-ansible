@@ -93,9 +93,7 @@ def main():
     while ']]>]]>' not in response:
         response += module.connection.shell.shell.recv(200)
 
-    # return active packages
     result['stdout'] = response
-    result['stdout_lines'] = str(result['stdout']).splitlines()
     if "error-message" in response:
         return module.fail_json(msg=response)
     else:
