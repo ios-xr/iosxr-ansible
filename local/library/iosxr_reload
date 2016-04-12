@@ -10,7 +10,7 @@ from iosxr_common import *
 DOCUMENTATION = """
 ---
 module: iosxr_reload
-author: "Adisorn Ermongkonchai"
+author: Adisorn Ermongkonchai
 short_description: Reload IOS-XR device
 description:
   - Restart specified IOS-XR device

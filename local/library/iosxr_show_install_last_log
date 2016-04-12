@@ -12,8 +12,8 @@ def main():
     module = AnsibleModule(
         argument_spec = dict(
             host = dict(required=True),
-            username = dict(required=False, default='root'),
-            password = dict(required=False, default='lab'),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
         ),
         supports_check_mode = True
     )

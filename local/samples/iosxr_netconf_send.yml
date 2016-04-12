@@ -1,0 +1,14 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: send Netconf XML file
+    iosxr_netconf_send:
+      host: '{{ ansible_ssh_host }}'
+      username: root
+      password: lab
+      xmlfile: '{{ xml_file }}'
+    register: output
+  - debug: var=output.stdout_lines

@@ -1,1 +1,1 @@
-ansible-playbook iosxr_cli.yml --extra-vars='cmd="show interface brief"'
+ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'

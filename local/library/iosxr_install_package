@@ -10,7 +10,7 @@ from iosxr_common import *
 DOCUMENTATION = """
 ---
 module: iosxr_install_package
-author: "Adisorn Ermongkonchai"
+author: Adisorn Ermongkonchai
 short_description: Run install commands on IOS-XR devices.
 description:
   - Install IOS-XR package or SMU (Software Maintenance Updates)
@@ -216,8 +216,8 @@ def install_commit(module, pkg_path, pkg_name):
 def main():
     module = get_module(
         argument_spec = dict(
-            username = dict(required=False, default='root'),
-            password = dict(required=False, default='lab'),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
             pkgpath = dict(required=False, default=None),
             pkgname = dict(required=True, default=None),
             logfile = dict(required=False,

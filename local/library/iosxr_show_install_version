@@ -31,15 +31,15 @@ def main():
     module = AnsibleModule(
         argument_spec = dict(
             host = dict(required=True),
-            username = dict(required=False, default='root'),
-            password = dict(required=False, default='lab'),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
         ),
         supports_check_mode = True
     )
 
     args = module.params
 
-    init_logging("iosxr_show_install_version.log")
+    init_logging("/tmp/iosxr_show_install_version.log")
 
     # establish ssh connection
     provider = NetconfServiceProvider(address=args['host'],

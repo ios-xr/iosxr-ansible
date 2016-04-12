@@ -10,7 +10,7 @@ from iosxr_common import *
 DOCUMENTATION = """
 ---
 module: iosxr_get_facts
-author: "Adisorn Ermongkonchai"
+author: Adisorn Ermongkonchai
 short_description: Get IOS-XR information
 description:
   - Get IOS-XR configuration and status

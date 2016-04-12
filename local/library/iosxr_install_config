@@ -10,7 +10,7 @@ from iosxr_common import *
 DOCUMENTATION = """
 ---
 module: iosxr_install_config
-author: "Adisorn Ermongkonchai"
+author: Adisorn Ermongkonchai
 short_description: Commit configuration file on IOS-XR node.
 description:
   - Install IOS-XR package or SMU (Software Maintenance Updates)

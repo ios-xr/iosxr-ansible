@@ -10,7 +10,7 @@ from iosxr_common import *
 DOCUMENTATION = """
 ---
 module: iosxr_cli
-author: "Adisorn Ermongkonchai"
+author: Adisorn Ermongkonchai
 short_description: Run a command on IOS-XR devices.
 description:
   - Run an IOS-XR CLI command

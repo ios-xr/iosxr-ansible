@@ -10,7 +10,7 @@ from iosxr_common import *
 DOCUMENTATION = """
 ---
 module: iosxr_get_config
-author: "Adisorn Ermongkonchai"
+author: Adisorn Ermongkonchai
 short_description: show running-config
 description:
   - Get running configuration from IOS-XR node.

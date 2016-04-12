@@ -10,7 +10,7 @@ from iosxr_common import *
 DOCUMENTATION = """
 ---
 module: iosxr_clear_log
-author: "Adisorn Ermongkonchai"
+author: Adisorn Ermongkonchai
 short_description: Clear log
 description:
   - Clear system log

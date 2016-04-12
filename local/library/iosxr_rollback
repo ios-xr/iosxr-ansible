@@ -10,7 +10,7 @@ from iosxr_common import *
 DOCUMENTATION = """
 ---
 module: iosxr_rollback
-author: "Adisorn Ermongkonchai"
+author: Adisorn Ermongkonchai
 short_description: Rollback configuration
 description:
   - Rollback IOS-XR configuration
@@ -58,7 +58,7 @@ options:
     required: false
   force:
     description:
-      - force reaload without doing any cleanup
+      - override commit blocks
     required: false
     default: false
   logfile:
