@@ -89,7 +89,7 @@ def main():
     module.connection.shell.shell.send(']]>]]>\r')
 
     # collect all responses 200 bytes at a time
-    response = module.connection.shell.shell.recv(200)
+    response = ""
     while ']]>]]>' not in response:
         response += module.connection.shell.shell.recv(200)
 
