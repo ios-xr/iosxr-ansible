@@ -75,8 +75,16 @@ def main():
         ),
         supports_check_mode = True
     )
+    args = module.params
+    xml_file = module.params['xmlfile']
+
+    result = dict(changed=False)
+    xml_text = open(xml_file).read()
+    if 'edit-config' in xml_text:
+        result['changed'] = True
+
     module.execute('netconf format')
-    for line in open(module.params['xmlfile']):
+    for line in open(xml_file):
         module.connection.shell.shell.send(line)
     module.connection.shell.shell.send(']]>]]>\r')
 
@@ -86,7 +94,6 @@ def main():
         response += module.connection.shell.shell.recv(200)
 
     # return active packages
-    result = dict(changed=False)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).splitlines()
     if "error-message" in response:
