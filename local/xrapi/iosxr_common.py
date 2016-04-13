@@ -4,7 +4,6 @@
 #
 
 import time
-from ansible.module_utils.shell import *
 
 def execute_command(module, command):
     retries = 5
