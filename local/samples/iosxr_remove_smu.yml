@@ -2,28 +2,30 @@
 - hosts: ss-xr
   connection: local
   gather_facts: no
+
+  vars_files:
+  - 'vars/iosxr_vars.yml'
+
   vars:
-    smu_name: "xrv9k-ospf-1.0.0.0-r60125I"
-    user: root
-    passwd: lab
+    smu_name: 'xrv9k-ospf-1.0.0.0-r60125I'
 
   tasks:
   - name: deactivate SMU package
     iosxr_install_package:
-      host: "{{ ansible_ssh_host }}"
-      username: "{{ user }}"
-      password: "{{ passwd }}"
-      pkgname: "{{ smu_name }}"
+      host: '{{ ansible_host }}'
+      username: '{{ iosxr_username }}'
+      password: '{{ iosxr_password }}'
+      pkgname: '{{ smu_name }}'
       state: deactivate
     register: output
   - debug: var=output.stdout_lines
 
   - name: remove SMU package
     iosxr_install_package:
-      host: "{{ ansible_ssh_host }}"
-      username: "{{ user }}"
-      password: "{{ passwd }}"
-      pkgname: "{{ smu_name }}"
+      host: '{{ ansible_host }}'
+      username: '{{ iosxr_username }}'
+      password: '{{ iosxr_password }}'
+      pkgname: '{{ smu_name }}'
       state: absent
     register: output
   - debug: var=output.stdout_lines

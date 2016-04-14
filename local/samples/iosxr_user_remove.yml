@@ -3,12 +3,16 @@
   connection: local
   gather_facts: no
 
+  vars_files:
+  - 'vars/iosxr_vars.yml'
+
   tasks:
   - name: remove user aermongk
     iosxr_config:
-      host: '{{ ansible_ssh_host }}'
-      username: root
-      password: lab
+      host: '{{ ansible_host }}'
+      username: '{{ iosxr_username }}'
+      password: '{{ iosxr_password }}'
       commands: 'no username aermongk'
+      force: True
     register: output
   - debug: var=output.updates

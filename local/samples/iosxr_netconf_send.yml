@@ -3,12 +3,15 @@
   connection: local
   gather_facts: no
 
+  vars_files:
+  - 'vars/iosxr_vars.yml'
+
   tasks:
   - name: send Netconf XML file
     iosxr_netconf_send:
-      host: '{{ ansible_ssh_host }}'
-      username: root
-      password: lab
+      host: '{{ ansible_host }}'
+      username: '{{ iosxr_username }}'
+      password: '{{ iosxr_password }}'
       xmlfile: '{{ xml_file }}'
     register: output
   - debug: var=output.stdout_lines
