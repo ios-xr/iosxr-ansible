@@ -200,7 +200,6 @@ Additional steps are required for setting up XR for use with Ansible in
   [ss-xr]
   192.168.1.120
   192.168.1.121
-  192.168.1.122
 ```
 - Run sample playbooks
 
