@@ -11,7 +11,7 @@ def execute_command(module, command):
         try:
             response = module.execute(command)
             return response
-        except ShellError:
+        except:
             pass
         retries -= 1
         time.sleep(2)

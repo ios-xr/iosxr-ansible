@@ -67,7 +67,7 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[a-zA-Z]{1}[a-zA-Z0-9-]*[]]'))
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[a-zA-Z]{1}[a-zA-Z0-9-]*[confirm]]'))
 
 def main():
     module = get_module(
@@ -93,8 +93,8 @@ def main():
     if force is True:
         reload_command = reload_command + 'force '
     commands = to_list(reload_command)
-    commands.append('y')
-    commands.append('y')
+    commands.append('\r')
+    commands.append('\r')
     response = execute_command(module, commands)
   
     result = dict(changed=False)
