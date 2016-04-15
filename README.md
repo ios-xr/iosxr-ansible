@@ -1,25 +1,20 @@
 Ansible Test Setup
 ==================
 
-- Create 2 XRV9K (Sunstone) VMs and 1 Linux server on MB Cloud following
-  the instruction in the link below
-  * http://tc-midnight.cisco.com:8080/wiki/MB%20Cloud%20XR
+- Prerequisite:
+  * Create 2 XRV9K (Sunstone) VM's with k9sec security package from r60y
+  * 1 Linux server
+  * Create network connection between XRV9K and Linux server
 
   NOTE:
-    The nightly build images provided on the MB Cloud is based on xr-dev lineup.
-    Unfortunately, the missing Python libraries were committed only to r60y
+    The reason for using r60y because it has more complete Python libraries
     (CSCux90222).  These missing libraries are required for Ansible to run
     in "remote" mode. The playbooks under "local" directory use local mode and
-    playbooks under "remote" use remote mode.  If you want to run playbooks
-    under "remote" directory, you will need to build your own XRV9K image from 
-    r60y lineup and install it on your VMs.
+    playbooks under "remote" use remote mode.  You can get the r60y image
+    xrv9k-fullk9-x.iso-R60Y-xx.xx.xxx from the following nightly build
+    directory, /auto/ioxdepot4/r60y/all/nightly_image_dir.
 
-- You will also need k9sec security package to be installed on your XRV9K VMs.
-  Using the following example command to install the k9sec pacakge.
-  * install update source tftp://192.168.1.1 xrv9k-iosxr-security-1.0.0.0-r60125I
-  * show install active
-
-- Pull YDK from the github into the Linux server created
+- Pull YDK from the github into the Linux server
   * git clone https://github.com/CiscoDevNet/ydk-py
 
 - Pull Ansible Core modules
@@ -70,13 +65,10 @@ Remote mode setup
   "remote" mode.  As mentioned earlier, it will also require IOS-XR image
   with correct Python Libraries installed
 
-  At IOS-XR console prompt, enter following commands
-  * run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
-  * run service sshd_tpnns restart
-  * run chkconfig --add sshd_tpnns
-  NOTE:
-    Currently, crypto key import is not working (CSCuy80921) so when
-    using Ansible playbook, password is required.
+  After IOS-XR is ready, at IOS-XR console prompt, enter following commands
+  * RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
+  * RP/0/RP0/CPU0:ios# run service sshd_tpnns restart
+  * RP/0/RP0/CPU0:ios# run chkconfig --add sshd_tpnns
 
 - Testing TPNNS on XR by ssh to XR management address on port 57722
   * ssh -p 57722 root@x.x.x.x
@@ -86,12 +78,18 @@ Remote mode setup
     ssh -p 57722 root@x.x.x.x ip netns exec default ifconfig
   
   NOTE: "nsenter" is part of the util-linux package which allows program to
-        be running in other process namespace.  In the example, "ifconfig" is
-        run in "init" process namespace.  Alternatively, you can use "ip netns"
-        command to do the same thing.  The "default" namespace used by
-        "ip netns" is defined in /var/run/netns.
+        be running in other process namespace.  In the example, notice that
+        the "ifconfig" returns different interfaces that is because the second
+        one is run in "init" process namespace.  Alternative to using "nsenter",
+        you can use "ip netns" command to do the same thing.  The "default"
+        namespace used by "ip netns" is defined in /var/run/netns.
+
+- Edit Ansible and Python environment as needed in ansible_env and source it
+  * cd <ws>/iosxr-ansible/remote
+  * vi ansible_env
+  * source ansible_env
   
-- Configure Ansible to use port 57722
+- Configure Ansible configuration to use port 57722 and connect to "root" user
   * edit your ansible config file (default is /etc/ansible/ansible.cfg) with
     following values
     
@@ -120,9 +118,41 @@ There are 2 implementions of "local" mode, CLI and Netconf. There are 2
 options for Netconf, raw or YDK option. YDK option requires ydk-py
 python libraries from github.
 
+Directories structure
+=====================
+
+iosxr-ansible
+├── local
+│   ├── library
+│   ├── samples
+│   │   ├── cli
+│   │   ├── vars
+│   |   ├── xml
+│   │   └── ydk
+│   └── xrapi
+└── remote
+    ├── library
+    └── samples
+        └── test
+
+Directory               Description
+===============================================================================
+local/library           Contains Ansible modules for local mode
+local/samples/cli       Contains sample playbooks using Console CLI
+local/samples/vars      Contains common variables used by the playbooks
+local/samples/xml       Contains sample RPC XML used with iosxr_netconf_send
+local/samples/ydk       Contains sample playbooks using YDK API's
+local/xrapi             Contains common Python functions
+remote/library          Contains Ansible modules for remote mode
+remote/samples          Contains sample playbooks using TPNNS CLI
+remote/samples/test     Contains additional playbooks showing direct access
+                        to IOS-XR using shell
 
 Additional Notes
 ================
+
+- You also want to edit the file <ws>/local/samples/vars/iosxr_vars.yml to
+  assign username and password for your IOS-XR.
 
 - How to GitLab?
   * https://cisco.jiveon.com/docs/DOC-42998
