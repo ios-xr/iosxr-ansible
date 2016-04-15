@@ -82,6 +82,22 @@ Additional steps are required for setting up XR for use with Ansible in
   RP/0/RP0/CPU0:ios# run service sshd_tpnns restart
   RP/0/RP0/CPU0:ios# run chkconfig --add sshd_tpnns
 ```
+- You also need to add your Linux server ssh public key from your
+  ~/.ssh/id_rsa.pub to IOS-XR authorized_key file
+  
+```
+  cat ~/.ssh/id_rsa.pub
+  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDeyBBEXOyWd/8bL4a/hwEZnOb7vgns
+  vh6jRgsJxNTMrF+NWkeknhXyzT48Wt3bU9Dxtq++unWoIkfOktcK6dVzVk0wrZ/PA64Z
+  c3vVpKPx22AIidwyegSVWtCXuv7C1V19gCRg1uddPSRtBbQ6uYjJylu1V9NzJYL4fDts
+  XJiepyyohGLYj+fHHPMdO6LZmGVhEqlLGl4cqRPsD3D7zzxIag9E/7CVPGiA+0fVvGOq
+  n7BL0x62bdcSzKDZUT3A0NGqht2RcEnYH7WQjzG3ikw230aiqBBr75LNzVkMxHZr8Mf6
+  Mr5iHcbAyGyjoDKxNA1LoAu6wGgQ4Gg66fr1U8bN aermongk@ansible-dev
+```
+
+```
+  RP/0/RP0/CPU0:ios# run vi /root/.ssh/authorized_keys
+```
 - Testing TPNNS on XR by ssh to XR management address on port 57722
 
 ```
@@ -189,4 +205,3 @@ remote/samples/test     Contains additional playbooks showing direct access
   ansible-playbook iosxr_get_config.yml
   ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'
 ```
-  
