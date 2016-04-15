@@ -119,7 +119,6 @@ remote/samples/test     Contains additional playbooks showing direct access
   [ss-xr]
   192.168.1.120
   192.168.1.121
-  192.168.1.122
 ```
 - Run sample playbooks
     * Before running sample playbook, you will want to edit the file
