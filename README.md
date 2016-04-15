@@ -33,27 +33,29 @@ Setup Ansible and IOS-XR
 
 - Edit and source Ansible, YDK, and Python environment to point to your
   installed applications
-  * cd iosxr/local
+  * cd <ws>/iosxr-ansible/local
   * vi ansible_env
   * source ansible_env
 
 - Edit "ansible_hosts" file to change "ss-xr" host IP to your 2 XRV9K VMs
 
 - Create default crypto key on your XRV9K VMs (select default 1024 bits)
-  * crypto key generate rsa 
-  * show crypto key mypubkey rsa
+  * RP/0/RP0/CPU0:ios# crypto key generate rsa 
+  * RP/0/RP0/CPU0:ios# show crypto key mypubkey rsa
 
 - Configure IOS-XR as shown in ss1.cfg and ss2.cfg for both XRV9K VMs.
   Make any necessary changes, such as, management IP address and hostname
   Here are required configuration
-  * ssh server v2
-  * ssh server netconf vrf default
-  * ssh server logging
-  * xml agent ssl
-  * netconf agent tty
-  * netconf-yang agent ssh
+  * RP/0/RP0/CPU0:ios# conf t
+  * RP/0/RP0/CPU0:ios(config)# ssh server v2
+  * RP/0/RP0/CPU0:ios(config)# ssh server netconf vrf default
+  * RP/0/RP0/CPU0:ios(config)# ssh server logging
+  * RP/0/RP0/CPU0:ios(config)# xml agent ssl
+  * RP/0/RP0/CPU0:ios(config)# netconf agent tty
+  * RP/0/RP0/CPU0:ios(config)# netconf-yang agent ssh
+  * RP/0/RP0/CPU0:ios(config)# commit
   
-- Make sure you can connect to both XRV9K VMs management port
+- Make sure you can connect to both XRV9K VMs management port from Linux host
   * ssh root@x.x.x.x
   * ssh root@x.x.x.x "show run"
 
@@ -80,7 +82,8 @@ Remote mode setup
   * ssh -p 57722 root@x.x.x.x
   * ssh -p 57722 root@x.x.x.x ifconfig
   * ssh -p 57722 root@x.x.x.x nsenter -t 1 -n -- ifconfig
-  * ssh -p 57722 root@x.x.x.x ip netns exec default ifconfig
+    or
+    ssh -p 57722 root@x.x.x.x ip netns exec default ifconfig
   
   NOTE: "nsenter" is part of the util-linux package which allows program to
         be running in other process namespace.  In the example, "ifconfig" is
@@ -113,9 +116,9 @@ The script has to establish a connection to the remote node itself. The
 "local" IOS-XR Ansible module uses Ansible core network module to connect
 to IOS-XR console to run CLI command.
 
-There are 2 implemention of "local" mode, CLI and Yang/netconf options.
-Yang/netconf option requires ydk-py python libraries from github and 
-IOS-XR netconf config to be enabled as mentioned earlier.
+There are 2 implementions of "local" mode, CLI and Netconf. There are 2
+options for Netconf, raw or YDK option. YDK option requires ydk-py
+python libraries from github.
 
 
 Additional Notes
