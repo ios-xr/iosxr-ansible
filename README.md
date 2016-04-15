@@ -101,7 +101,7 @@ Remote mode setup
   
 Local VS. Remote
 ================
-
+||
 The different between local and remote mode in Ansible is basically
 where the script is being run.  For the remote mode, Ansible automatically
 attempts to establish ssh connection to the remote node.  Once established,
@@ -122,21 +122,21 @@ Directories structure
 =====================
 
 iosxr-ansible
-├── local
-│   ├── library
-│   ├── samples
-│   │   ├── cli
-│   │   ├── vars
-│   |   ├── xml
-│   │   └── ydk
-│   └── xrapi
-└── remote
-    ├── library
-    └── samples
-        └── test
++-- local
+|   +-- library
+|   +-- samples
+|   |   +-- cli
+|   |   +-- vars
+|   |   +-- xml
+|   |   +-- ydk
+|   +-- xrapi
++-- remote
+    +-- library
+    +-- samples
+        +-- test
 
 Directory               Description
-===============================================================================
+
 local/library           Contains Ansible modules for local mode
 local/samples/cli       Contains sample playbooks using Console CLI
 local/samples/vars      Contains common variables used by the playbooks
