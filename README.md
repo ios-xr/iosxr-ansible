@@ -63,8 +63,8 @@
 - Make sure you can connect to both XRV9K VMs management port from Linux host
 
 ```
-  ssh root@x.x.x.x
-  ssh root@x.x.x.x "show run"
+  ssh root@192.168.1.120
+  ssh root@192.168.1.120 "show run"
 ```
   > NOTE:
   > Currently, crypto key import is not working (CSCuy80921) so when
@@ -83,21 +83,17 @@ Additional steps are required for setting up XR for use with Ansible in
   RP/0/RP0/CPU0:ios# run chkconfig --add sshd_tpnns
 ```
 - Testing TPNNS on XR by ssh to XR management address on port 57722
-
+
 ```
-  ssh -p 57722 root@x.x.x.x
-  ssh -p 57722 root@x.x.x.x ifconfig
-  ssh -p 57722 root@x.x.x.x nsenter -t 1 -n -- ifconfig
-  or
-  ssh -p 57722 root@x.x.x.x ip netns exec default ifconfig
+  ssh -p 57722 root@192.168.1.120
+  ssh -p 57722 root@192.168.1.120 ifconfig
+  ssh -p 57722 root@192.168.1.120 nsenter -t 1 -n -- ifconfig
 ```
   > NOTE:
   > "nsenter" is part of the util-linux package which allows program to
   > be running in other process namespace.  In the example, notice that
   > the "ifconfig" returns different interfaces that is because the second
-  > one is run in "init" process namespace.  Alternative to using "nsenter",
-  > you can use "ip netns" command to do the same thing.  The "default"
-  > namespace used by "ip netns" is defined in /var/run/netns.
+  > one is run in "init" process namespace.
 
 - Edit Ansible and Python environment as needed in ansible_env and source it
 
@@ -167,7 +163,30 @@ remote/samples          Contains sample playbooks using TPNNS CLI
 remote/samples/test     Contains additional playbooks showing direct access
                         to IOS-XR using shell
 ```
-## Additional Notes
+## Running sample playbooks
 
-- You also want to edit the file <ws>/local/samples/vars/iosxr_vars.yml to
-  assign username and password for your IOS-XR.
+- Before running sample playbook, you will want to edit the file
+  iosxr-ansible/local/samples/vars/iosxr_vars.yml to assign username and
+  password for your IOS-XR.
+  
+- In addition, you will want to edit these playbooks to your need,
+  e.g. iosxr_install_smu.yml and iosxr_user_add.yml, change the tftp address.
+  You also need to copy RPM and config file to your tftpboot directory.
+  A sample of config file is provided in "user_add.cfg".
+
+```
+  cd iosxr-ansible/local
+  source ansible_env
+  cd samples
+  ansible-playbook iosxr_get_config.yml
+  ansible-playbook iosxr_clear_log.yml
+  ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'
+  ansible-playbook iosxr_netconf_send.yml -e "xml_file=xml/nc_show_install_active.xml"
+  
+  cd iosxr-ansible/remote
+  source ansible_env
+  cd samples
+  ansible-playbook iosxr_get_config.yml
+  ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'
+```
+  
