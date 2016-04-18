@@ -26,9 +26,9 @@
 
 The different between local and remote mode in Ansible is basically
 where the script is being run.  For the remote mode, Ansible automatically
-attempts to establish ssh connection to the remote node.  Once established,
-it copies the script, so-called Ansible module, and runs it on the remote
-node. The script responses to the server in json format. This mode requires
+attempts to establish SSH connection to the remote node.  Once established,
+it copies a script, so-called Ansible module, and runs it on the remote
+node. The script responds to the server in JSON format. This mode requires
 TPNNS running on the IOS-XR node (see earlier section on TPNNS setup)
 
 As for the local mode, Ansible run the module script on the local server.
