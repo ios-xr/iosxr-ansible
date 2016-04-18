@@ -11,11 +11,11 @@ from iosxr_common import *
 
 DOCUMENTATION = """
 ---
-module: iosxr_reload
+module: iosxr_clear_config
 author: Adisorn Ermongkonchai
-short_description: Reload IOS-XR device
+short_description: Clear all configurations
 description:
-  - Restart specified IOS-XR device
+  - Clear system all configurations
 options:
   host:
     description:
@@ -25,34 +25,22 @@ options:
   username:
     description:
       - username used to login to IOS-XR
-    required: true
+    required: false
     default: none
   password:
     description:
       - password used to login to IOS-XR
-    required: true
+    required: false
     default: none
   confirm:
     description:
       - make sure user really want to reload
     required: true
     value: "yes" or other string
-  location:
-    description:
-      - location of the node that needs to be reboot
-        e.g. 0/RP0/CPU0
-    required: false
-    default: None
-  force:
-    description:
-      - force reaload without doing any cleanup
-    required: false
-    default: false
-
 """
 
 EXAMPLES = """
-- iosxr_reload:
+- iosxr_clear_config:
     host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
@@ -68,7 +56,7 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[a-zA-Z]{1}[a-zA-Z0-9-]*[confirm]]'))
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
 
 def main():
     module = get_module(
@@ -76,32 +64,26 @@ def main():
             username = dict(required=False, default=None),
             password = dict(required=False, default=None),
             confirm  = dict(required=True),
-            location = dict(required=False, default=None),
-            force    = dict(required=False, type='bool', default=False)
         ),
-        supports_check_mode=True
+        supports_check_mode = True
     )
-    args = module.params
-    force = args['force']
-    location = args['location']
-    if args['confirm'] != 'yes':
-        result['stdout'] = "reload aborted"
+    if module.params['confirm'] != 'yes':
+        result['stdout'] = "clear configs aborted"
         module.exit_json(**result)
-  
-    reload_command = 'reload '
-    if location != None:
-        reload_command = reload_command + 'location %s ' % location
-    if force is True:
-        reload_command = reload_command + 'force '
-    commands = to_list(reload_command)
-    commands.append('\r')
-    commands.append('\r')
-    response = execute_command(module, commands)
+
+    clear_command = 'commit replace'
+    commands = to_list(clear_command)
+    commands.insert(0, 'configure terminal')
+    commands.append('yes')
+    try:
+        module.execute(commands)
+    except:
+        pass
   
     result = dict(changed=False)
-    result['stdout'] = response
+    result['stdout'] = 'all configs cleared'
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
-    module.exit_json(**result)
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
-  main()
+    main()

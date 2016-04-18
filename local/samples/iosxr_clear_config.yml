@@ -1,0 +1,21 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  vars_files:
+  - 'vars/iosxr_vars.yml'
+
+  vars_prompt:
+  - name: yesno
+    prompt: 'Are you sure you want to clear all configurations (yes/no)? '
+
+  tasks:
+  - name: clear all configurations
+    iosxr_clear_config:
+      host: '{{ ansible_host }}'
+      username: '{{ iosxr_username }}'
+      password: '{{ iosxr_password }}'
+      confirm: '{{ yesno }}'
+    register: output
+  - debug: var=output.stdout_lines
