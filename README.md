@@ -1,17 +1,9 @@
 ## Ansible Test Setup
 
 - **Prerequisite**
-  * Create 2 XRV9K (Sunstone) VM's with k9sec security package from r60y
+  * Create 2 XRV9K (Sunstone) VM's with k9sec security package
   * 1 Linux server
   * Create network connection between XRV9K and Linux server
-
-  > NOTE:
-  > The reason for using r60y because it has more complete Python libraries
-  > (CSCux90222).  These missing libraries are required for Ansible to run
-  > in "remote" mode. The playbooks under "local" directory use local mode and
-  > playbooks under "remote" use remote mode.  You can get the r60y image
-  > xrv9k-fullk9-x.iso-R60Y-xx.xx.xxx from the following nightly build
-  > directory, /auto/ioxdepot4/r60y/all/nightly_image_dir.
 
 - Pull YDK from the github into the Linux server
   * git clone https://github.com/CiscoDevNet/ydk-py
