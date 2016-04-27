@@ -85,15 +85,26 @@ remote/samples/test     Contains additional playbooks showing direct access
   RP/0/RP0/CPU0:ios(config)# netconf-yang agent ssh
   RP/0/RP0/CPU0:ios(config)# commit
 ```
+- Optional ssh key setup allows user to connect to IOS-XR without password.
+  First, generate base64 SSH key file on Ansible Server and copy it to your
+  tftpboot directory.
+
+```
+  cut -d" " -f2 ~/.ssh/id_rsa.pub | base64 -d > ~/.ssh/id_rsa.b64
+  cp ~/.ssh/id_rsa.b64 /tftpboot
+```
+- After IOS-XR is ready, at IOS-XR console prompt, import SSH key as followed
+
+```
+  RP/0/RP0/CPU0:ios# crypto key import authentication rsa tftp://192.168.1.1/id_rsa.b64
+  RP/0/RP0/CPU0:ios# show crypto key authentication rsa
+```
 - Make sure you can connect to both XRV9K VMs management port from Linux host
 
 ```
   ssh root@192.168.1.120
   ssh root@192.168.1.120 "show run"
 ```
-  > NOTE:
-  > Currently, crypto key import is not working (CSCuy80921) so when
-  > using Ansible playbook, password is required.
 
 ## Local mode setup and test
 
@@ -128,9 +139,6 @@ remote/samples/test     Contains additional playbooks showing direct access
   ansible-playbook iosxr_netconf_send.yml -e "xml_file=xml/nc_show_install_active.xml"
 ```
 ## Remote mode setup and test
-
-Additional steps are required for setting up XR for use with Ansible in
-"remote" mode.
 
 - After IOS-XR is ready, at IOS-XR console prompt, enter following commands
 
