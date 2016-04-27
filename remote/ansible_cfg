@@ -20,7 +20,7 @@
 #ask_sudo_pass = True
 #ask_pass      = True
 #transport      = smart
-# remote_port   = 22
+#remote_port    = 22
 #module_lang    = C
 remote_port = 57722
 
@@ -212,7 +212,6 @@ remote_port = 57722
 # Leaving off ControlPersist will result in poor performance, so use 
 # paramiko on older platforms rather than removing it
 #ssh_args = -o ControlMaster=auto -o ControlPersist=60s
-ssh_args = -o "User=root"
 
 # The path to use for the ControlPath sockets. This defaults to
 # "%(directory)s/ansible-ssh-%%h-%%p-%%r", however on some systems with

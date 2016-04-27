@@ -7,6 +7,7 @@
   tasks:
   - name: deactivate SMU package
     iosxr_install_package:
+      username: '{{ ansible_ssh_user }}'
       pkgname: '{{ smu_name }}'
       state: deactivate
     register: output
@@ -14,6 +15,7 @@
 
   - name: remove SMU package
     iosxr_install_package:
+      username: '{{ ansible_ssh_user }}'
       pkgname: '{{ smu_name }}'
       state: absent
     register: output

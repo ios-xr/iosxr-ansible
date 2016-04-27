@@ -5,5 +5,6 @@
   tasks:
   - name: get system facts
     iosxr_get_facts:
+      username: '{{ ansible_ssh_user }}'
     register: facts
   - debug: var=facts

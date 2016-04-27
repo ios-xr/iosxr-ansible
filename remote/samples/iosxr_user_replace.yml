@@ -5,6 +5,7 @@
   tasks:
   - name: replace configuration file on the IOS-XR node
     iosxr_install_config:
+      username: '{{ ansible_ssh_user }}'
       cfgname: '/tftp://192.168.1.1/user_mod.cfg'
     register: output
   - debug: var=output.stdout_lines

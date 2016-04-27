@@ -4,6 +4,7 @@
 
   tasks:
   - iosxr_rollback:
+      username: '{{ ansible_ssh_user }}'
       last_n_committed: 1
       #rollback_id: 1000000016
       #to_rollback_id: 1000000017

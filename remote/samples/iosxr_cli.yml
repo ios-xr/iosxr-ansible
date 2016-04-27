@@ -4,6 +4,7 @@
 
   tasks:
   - iosxr_cli:
+      username: '{{ ansible_ssh_user }}'
       command: "{{ cmd }}"
     register: output
   - debug: var=output.stdout_lines

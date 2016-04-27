@@ -7,6 +7,7 @@
   tasks:
   - name: add SMU package
     iosxr_install_package:
+      username: '{{ ansible_ssh_user }}'
       pkgpath: 'tftp://192.168.1.1'
       pkgname: '{{ smu_name }}'
       state: present
@@ -15,6 +16,7 @@
 
   - name: activate SMU package
     iosxr_install_package:
+      username: '{{ ansible_ssh_user }}'
       pkgname: '{{ smu_name }}'
       state: activate
     register: output
