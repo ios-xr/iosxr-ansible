@@ -53,7 +53,6 @@ Directory               Description
 
 local/library           Contains Ansible modules for local mode
 local/samples/cli       Contains sample playbooks using Console CLI
-local/samples/vars      Contains common variables used by the playbooks
 local/samples/xml       Contains sample RPC XML used with iosxr_netconf_send
 local/samples/ydk       Contains sample playbooks using YDK API's
 local/xrapi             Contains IOS-XR common Python functions
@@ -135,6 +134,7 @@ remote/samples/test     Contains additional playbooks showing direct access
 - Testing TPNNS on XR by ssh to XR management address on port 57722
 
 ```
+  ssh -p 57722 root@192.168.1.120
   ssh -p 57722 root@192.168.1.120 ifconfig
   ssh -p 57722 root@192.168.1.120 nsenter -t 1 -n -- ifconfig
 ```
@@ -144,7 +144,8 @@ remote/samples/test     Contains additional playbooks showing direct access
   > the "ifconfig" returns different interfaces that is because the second
   > one is run in Global-VRF namespace.  When SSH to IOS-XR port 57722,
   > in IOS-XR 6.0.x, you will enter XR namespace.  The nsenter command will
-  > take you into Global-VRF namespace ('init' process namespace).
+  > take you into Global-VRF namespace ('init' process namespace). But in
+  > release 6.1.1, you will enter Global-VRF namespace when connect to IOS-XR.
 
 ## Local mode setup and test
 
@@ -200,6 +201,7 @@ remote/samples/test     Contains additional playbooks showing direct access
 - Run sample playbooks
     * Some of sample playbooks will require changes to fit your need
       e.g. edit iosxr_install_smu.yml to change location of your package.
+
 ```
   cd samples
   ansible-playbook iosxr_get_config.yml
