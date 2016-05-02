@@ -16,20 +16,20 @@
 
 ## Local vs. Remote
 
-The different between local and remote mode in Ansible is basically
+The different between local and remote connection mode in Ansible is basically
 where the script is being run.  For the remote mode, Ansible automatically
 attempts to establish SSH connection to the remote node.  Once established,
 it copies a script, so-called Ansible module, and runs it on the remote
-node. The script responds to the server in JSON format. This mode requires
-TPNNS running on the IOS-XR node (see earlier section on TPNNS setup)
+node. The script responds to the server in JSON format. This remote mode
+requires TPNNS running on the IOS-XR node.
 
 As for the local mode, Ansible run the module script on the local server.
 The script has to establish a connection to the remote node itself. The
-"local" IOS-XR Ansible module uses Ansible core network module to connect
-to IOS-XR console to run CLI command.
+local mode IOS-XR Ansible module uses Ansible network module to establish SSH
+connection to the IOS-XR console to run CLI command.
 
-There are 2 implementions of "local" mode, CLI and Netconf. There are 2
-options for Netconf, raw or YDK option. YDK option requires ydk-py
+There are 2 implementions of "local" mode, CLI and Netconf XML. And there are 2
+options for Netconf XML, raw and YDK option. The YDK option requires ydk-py
 python libraries from github.
 
 ## Directories structure
@@ -56,7 +56,7 @@ local/samples/cli       Contains sample playbooks using Console CLI
 local/samples/vars      Contains common variables used by the playbooks
 local/samples/xml       Contains sample RPC XML used with iosxr_netconf_send
 local/samples/ydk       Contains sample playbooks using YDK API's
-local/xrapi             Contains common Python functions
+local/xrapi             Contains IOS-XR common Python functions
 remote/library          Contains Ansible modules for remote mode
 remote/samples          Contains sample playbooks using TPNNS CLI
 remote/samples/test     Contains additional playbooks showing direct access
@@ -85,7 +85,7 @@ remote/samples/test     Contains additional playbooks showing direct access
   RP/0/RP0/CPU0:ios(config)# netconf-yang agent ssh
   RP/0/RP0/CPU0:ios(config)# commit
 ```
-- Optional ssh key setup allows user to connect to IOS-XR without password.
+- Optional SSH key setup allows user to connect to IOS-XR without password.
   First, generate base64 SSH key file on Ansible Server and copy it to your
   tftpboot directory.
 
@@ -99,12 +99,52 @@ remote/samples/test     Contains additional playbooks showing direct access
   RP/0/RP0/CPU0:ios# crypto key import authentication rsa tftp://192.168.1.1/id_rsa_pub.b64
   RP/0/RP0/CPU0:ios# show crypto key authentication rsa
 ```
-- Make sure you can connect to both XRV9K VMs management port from Linux host
+- Now make sure you can connect to both XRV9K VMs management port from Linux host
 
 ```
   ssh root@192.168.1.120
   ssh root@192.168.1.120 "show run"
 ```
+- Additional steps are required for setting up Global-VRF (TPNNS) in IOS-XR for
+  remote mode access.  After IOS-XR is ready, at the IOS-XR console prompt,
+  enter the following commands.
+  NOTE: These commands to setup Global-VRF are not required for IOS-XR
+        release 6.0.2.
+
+```
+  RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
+  RP/0/RP0/CPU0:ios# run service sshd_tpnns restart
+  RP/0/RP0/CPU0:ios# run chkconfig --add sshd_tpnns
+```
+- You also need to add your Linux server SSH public key (~/.ssh/id_rsa.pub)
+  to IOS-XR authorized_key file.
+  
+```
+  cat ~/.ssh/id_rsa.pub
+  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDeyBBEXOyWd/8bL4a/hwEZnOb7vgns
+  vh6jRgsJxNTMrF+NWkeknhXyzT48Wt3bU9Dxtq++unWoIkfOktcK6dVzVk0wrZ/PA64Z
+  c3vVpKPx22AIidwyegSVWtCXuv7C1V19gCRg1uddPSRtBbQ6uYjJylu1V9NzJYL4fDts
+  XJiepyyohGLYj+fHHPMdO6LZmGVhEqlLGl4cqRPsD3D7zzxIag9E/7CVPGiA+0fVvGOq
+  n7BL0x62bdcSzKDZUT3A0NGqht2RcEnYH7WQjzG3ikw230aiqBBr75LNzVkMxHZr8Mf6
+  Mr5iHcbAyGyjoDKxNA1LoAu6wGgQ4Gg66fr1U8bN aermongk@ansible-dev
+```
+
+```
+  RP/0/RP0/CPU0:ios# run vi /root/.ssh/authorized_keys
+```
+- Testing TPNNS on XR by ssh to XR management address on port 57722
+
+```
+  ssh -p 57722 root@192.168.1.120 ifconfig
+  ssh -p 57722 root@192.168.1.120 nsenter -t 1 -n -- ifconfig
+```
+  > NOTE:
+  > "nsenter" is part of the util-linux package which allows program to
+  > be running in other process namespace.  In the example, notice that
+  > the "ifconfig" returns different interfaces that is because the second
+  > one is run in Global-VRF namespace.  When SSH to IOS-XR port 57722,
+  > in IOS-XR 6.0.x, you will enter XR namespace.  The nsenter command will
+  > take you into Global-VRF namespace ('init' process namespace).
 
 ## Local mode setup and test
 
@@ -124,12 +164,8 @@ remote/samples/test     Contains additional playbooks showing direct access
   192.168.1.121 ansible_ssh_user=root
 ```
 - Run sample playbooks
-    * Before running sample playbook, you will want to edit the file
-      iosxr-ansible/local/samples/vars/iosxr_vars.yml to assign username and
-      password for your IOS-XR.
-  
-    * In addition, you will want to edit these playbooks to your need,
-      e.g. iosxr_install_smu.yml and iosxr_user_add.yml, ## Local vs. Remote
+    * Some of sample playbooks will require changes to fit your need
+      e.g. edit iosxr_install_smu.yml to change location of your package.
 
 ```
   cd samples
@@ -140,45 +176,8 @@ remote/samples/test     Contains additional playbooks showing direct access
 ```
 ## Remote mode setup and test
 
-- After IOS-XR is ready, at IOS-XR console prompt, enter following commands
-
-```
-  RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
-  RP/0/RP0/CPU0:ios# run service sshd_tpnns restart
-  RP/0/RP0/CPU0:ios# run chkconfig --add sshd_tpnns
-```
-- You also need to add your Linux server ssh public key from your
-  ~/.ssh/id_rsa.pub to IOS-XR authorized_key file
-  
-```
-  cat ~/.ssh/id_rsa.pub
-  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDeyBBEXOyWd/8bL4a/hwEZnOb7vgns
-  vh6jRgsJxNTMrF+NWkeknhXyzT48Wt3bU9Dxtq++unWoIkfOktcK6dVzVk0wrZ/PA64Z
-  c3vVpKPx22AIidwyegSVWtCXuv7C1V19gCRg1uddPSRtBbQ6uYjJylu1V9NzJYL4fDts
-  XJiepyyohGLYj+fHHPMdO6LZmGVhEqlLGl4cqRPsD3D7zzxIag9E/7CVPGiA+0fVvGOq
-  n7BL0x62bdcSzKDZUT3A0NGqht2RcEnYH7WQjzG3ikw230aiqBBr75LNzVkMxHZr8Mf6
-  Mr5iHcbAyGyjoDKxNA1LoAu6wGgQ4Gg66fr1U8bN aermongk@ansible-dev
-```
-
-```
-  RP/0/RP0/CPU0:ios# run vi /root/.ssh/authorized_keys
-```
-- Testing TPNNS on XR by ssh to XR management address on port 57722
-
-```
-  ssh -p 57722 root@192.168.1.120
-  ssh -p 57722 root@192.168.1.120 ifconfig
-  ssh -p 57722 root@192.168.1.120 nsenter -t 1 -n -- ifconfig
-```
-  > NOTE:
-  > "nsenter" is part of the util-linux package which allows program to
-  > be running in other process namespace.  In the example, notice that
-  > the "ifconfig" returns different interfaces that is because the second
-  > one is run in "init" process namespace.
-
-- Configure Ansible configuration to use port 57722 and connect to "root" user
-  * edit your ansible config file (default is /etc/ansible/ansible.cfg) with
-    following values
+- Configure Ansible configuration to use port 57722 by editing your ansible
+  config file (default is /etc/ansible/ansible.cfg) with following values
     
 ```
     [defaults]
@@ -199,7 +198,8 @@ remote/samples/test     Contains additional playbooks showing direct access
   192.168.1.121 ansible_ssh_user=root
 ```
 - Run sample playbooks
-
+    * Some of sample playbooks will require changes to fit your need
+      e.g. edit iosxr_install_smu.yml to change location of your package.
 ```
   cd samples
   ansible-playbook iosxr_get_config.yml
