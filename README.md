@@ -65,7 +65,7 @@ remote/samples/test     Contains additional playbooks showing direct access
 
 ## IOS-XR setup
 
-- Create default crypto key on your XRV9K VMs (select default 1024 bits)
+- Create default crypto key on your XRV9K VMs (select default 2048 bits)
 
 ```
   RP/0/RP0/CPU0:ios# crypto key generate rsa 
@@ -90,13 +90,13 @@ remote/samples/test     Contains additional playbooks showing direct access
   tftpboot directory.
 
 ```
-  cut -d" " -f2 ~/.ssh/id_rsa.pub | base64 -d > ~/.ssh/id_rsa.b64
-  cp ~/.ssh/id_rsa.b64 /tftpboot
+  cut -d" " -f2 ~/.ssh/id_rsa.pub | base64 -d > ~/.ssh/id_rsa_pub.b64
+  cp ~/.ssh/id_rsa_pub.b64 /tftpboot
 ```
 - After IOS-XR is ready, at IOS-XR console prompt, import SSH key as followed
 
 ```
-  RP/0/RP0/CPU0:ios# crypto key import authentication rsa tftp://192.168.1.1/id_rsa.b64
+  RP/0/RP0/CPU0:ios# crypto key import authentication rsa tftp://192.168.1.1/id_rsa_pub.b64
   RP/0/RP0/CPU0:ios# show crypto key authentication rsa
 ```
 - Make sure you can connect to both XRV9K VMs management port from Linux host
@@ -120,8 +120,8 @@ remote/samples/test     Contains additional playbooks showing direct access
 
 ```
   [ss-xr]
-  192.168.1.120
-  192.168.1.121
+  192.168.1.120 ansible_ssh_user=root
+  192.168.1.121 ansible_ssh_user=root
 ```
 - Run sample playbooks
     * Before running sample playbook, you will want to edit the file
@@ -183,9 +183,6 @@ remote/samples/test     Contains additional playbooks showing direct access
 ```
     [defaults]
     remote_port = 57722
-
-    [ssh_connection]
-    ssh_args = -o "User=root"
 ```
 - Edit Ansible and Python environment as needed in ansible_env and source it
 
@@ -198,8 +195,8 @@ remote/samples/test     Contains additional playbooks showing direct access
 
 ```
   [ss-xr]
-  192.168.1.120
-  192.168.1.121
+  192.168.1.120 ansible_ssh_user=root
+  192.168.1.121 ansible_ssh_user=root
 ```
 - Run sample playbooks
 
