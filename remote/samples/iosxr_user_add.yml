@@ -7,5 +7,6 @@
     iosxr_install_config:
       username: '{{ ansible_ssh_user }}'
       cfgname: '/tftp://192.168.1.1/user_add.cfg'
+      #label: 'add_user'
     register: output
   - debug: var=output.stdout_lines
