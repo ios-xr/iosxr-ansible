@@ -109,13 +109,18 @@ remote/samples/test     Contains additional playbooks showing direct access
 - Additional steps are required for setting up Global-VRF (TPNNS) in IOS-XR for
   remote mode access.  After IOS-XR is ready, at the IOS-XR console prompt,
   enter the following commands.
-  NOTE: These commands to setup Global-VRF are not required for IOS-XR
-        release 6.0.2.
-
+  
+  For release 6.0.2,
 ```
   RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
   RP/0/RP0/CPU0:ios# run service sshd_tpnns restart
   RP/0/RP0/CPU0:ios# run chkconfig --add sshd_tpnns
+```
+  For release 6.1.x,
+  ```
+  RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_operns
+  RP/0/RP0/CPU0:ios# run service sshd_operns restart
+  RP/0/RP0/CPU0:ios# run chkconfig --add sshd_operns
 ```
 - You also need to add your Linux server SSH public key (~/.ssh/id_rsa.pub)
   to IOS-XR authorized_key file.
