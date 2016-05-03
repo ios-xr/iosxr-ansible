@@ -104,6 +104,8 @@ remote/samples/test     Contains additional playbooks showing direct access
   ssh root@192.168.1.120
   ssh root@192.168.1.120 "show run"
 ```
+### Extra IOS-XR setup for remote mode
+
 - Additional steps are required for setting up Global-VRF (TPNNS) in IOS-XR for
   remote mode access.  After IOS-XR is ready, at the IOS-XR console prompt,
   enter the following commands.
@@ -210,4 +212,3 @@ remote/samples/test     Contains additional playbooks showing direct access
 ## IOS-XR platforms tested
 - XRv9K (sunstone)
 - ASR9K (classic 32-bit QNX IOS-XR)
-
