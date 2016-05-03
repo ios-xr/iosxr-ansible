@@ -207,3 +207,7 @@ remote/samples/test     Contains additional playbooks showing direct access
   ansible-playbook iosxr_get_config.yml
   ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'
 ```
+## IOS-XR platforms tested
+- XRv9K (sunstone)
+- ASR9K (classic 32-bit QNX IOS-XR)
+
