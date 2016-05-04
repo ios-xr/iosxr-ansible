@@ -57,7 +57,7 @@ local/samples/xml       Contains sample RPC XML used with iosxr_netconf_send
 local/samples/ydk       Contains sample playbooks using YDK API's
 local/xrapi             Contains IOS-XR common Python functions
 remote/library          Contains Ansible modules for remote mode
-remote/samples          Contains sample playbooks using TPNNS CLI
+remote/samples          Contains sample playbooks using Namespace Shell CLI
 remote/samples/test     Contains additional playbooks showing direct access
                         to IOS-XR using shell
 ```
@@ -106,7 +106,7 @@ remote/samples/test     Contains additional playbooks showing direct access
 ```
 ### Extra IOS-XR setup for remote mode
 
-- Additional steps are required for setting up Global-VRF (TPNNS) in IOS-XR for
+- Additional steps are required for setting up namespace on IOS-XR for
   remote mode access.  After IOS-XR is ready, at the IOS-XR console prompt,
   enter the following commands.
   
@@ -129,16 +129,16 @@ remote/samples/test     Contains additional playbooks showing direct access
   cat ~/.ssh/id_rsa.pub
   ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDeyBBEXOyWd/8bL4a/hwEZnOb7vgns
   vh6jRgsJxNTMrF+NWkeknhXyzT48Wt3bU9Dxtq++unWoIkfOktcK6dVzVk0wrZ/PA64Z
-  c3vVpKPx22AIidwyegSVWtCXuv7C1V19gCRg1uddPSRtBbQ6uYjJylu1V9NzJYL4fDts
-  XJiepyyohGLYj+fHHPMdO6LZmGVhEqlLGl4cqRPsD3D7zzxIag9E/7CVPGiA+0fVvGOq
+  c3vVpKPx22AIidwyegSVWtCXuvC1V19gCRg1uddPSRtBbQ6uYjJylu1V9NzJYL4fDts
+  XJiepyyohGLYj+fHHPMdO6LZmGVhEqlLGl4cqRPsD3D7zxIag9E/7CVPGiA+0fVvGOq
   n7BL0x62bdcSzKDZUT3A0NGqht2RcEnYH7WQjzG3ikw230aiqBBr75LNzVkMxHZr8Mf6
-  Mr5iHcbAyGyjoDKxNA1LoAu6wGgQ4Gg66fr1U8bN aermongk@ansible-dev
+  Mr5iHcbAyGyjoDKxNA1LoAu6wGgQ4Gg66fr1U8bN ansible@ansible-dev
 ```
 
 ```
   RP/0/RP0/CPU0:ios# run vi /root/.ssh/authorized_keys
 ```
-- Testing TPNNS on XR by ssh to XR management address on port 57722
+- Accessing namespace shell on XR using SSH port 57722
 
 ```
   ssh -p 57722 root@192.168.1.120
@@ -147,12 +147,11 @@ remote/samples/test     Contains additional playbooks showing direct access
 ```
   > NOTE:
   > "nsenter" is part of the util-linux package which allows program to
-  > be running in other process namespace.  In the example, notice that
-  > the "ifconfig" returns different interfaces that is because the second
-  > one is run in Global-VRF namespace.  When SSH to IOS-XR port 57722,
-  > in IOS-XR 6.0.x, you will enter XR namespace.  The nsenter command will
-  > take you into Global-VRF namespace ('init' process namespace). But in
-  > release 6.1.1, you will enter Global-VRF namespace when connect to IOS-XR.
+  > enter other process namespace.  In the example, notice that
+  > the "ifconfig" in the second command returns interfaces within the XR
+  > namespace which is different from interfaces from the third command.
+  > The "nsenter" command takes you into Global-VRF (operns) namespace or
+  > 'init' process namespace)
 
 ## Local mode setup and test
 
