@@ -40,7 +40,6 @@ iosxr-ansible
 │   ├── library
 │   ├── samples
 │   │   ├── cli
-│   │   ├── vars
 │   │   ├── xml
 │   │   └── ydk
 │   └── xrapi
