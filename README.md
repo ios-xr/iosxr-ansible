@@ -20,16 +20,16 @@ The different between local and remote connection mode in Ansible is basically
 where the script is being run.  For the remote mode, Ansible automatically
 attempts to establish SSH connection to the remote node.  Once established,
 it copies a script, so-called Ansible module, and runs it on the remote
-node. The script responds to the server in JSON format. This remote mode
-requires TPNNS running on the IOS-XR node.
+node. The script responds to the server in JSON formatted text. This mode
+requires setting up third-party namespace (XRNNS) on the IOS-XR node.
 
 As for the local mode, Ansible run the module script on the local server.
 The script has to establish a connection to the remote node itself. The
-local mode IOS-XR Ansible module uses Ansible network module to establish SSH
-connection to the IOS-XR console to run CLI command.
+local mode module uses Ansible network module to establish SSH connection
+to the IOS-XR console to run CLI command.
 
-There are 2 implementions of "local" mode, CLI and Netconf XML. And there are 2
-options for Netconf XML, raw and YDK option. The YDK option requires ydk-py
+There are 2 implementions of "local" mode, CLI and NECONF XML. And there are 2
+options for NETCONF XML, raw and YDK option. The YDK option requires ydk-py
 python libraries from github.
 
 ## Directories structure
@@ -109,13 +109,15 @@ remote/samples/test     Contains additional playbooks showing direct access
   remote mode access.  After IOS-XR is ready, at the IOS-XR console prompt,
   enter the following commands.
   
-  For release 6.0.2,
+  For release 6.0.2, here is tpnss setup for SSH port 57722 to allow root
+  access to XR namespace
 ```
   RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
   RP/0/RP0/CPU0:ios# run service sshd_tpnns restart
   RP/0/RP0/CPU0:ios# run chkconfig --add sshd_tpnns
 ```
-  For release 6.1.x,
+  For release 6.1.x, here is operns setup for SSH port 57722 to allow root
+  access to Global-VRF namespace.
   ```
   RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_operns
   RP/0/RP0/CPU0:ios# run service sshd_operns restart
@@ -137,7 +139,7 @@ remote/samples/test     Contains additional playbooks showing direct access
 ```
   RP/0/RP0/CPU0:ios# run vi /root/.ssh/authorized_keys
 ```
-- Accessing namespace shell on XR using SSH port 57722
+- Accessing namespace shell on XR using SSH through port 57722
 
 ```
   ssh -p 57722 root@192.168.1.120
@@ -146,12 +148,14 @@ remote/samples/test     Contains additional playbooks showing direct access
 ```
   > NOTE:
   > "nsenter" is part of the util-linux package which allows program to
-  > enter other process namespace.  In the example, notice that
-  > the "ifconfig" in the second command returns interfaces within the XR
-  > namespace which is different from interfaces from the third command.
-  > The "nsenter" command takes you into Global-VRF (operns) namespace or
-  > 'init' process namespace)
+  > enter other process namespace.  In release 6.0.x, you will be connected to
+  > the XR namespace and "nsenter" command is required to change to Global-VRF
+  > namespace before running any helper command (/pkg/bin/xr_cli).
 
+  > To determine whether you are in XR namespace or Global-VRF namespace, do
+  > "ifconfig", if you see interface, e.g. fwd_ew or fwdintf, then you are in
+  > the XR namespace.
+  
 ## Local mode setup and test
 
 - Edit and source Ansible, YDK, and Python environment to point to your
