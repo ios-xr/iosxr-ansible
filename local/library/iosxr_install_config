@@ -93,6 +93,8 @@ stdout_lines:
   returned: always
 """
 
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
+
 def main():
     module = get_module(
         argument_spec = dict(
