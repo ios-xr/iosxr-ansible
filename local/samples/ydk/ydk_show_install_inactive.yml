@@ -3,13 +3,13 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-  - '../vars/iosxr_vars.yml'
+  vars:
+  - ansible_ssh_pass: 'lab'
 
   tasks:
-  - iosxr_show_install_version:
+  - iosxr_show_install_inactive:
       host: "{{ ansible_host }}"
-      username: '{{ iosxr_username }}'
-      password: '{{ iosxr_password }}'
+      username: '{{ ansible_ssh_user }}'
+      password: '{{ ansible_ssh_pass }}'
     register: output
   - debug: var=output.stdout_lines
