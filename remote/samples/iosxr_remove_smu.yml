@@ -2,7 +2,7 @@
 - hosts: ss-xr
   gather_facts: no
   vars:
-    smu_name: 'xrv9k-ospf-1.0.0.0-r60125I'
+    smu_name: 'xrv9k-ospf-1.0.0.0-r60201I'
 
   tasks:
   - name: deactivate SMU package
