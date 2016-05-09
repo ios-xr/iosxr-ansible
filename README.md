@@ -7,11 +7,11 @@ agent pre-installed on the target nodes to interact with the Ansible server.
 Ansible could be specified to run either on local server or on remote node.
 
 The different between local and remote connection mode in Ansible is basically
-where the script is being run.  For the remote mode, Ansible automatically
-attempts to establish SSH connection to the remote node.  Once established,
-it copies a script, so-called Ansible module, and runs it on the remote
-node. The script responds to the server in JSON formatted text. This mode
-requires setting up third-party namespace (TPNNS) on the IOS-XR node.
+where the script (so-called Ansible module) is being run.  For the remote mode,
+Ansible automatically attempts to establish SSH connection to the remote node.
+Once established, it transfers the script and runs it on the remote node.
+The script responds to the server in JSON formatted text. This mode requires
+setting up third-party namespace (TPNNS) on the IOS-XR node.
 
 As for the local mode, Ansible run the module script on the local server.
 The script has to establish a connection to the remote node itself. The
@@ -37,7 +37,7 @@ deliver CLI commands and configuration to the IOS-XR, respectively.
 
 # Understanding connection variants
 With different variants for local and remote modes mentioned earlier, before
-implementing Ansible modules, we need to be aware of their limitation.
+implementing Ansible modules, one needs to be aware of their limitation.
 -	Linux-based vs. QNX-based IOS-XR
   * QNX-based IOS-XR can only run in local mode
   * Earlier version of Linux-based IOS-XR also can only run in local mode due
@@ -49,19 +49,19 @@ implementing Ansible modules, we need to be aware of their limitation.
     to configure IOS-XR.
 -	Console CLI vs. TPNNS CLI
   * Console CLI allows you to do all CLI commands as you would do interactively.
-  * XR Namespace CLI Shell requires Ansible running in remote mode with IOS-XR
-    helper programs, /pkg/bin/xr_cli or /pkg/sin/config, to deliver CLI command
+  * TPNNS CLI shell requires Ansible running in remote mode with IOS-XR helper
+    programs, /pkg/bin/xr_cli or /pkg/sbin/config, to deliver CLI commands
     or configure IOS-XR, respectively.  
 -	Raw NETCONF vs. YDK NETCONF
   * Raw NETCONF mode allows you to configure IOS-XR using NETCONF commands in
-    RPC XML construct through regular ssh port 22 with appropriate termination
+    RPC XML construct through standard SSH port 22 with appropriate termination
     sequence (]]>]]>).  The response is also in RPC XML construct.
   * Alternatively, you can use YDK python API to configure IOS-XR through SSH
     port 830.  The API automatically generates the RPC XML construct based on
     the YANG model provided.
     
 NOTE: IOS-XR NETCONF XML construct is based on Cisco IOS-XR YANG model which
-      is currently  limited, such that, it doesn’t support SMU installation.
+      is currently limited, e.g. it doesn’t support SMU installation.
       Although, currently limited, the Cisco IOS-XR YANG definitions will
       continue to grow as more definitions are added and would be a preferred
       method for accessing IOS-XR. 
@@ -74,7 +74,7 @@ NOTE: IOS-XR NETCONF XML construct is based on Cisco IOS-XR YANG model which
   * Create network connection between XRV9K and Linux server
 
 - Pull YDK from the github into the Linux server
-  * git clone https://github.com/CiscoDevNet/ydk-py
+  * git clone https://github.com/CiscoDevNet/ydk-py
 
 - Pull Ansible Core modules
   * git clone git://github.com/ansible/ansible.git --recursive
