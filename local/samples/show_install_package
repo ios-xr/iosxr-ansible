@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ $# -lt 1 ]; then
+  echo 'usage: show_install_package <package_name>'
+  exit 1
+fi
+ansible-playbook iosxr_cli.yml -e "cmd=\"show install package $1\""
