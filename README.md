@@ -42,7 +42,7 @@ iosxr-ansible
 │   │   ├── cli
 │   │   ├── xml
 │   │   └── ydk
-│   └── xrapi
+│   └── common
 └── remote
     ├── library
     └── samples
@@ -54,7 +54,7 @@ local/library           Contains Ansible modules for local mode
 local/samples/cli       Contains sample playbooks using Console CLI
 local/samples/xml       Contains sample RPC XML used with iosxr_netconf_send
 local/samples/ydk       Contains sample playbooks using YDK API's
-local/xrapi             Contains IOS-XR common Python functions
+local/common            Contains IOS-XR common Python functions
 remote/library          Contains Ansible modules for remote mode
 remote/samples          Contains sample playbooks using Namespace Shell CLI
 remote/samples/test     Contains additional playbooks showing direct access
