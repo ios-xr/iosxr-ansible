@@ -1,4 +1,72 @@
-## Ansible Test Setup
+# Introduction to IOS-XR Ansible
+
+In the nutshell, Ansible is an automation tool for configuring system,
+deploying software, and orchestrating services. Unlike Puppet and Chef which
+is an agent-based architecture, Ansible does not require daemon running or
+agent pre-installed on the target nodes to interact with the Ansible server.
+Ansible could be specified to run either on local server or on remote node.
+
+The different between local and remote connection mode in Ansible is basically
+where the script is being run.  For the remote mode, Ansible automatically
+attempts to establish SSH connection to the remote node.  Once established,
+it copies a script, so-called Ansible module, and runs it on the remote
+node. The script responds to the server in JSON formatted text. This mode
+requires setting up third-party namespace (TPNNS) on the IOS-XR node.
+
+As for the local mode, Ansible run the module script on the local server.
+The script has to establish a connection to the remote node itself. The
+local mode module uses Ansible network module to establish SSH connection
+to the IOS-XR console to run CLI command.
+
+There are 2 implementions of "local" mode, CLI and NECONF XML. And there are 2
+options for NETCONF XML, raw and YDK option. The YDK option requires ydk-py
+python libraries from github.
+
+There are 3 different ways to access IOS-XR in local mode.
+1.	CLI console - connect to IOS-XR console through SSH port 22 and use
+                  CLI commands.
+2.	Raw NETCONF - connect to IOS-XR console through SSH port 22 and use
+                  netconf CLI command to enter NETCONF interactive mode 
+                  to exchange NETCONF XML construct.
+3.	YDK NETCONF - use the Cisco YDK API service to manage IOS-XR device
+                  through SSH port 830.
+
+Managing the IOS-XR device in the remote mode required TPNNS through SSH
+port 57722 with the helper programs, /pkg/bin/xr_cli and /pkg/sbin/config, to
+deliver CLI commands and configuration to the IOS-XR, respectively.
+
+# Understanding connection variants
+With different variants for local and remote modes mentioned earlier, before
+implementing Ansible modules, we need to be aware of their limitation.
+-	Linux-based vs. QNX-based IOS-XR
+  * QNX-based IOS-XR can only run in local mode
+  * Earlier version of Linux-based IOS-XR also can only run in local mode due
+    to incomplete Python libraries
+  * Linux-based IOS-XR (eXR 6.0.2 or later) can run both remote and local modes
+-	CLI vs. NETCONF
+  * With CLI mode, you can do all CLI commands as you would do interactively.
+  * The NETCONF mode allows you to use NETCONF commands in RPC XML construct
+    to configure IOS-XR.
+-	Console CLI vs. TPNNS CLI
+  * Console CLI allows you to do all CLI commands as you would do interactively.
+  * XR Namespace CLI Shell requires Ansible running in remote mode with IOS-XR
+    helper programs, /pkg/bin/xr_cli or /pkg/sin/config, to deliver CLI command
+    or configure IOS-XR, respectively.  
+-	Raw NETCONF vs. YDK NETCONF
+  * Raw NETCONF mode allows you to configure IOS-XR using NETCONF commands in
+    RPC XML construct through regular ssh port 22 with appropriate termination
+    sequence (]]>]]>).  The response is also in RPC XML construct.
+  * Alternatively, you can use YDK python API to configure IOS-XR through SSH
+    port 830.  The API automatically generates the RPC XML construct based on
+    the YANG model provided.
+    
+NOTE: IOS-XR NETCONF XML construct is based on Cisco IOS-XR YANG model which
+      is currently  limited, such that, it doesn’t support SMU installation.
+      Although, currently limited, the Cisco IOS-XR YANG definitions will
+      continue to grow as more definitions are added and would be a preferred
+      method for accessing IOS-XR. 
+
+# Ansible Test Setup
 
 - **Prerequisite**
   * Create 2 XRV9K (Sunstone) VM's with k9sec security package
@@ -14,25 +82,7 @@
   Addition read on Ansible installation is here
   * http://docs.ansible.com/ansible/intro_installation.html#getting-ansible
 
-## Local vs. Remote
-
-The different between local and remote connection mode in Ansible is basically
-where the script is being run.  For the remote mode, Ansible automatically
-attempts to establish SSH connection to the remote node.  Once established,
-it copies a script, so-called Ansible module, and runs it on the remote
-node. The script responds to the server in JSON formatted text. This mode
-requires setting up third-party namespace (XRNNS) on the IOS-XR node.
-
-As for the local mode, Ansible run the module script on the local server.
-The script has to establish a connection to the remote node itself. The
-local mode module uses Ansible network module to establish SSH connection
-to the IOS-XR console to run CLI command.
-
-There are 2 implementions of "local" mode, CLI and NECONF XML. And there are 2
-options for NETCONF XML, raw and YDK option. The YDK option requires ydk-py
-python libraries from github.
-
-## Directories structure
+# Directories structure
 
 ```
 iosxr-ansible
@@ -61,7 +111,7 @@ remote/samples/test     Contains additional playbooks showing direct access
                         to IOS-XR using shell
 ```
 
-## IOS-XR setup
+# IOS-XR setup
 
 - Create default crypto key on your XRV9K VMs (select default 2048 bits)
 
@@ -156,7 +206,7 @@ remote/samples/test     Contains additional playbooks showing direct access
   > "ifconfig", if you see interface, e.g. fwd_ew or fwdintf, then you are in
   > the XR namespace.
   
-## Local mode setup and test
+# Local mode setup and test
 
 - Edit and source Ansible, YDK, and Python environment to point to your
   installed applications
@@ -184,7 +234,7 @@ remote/samples/test     Contains additional playbooks showing direct access
   ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'
   ansible-playbook iosxr_netconf_send.yml -e "xml_file=xml/nc_show_install_active.xml"
 ```
-## Remote mode setup and test
+# Remote mode setup and test
 
 - Configure Ansible configuration to use port 57722 by editing your ansible
   config file (default is /etc/ansible/ansible.cfg) with following values
@@ -216,6 +266,6 @@ remote/samples/test     Contains additional playbooks showing direct access
   ansible-playbook iosxr_get_config.yml
   ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'
 ```
-## IOS-XR platforms tested
+# IOS-XR platforms tested
 - XRv9K (sunstone)
 - ASR9K (classic 32-bit QNX IOS-XR)
