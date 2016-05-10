@@ -27,11 +27,11 @@ import logging
 
 DOCUMENTATION = """
 ---
-module: iosxr_install_config
+module: iosxr_diff_config
 author: Adisorn Ermongkonchai
-short_description: Commit configuration file on IOS-XR node.
+short_description: Compare config file provided with the running config
 description:
-  - Install IOS-XR package or SMU (Software Maintenance Updates)
+  - Compare config file provided with the running configuration
     on the IOS-XR node.
 options:
   host:
@@ -53,26 +53,11 @@ options:
     description:
       - fully qualified config filename, e.g. tftp://192.168.1.1/user_add.cfg
     required: true
-  replace:
-    description:
-      - remove all current running-config and apply new config
-    required: false
-    default: false
-  force:
-    description:
-      - override commit blocks
-    required: false
-    default: false
-  label:
-    description:
-      - assign a label to this commit
-    required: false
-    default: none
   logfile:
     description:
       - log output to file
     required: false
-    default: /tmp/iosxr_install_config.log
+    default: /tmp/iosxr_diff_config.log
 """
 
 EXAMPLES = """
@@ -80,8 +65,8 @@ EXAMPLES = """
     host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
-    cfgname: 'tftp://192.168.1.1/add_user.cfg'
-    label: 'bgp_config_commit'
+    cfgname: 'tftp://192.168.1.1/add_replace.cfg'
+    label: 'username_diff'
 
 """
 
@@ -94,57 +79,32 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
-
 def main():
     module = get_module(
         argument_spec = dict(
-            username = dict(required=False, default=None),
-            password = dict(required=False, default=None),
-            cfgname  = dict(required=True),
-            label    = dict(required=False, default=None),
-            replace  = dict(required=False, type='bool', default=False),
-            force    = dict(required=False, type='bool', default=False),
-            logfile  = dict(required=False,
-                            default='/tmp/iosxr_install_config.log'),
+            username  = dict(required=False, default=None),
+            password  = dict(required=False, default=None),
+            cfgname   = dict(required=True),
+            logfile   = dict(required=False,
+                             default='/tmp/iosxr_diff_config.log'),
         ),
         supports_check_mode=True
     )
     args = module.params
     cfg_name = args['cfgname']
-    label = args['label']
-    force = args['force']
-    replace = args['replace']
   
     load_command = 'load ' + cfg_name
     commands = to_list(load_command)
     commands.insert(0, 'configure terminal')
-  
-    commit_command = 'commit '
-    if replace is True:
-        commit_command = commit_command + 'replace '
-    if force is True:
-        commit_command = commit_command + 'force '
-    if label != None:
-        commit_command = commit_command + 'label ' + label
-    commands.append(commit_command)
-    if replace is True:
-        commands.append('yes')
+    commands.append('show commit changes diff')
     response = execute_command(module, commands)
   
-    result = dict(changed=True)
+    result = dict(changed=False)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
-    # log result to file
     logging.basicConfig(filename=args['logfile'], level=logging.INFO)
-    logging.getLogger().name = args['host'] + ':iosxr_install_config'
-    logging.info(result['stdout_lines'])
-
-    # show and log changes to file
-    response = execute_command(module, "show config commit changes last 1")
-    result['stdout'] = response
-    result['stdout_lines'] = str(result['stdout']).split(r'\n')
+    logging.getLogger().name = args['host'] + ':iosxr_diff_config'
     logging.info(result['stdout_lines'])
 
     module.exit_json(**result)

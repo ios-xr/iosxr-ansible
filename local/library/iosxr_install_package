@@ -23,6 +23,7 @@ from ansible.module_utils.shell import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
 from iosxr_common import *
+import logging
 
 DOCUMENTATION = """
 ---
@@ -141,9 +142,9 @@ def install_add(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        response = pkg_name + " package is already active"
+        response = to_list(pkg_name + " package is already active\n")
     elif is_package_already_added(module, pkg_name):
-        response = pkg_name + " package is already added"
+        response = to_list(pkg_name + " package is already added\n")
     elif pkg_path == None:
         module.fail_json(msg="package path required")
     else:
@@ -173,7 +174,7 @@ def install_remove(module, pkg_path, pkg_name):
         response = wait_install_response(module, oper_id)
         result['changed'] = True
     else:
-        response = pkg_name + " package has already been removed"
+        response = to_list(pkg_name + " package has already been removed\n")
 
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
@@ -184,7 +185,7 @@ def install_activate(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        response = pkg_name + " package is already active"
+        response = to_list(pkg_name + " package is already active\n")
     elif is_package_already_added(module, pkg_name):
         command = "install activate " + pkg_name
         response = execute_command(module, command)
@@ -210,9 +211,9 @@ def install_deactivate(module, pkg_path, pkg_name):
         response = wait_install_response(module, oper_id)
         result['changed'] = True
     elif is_package_already_added(module, pkg_name):
-        response = pkg_name + " package is already deactivated"
+        response = to_list(pkg_name + " package is already deactivated\n")
     else:
-        response = pkg_name + " package has already been removed"
+        response = to_list(pkg_name + " package has already been removed\n")
 
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
@@ -265,10 +266,11 @@ def main():
     result = install[state](module, args['pkgpath'], args['pkgname'])
   
     # log to file and return result
-    with open(args['logfile'], "a") as logfile:
-        logfile.write(result['stdout'][0])
-    module.exit_json(**result)
+    logging.basicConfig(filename=args['logfile'], level=logging.INFO)
+    logging.getLogger().name = args['host'] + ':iosxr_install_package'
+    logging.info(result['stdout'][0])
 
+    module.exit_json(**result)
 
 if __name__ == "__main__":
     main()

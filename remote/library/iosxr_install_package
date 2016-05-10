@@ -120,9 +120,9 @@ def install_add(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        out = pkg_name + " package is already active"
+        out = pkg_name + " package is already active\n"
     elif is_package_already_added(module, pkg_name):
-        out = pkg_name + " package is already added"
+        out = pkg_name + " package is already added\n"
     elif pkg_path == None:
         module.fail_json(msg="package path required")
     else:
@@ -152,7 +152,7 @@ def install_remove(module, pkg_path, pkg_name):
         (rc, out, err) = wait_install_response(module, oper_id)
         result['changed'] = True
     else:
-        out = pkg_name + " package has already been removed"
+        out = pkg_name + " package has already been removed\n"
 
     result['stdout'] = out
     result['stdout_lines'] = str(result['stdout']).splitlines()
@@ -163,7 +163,7 @@ def install_activate(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        out = pkg_name + " package is already active"
+        out = pkg_name + " package is already active\n"
     elif is_package_already_added(module, pkg_name):
         command = "install activate " + pkg_name
         (rc, out, err) = execute_command(module, command)
@@ -189,9 +189,9 @@ def install_deactivate(module, pkg_path, pkg_name):
         (rc, out, err) = wait_install_response(module, oper_id)
         result['changed'] = True
     elif is_package_already_added(module, pkg_name):
-        out = pkg_name + " package is already deactivated"
+        out = pkg_name + " package is already deactivated\n"
     else:
-        out = pkg_name + " package has already been removed"
+        out = pkg_name + " package has already been removed\n"
 
     result['stdout'] = out
     result['stdout_lines'] = str(result['stdout']).splitlines()

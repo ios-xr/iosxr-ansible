@@ -80,8 +80,7 @@ def main():
     load_command = 'config -f %s ' % cfg_name
     if label != None:
         load_command = load_command + '-l "%s"' % label
-    command = "source /etc/profile ; nsenter -t 1 -n -- %s" % \
-              load_command
+    command = "source /etc/profile ; nsenter -t 1 -n -- %s" % load_command
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
 
     # check for error
@@ -93,9 +92,19 @@ def main():
     result['stdout'] = out if out != "" else err
     result['stdout_lines'] = str(result['stdout']).splitlines()
 
-    # log to file and return result
-    with open(args['logfile'], "a") as logfile:
-        logfile.write(result['stdout'])
+    # log result to file
+    logfile = open(args['logfile'], "a")
+    logfile.write(result['stdout'])
+
+    # log changes to file
+    change_command = 'show config commit changes last 1'
+    command = 'source /etc/profile ; nsenter -t 1 -n -- xr_cli "%s"' % \
+              change_command
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+    result['stdout'] = out
+    result['stdout_lines'] = str(result['stdout']).splitlines()
+    logfile.write(result['stdout'])
+
     module.exit_json(**result)
 
 if __name__ == "__main__":

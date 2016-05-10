@@ -1,0 +1,13 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: compare config file to running config
+    iosxr_diff_config:
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      cfgname: '{{ config_file }}'
+    register: output
+  - debug: var=output.stdout_lines

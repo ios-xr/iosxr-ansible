@@ -1,0 +1,1 @@
+ansible-playbook iosxr_diff_config.yml -e "config_file=tftp://192.168.1.1/user_mod.cfg"
