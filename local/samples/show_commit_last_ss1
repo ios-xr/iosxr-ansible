@@ -1,0 +1,1 @@
+ansible 192.168.1.3 -c local -m iosxr_cli -a "host=192.168.1.3 username=root command=\"show configuration commit changes last 1\""

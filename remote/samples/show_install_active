@@ -1,1 +1,1 @@
-ansible-playbook iosxr_cli.yml --extra-vars='cmd="show install active"'
+ansible-playbook iosxr_cli.yml -e 'cmd="show install active"'
