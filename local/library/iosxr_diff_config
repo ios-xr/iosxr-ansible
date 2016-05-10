@@ -66,8 +66,6 @@ EXAMPLES = """
     username: cisco
     password: cisco
     cfgname: 'tftp://192.168.1.1/add_replace.cfg'
-    label: 'username_diff'
-
 """
 
 RETURN = """
