@@ -61,7 +61,7 @@ options:
 """
 
 EXAMPLES = """
-- iosxr_install_config:
+- iosxr_diff_config:
     host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
