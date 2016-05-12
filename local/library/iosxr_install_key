@@ -27,11 +27,11 @@ import logging
 
 DOCUMENTATION = """
 ---
-module: iosxr_install_config
+module: iosxr_install_key
 author: Adisorn Ermongkonchai
-short_description: Commit configuration file on IOS-XR node.
+short_description: Install BASE64 crypto key on the IOS-XR
 description:
-  - load and commit configuration file on IOS-XR node.
+  - Install BASE64 crypto key on the IOS-XR node.
 options:
   host:
     description:
@@ -48,30 +48,13 @@ options:
       - password used to login to IOS-XR
     required: false
     default: none
-  cfgname:
+  keyfile:
     description:
-      - fully qualified config filename, e.g. tftp://192.168.1.1/user_add.cfg
+      - fully qualified base64 key file, e.g. tftp://192.168.1.1/id_rsa_pub.b64
+    note:
+      - following commands show how to convert Linux rsa key file to base64 file
+        $cut -d" " -f2 ~/.ssh/id_rsa.pub | base64 -d > ~/.ssh/id_rsa_pub.b64
     required: true
-  replace:
-    description:
-      - remove all current running-config and apply new config
-    required: false
-    default: false
-  force:
-    description:
-      - override commit blocks
-    required: false
-    default: false
-  label:
-    description:
-      - assign a label to this commit
-    required: false
-    default: none
-  logfile:
-    description:
-      - log output to file
-    required: false
-    default: /tmp/iosxr_install_config.log
 """
 
 EXAMPLES = """
@@ -79,8 +62,7 @@ EXAMPLES = """
     host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
-    cfgname: 'tftp://192.168.1.1/add_user.cfg'
-    label: 'bgp_config_commit'
+    keyfile: 'tftp://192.168.1.1/id_rsa_pub.b64'
 
 """
 
@@ -100,51 +82,24 @@ def main():
         argument_spec = dict(
             username = dict(required=False, default=None),
             password = dict(required=False, default=None),
-            cfgname  = dict(required=True),
-            label    = dict(required=False, default=None),
-            replace  = dict(required=False, type='bool', default=False),
-            force    = dict(required=False, type='bool', default=False),
-            logfile  = dict(required=False,
-                            default='/tmp/iosxr_install_config.log'),
+            keyfile  = dict(required=True),
         ),
         supports_check_mode=True
     )
     args = module.params
-    cfg_name = args['cfgname']
-    label = args['label']
-    force = args['force']
-    replace = args['replace']
+    keyfile = args['keyfile']
   
-    load_command = 'load ' + cfg_name
-    commands = to_list(load_command)
-    commands.insert(0, 'configure terminal')
-  
-    commit_command = 'commit '
-    if replace is True:
-        commit_command = commit_command + 'replace '
-    if force is True:
-        commit_command = commit_command + 'force '
-    if label != None:
-        commit_command = commit_command + 'label ' + label
-    commands.append(commit_command)
-    if replace is True:
-        commands.append('yes')
+    crypto_command = 'crypto key import authentication rsa ' + keyfile
+    commands = to_list(crypto_command)
+    commands.append('yes')
     response = execute_command(module, commands)
-  
+
+    show_command = 'show crypto key authentication rsa'
+    response = execute_command(module, show_command)
+
     result = dict(changed=True)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
-
-    # log result to file
-    logging.basicConfig(filename=args['logfile'], level=logging.INFO)
-    logging.getLogger().name = args['host'] + ':iosxr_install_config'
-    logging.info(result['stdout_lines'])
-
-    # show and log changes to file
-    response = execute_command(module, "show config commit changes last 1")
-    result['stdout'] = response
-    result['stdout_lines'] = str(result['stdout']).split(r'\n')
-    logging.info(result['stdout_lines'])
 
     module.exit_json(**result)
 
