@@ -89,9 +89,13 @@ def main():
     args = module.params
     keyfile = args['keyfile']
   
+    show_command = 'show crypto key authentication rsa'
+    response = execute_command(module, show_command)
+
     crypto_command = 'crypto key import authentication rsa ' + keyfile
     commands = to_list(crypto_command)
-    commands.append('yes')
+    if 'authentication' in response[0]:
+        commands.append('yes')
     response = execute_command(module, commands)
 
     show_command = 'show crypto key authentication rsa'
