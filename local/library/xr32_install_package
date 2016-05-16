@@ -66,7 +66,7 @@ options:
     description:
       - log output to file
     required: false
-    default: /tmp/iosxr_install_package.log
+    default: /tmp/xr32_install_package.log
   state:
     description:
       - represent state of the package being installed
@@ -76,7 +76,7 @@ options:
 """
 
 EXAMPLES = """
-- iosxr_install_package:
+- xr32_install_package:
     host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
@@ -84,7 +84,7 @@ EXAMPLES = """
     pkgname: "xrv9k-ospf-1.0.0.0-r61102I"
     state: present
 
-- iosxr_install_package:
+- xr32_install_package:
     host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
@@ -250,7 +250,7 @@ def main():
             pkgpath = dict(required=False, default=None),
             pkgname = dict(required=True, default=None),
             logfile = dict(required=False,
-                           default='/tmp/iosxr_install_package.log'),
+                           default='/tmp/xr32_install_package.log'),
             state = dict(required=False, default='present',
                          choices = ['present',
                                     'absent',
@@ -291,7 +291,7 @@ def main():
   
     # log to file and return result
     logging.basicConfig(filename=args['logfile'], level=logging.INFO)
-    logging.getLogger().name = args['host'] + ':iosxr_install_package'
+    logging.getLogger().name = args['host'] + ':xr32_install_package'
     logging.info(result['stdout'][0])
 
     module.exit_json(**result)
