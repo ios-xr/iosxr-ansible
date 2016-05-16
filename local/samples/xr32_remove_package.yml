@@ -1,0 +1,26 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  vars:
+    smu_name: 'mem:asr9k-mpls-px-6.1.1.02I'
+
+  tasks:
+  - name: deactivate SMU package
+    xr32_install_package:
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      pkgname: '{{ smu_name }}'
+      state: deactivate
+    register: output
+  - debug: var=output.stdout_lines
+
+  - name: remove SMU package
+    xr32_install_package:
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      pkgname: '{{ smu_name }}'
+      state: absent
+    register: output
+  - debug: var=output.stdout_lines

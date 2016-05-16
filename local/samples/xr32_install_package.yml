@@ -3,25 +3,22 @@
   connection: local
   gather_facts: no
 
-  vars:
-    smu_name: 'xrv9k-ospf-1.0.0.0-r60201I'
-
   tasks:
   - name: add SMU package
-    iosxr_install_package:
+    xr32_install_package:
       host: '{{ ansible_host }}'
       username: '{{ ansible_ssh_user }}'
-      pkgpath: 'tftp://192.168.1.1'
-      pkgname: '{{ smu_name }}'
+      pkgpath: 'tftp://172.18.188.194/aermongk'
+      pkgname: 'asr9k-mpls-px.pie'
       state: present
     register: output
   - debug: var=output.stdout_lines
 
   - name: activate SMU package
-    iosxr_install_package:
+    xr32_install_package:
       host: '{{ ansible_host }}'
       username: '{{ ansible_ssh_user }}'
-      pkgname: '{{ smu_name }}'
+      pkgname: 'mem:asr9k-mpls-px-6.1.1.02I'
       state: activate
     register: output
   - debug: var=output.stdout_lines

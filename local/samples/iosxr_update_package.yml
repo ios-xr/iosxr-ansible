@@ -1,0 +1,18 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  vars:
+    smu_name: 'asr9k-mpls-px.pie'
+
+  tasks:
+  - name: add SMU package
+    iosxr_install_package:
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      pkgpath: 'tftp://172.18.188.194/aermongk'
+      pkgname: '{{ smu_name }}'
+      state: update
+    register: output
+  - debug: var=output.stdout_lines

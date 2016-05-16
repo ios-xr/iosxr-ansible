@@ -27,7 +27,7 @@ import logging
 
 DOCUMENTATION = """
 ---
-module: iosxr_install_package
+module: xr32_install_package
 author: Adisorn Ermongkonchai
 short_description: Run install commands on IOS-XR devices.
 description:
@@ -101,6 +101,8 @@ stdout_lines:
   returned: always
 """
 
+legacy = False
+
 # check if another install command in progress
 def is_legacy_iosxr(module):
     command = "show version"
@@ -111,7 +113,7 @@ def is_legacy_iosxr(module):
 def is_install_in_progress(module):
     command = "show install request"
     response = execute_command(module, command)
-    return "No install operation in progress" not in response[0]
+    return "no install requests" not in response[0]
 
 # check if the package is already added
 def is_package_already_added(module, pkg_name):
@@ -133,14 +135,18 @@ def wait_install_response(module, oper_id):
             retries -= 1
             time.sleep(3)
         else:
-            command = "show install log " + oper_id.group(1)
-            return execute_command(module, command)
+            command = "show install log " + oper_id.group(1) + " detail"
+            response = execute_command(module, command)
+            if 'Error: ' in response[0]:
+                module.fail_json(msg=response)
+            return response
+
     else:
         module.fail_json(msg="timeout waiting for install to complete")
 
 # get install operation id from log
 def get_operation_id(response):
-    pattern = re.compile(r"operation (\d+) started")
+    pattern = re.compile(r"Install operation (\d+)")
     return pattern.search(response[0])
 
 # add package only when it is not already added or activate
@@ -155,8 +161,7 @@ def install_add(module, pkg_path, pkg_name):
         module.fail_json(msg="package path required")
     else:
         command = ("install add source " +
-                   pkg_path + " " +
-                   pkg_name + ".x86_64.rpm")
+                   pkg_path + " " + pkg_name)
         response = execute_command(module, command)
         oper_id = get_operation_id(response)
         response = wait_install_response(module, oper_id)
@@ -174,7 +179,7 @@ def install_remove(module, pkg_path, pkg_name):
         error = pkg_name + " is active, please deactivate first"
         module.fail_json(msg=error)
     elif is_package_already_added(module, pkg_name):
-        command = "install remove " + pkg_name
+        command = "install remove " + pkg_name + "prompt-level none"
         response = execute_command(module, command)
         oper_id = get_operation_id(response)
         response = wait_install_response(module, oper_id)
@@ -257,12 +262,15 @@ def main():
     )
     args = module.params
     state = args['state']
+    legacy = is_legacy_iosxr(module)
 
-    # cannot run on classic XR
-    if is_legacy_iosxr(module):
-        module.fail_json(msg=
-            "use 'xr32_install_package' on 32-bit IOS-XR instead")
-
+    # cannot run on 64-bit XR or run 'update'
+    if legacy:
+        if state == 'update':
+            module.fail_json(msg="32-bit IOS-XR does not support update")
+    else:
+        module.fail_json(msg="cannot run on 64-bit IOS-XR")
+  
     # make sure no other install in progress
     if is_install_in_progress(module):
         module.fail_json(msg="other install op in progress")
@@ -274,6 +282,11 @@ def main():
         'deactivate': install_deactivate,
         'commit':     install_commit
     }
+    # need to be in "admin" mode for classic XR
+    if legacy:
+        command = "admin"
+        response = execute_command(module, command)
+
     result = install[state](module, args['pkgpath'], args['pkgname'])
   
     # log to file and return result

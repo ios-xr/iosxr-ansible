@@ -23,18 +23,22 @@ There are 2 implementions of local mode, CLI and NECONF XML. And there are 2
 options for NETCONF XML, raw and YDK options. The YDK option requires ydk-py
 python libraries from github.
 
-There are 3 different ways to access IOS-XR in local mode.
-1.	**CLI console** - connect to IOS-XR console through SSH port 22 and use
+There are 4 different ways to access IOS-XR in local mode.
+1.	**Console CLI** - connect to IOS-XR console through SSH port 22 and use
                   CLI commands.
-2.	**Raw NETCONF** - connect to IOS-XR console through SSH port 22 and use
+2.	**TPNNS CLI** - connect to IOS-XR Linux shell through SSH port 57722
+                  and use helper programs, /pkg/bin/xr_cli or /pkg/sbin/config.
+3.	**Raw NETCONF** - connect to IOS-XR console through SSH port 22 and use
                   **netconf** CLI command to enter NETCONF interactive mode 
                   to exchange NETCONF XML construct.
-3.	**YDK NETCONF** - use the Cisco YDK API service to manage IOS-XR device
+4.	**YDK NETCONF** - use the Cisco YDK API service to manage IOS-XR device
                   through SSH port 830.
 
 Managing the IOS-XR device in the remote mode required TPNNS through SSH
 port 57722 with the helper programs, /pkg/bin/xr_cli and /pkg/sbin/config, to
-deliver CLI commands and configuration to the IOS-XR, respectively.
+deliver CLI commands and configuration to the IOS-XR, respectively.  This
+remote mode connection is identical to TPNNS CLI running in local mode except
+for how the SSH connection is being established and where the script is run.
 
 # Understanding connection variants
 With different variants for local and remote modes mentioned earlier, before
@@ -50,10 +54,10 @@ implementing Ansible modules, one needs to be aware of their limitation.
     to configure IOS-XR.
 -	**Console CLI vs. TPNNS CLI**
   * Console CLI allows you to do all CLI commands as you would do interactively.
-  * TPNNS CLI shell requires Ansible running in remote mode with IOS-XR helper
-    programs, /pkg/bin/xr_cli or /pkg/sbin/config, to deliver CLI commands
-    or configure IOS-XR, respectively.  Currently, "commit replace" is not
-    supported by /pkg/sbin/config.
+  * TPNNS CLI can either be implemented in local or remote mode.  It connects
+    to IOS-XR Linux shell and requires helper programs, /pkg/bin/xr_cli or
+    /pkg/sbin/config, to deliver CLI commands or configure IOS-XR, respectively.
+    Currently, "commit replace" is not supported by /pkg/sbin/config.
 -	**Raw NETCONF vs. YDK NETCONF**
   * Raw NETCONF mode allows you to configure IOS-XR using NETCONF commands in
     RPC XML construct through standard SSH port 22 with appropriate termination
