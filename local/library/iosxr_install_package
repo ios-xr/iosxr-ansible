@@ -134,7 +134,10 @@ def wait_install_response(module, oper_id):
             time.sleep(3)
         else:
             command = "show install log " + oper_id.group(1)
-            return execute_command(module, command)
+            response = execute_command(module, command)
+            if 'ERROR' in response[0]:
+                module.fail_json(msg=response[0])
+            return response
     else:
         module.fail_json(msg="timeout waiting for install to complete")
 
