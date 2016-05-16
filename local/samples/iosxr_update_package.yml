@@ -4,14 +4,14 @@
   gather_facts: no
 
   vars:
-    smu_name: 'asr9k-mpls-px.pie'
+    smu_name: 'xrv9k-ospf-1.0.0.0-r60204I'
 
   tasks:
-  - name: add SMU package
+  - name: update SMU package
     iosxr_install_package:
       host: '{{ ansible_host }}'
       username: '{{ ansible_ssh_user }}'
-      pkgpath: 'tftp://172.18.188.194/aermongk'
+      pkgpath: 'tftp://192.168.1.1'
       pkgname: '{{ smu_name }}'
       state: update
     register: output
