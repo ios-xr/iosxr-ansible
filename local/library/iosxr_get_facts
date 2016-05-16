@@ -81,7 +81,6 @@ def main():
              'show install active',
              'show filesystem',
              'show media',
-             'show license all',
              'show route',
              'show running-config',
              'show arp',
