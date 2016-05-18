@@ -1,0 +1,1 @@
+ansible-playbook iosxr_nc10_send.yml -e "xml_file=xml/nc10_show_install_active.xml"

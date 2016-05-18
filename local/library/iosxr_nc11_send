@@ -19,18 +19,15 @@
 #------------------------------------------------------------------------------
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.shell import *
-from ansible.module_utils.netcfg import *
-from ansible.module_utils.iosxr import *
-from iosxr_common import *
+import paramiko
 
 DOCUMENTATION = """
 ---
-module: iosxr_netconf_send
+module: iosxr_nc11_send
 author: Adisorn Ermongkonchai
-short_description: Performs Netconf XML RPC to IOS-XR node
+short_description: Performs NETCONF-YANG XML RPC to IOS-XR node
 description:
-  - Performs Netconf XML RPC to IOS-XR node
+  - Performs NETCONF-YANG XML RPC to IOS-XR node
 options:
   host:
     description:
@@ -52,15 +49,10 @@ options:
       - XML file
     required: true
     example: nc_show_install_active.xml
-      <?xml version="1.0" encoding="UTF-8"?>
-      <rpc message-id="101" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+      <rpc message-id="101" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
         <get>
-          <filter>
-            <Operational>
-              <SoftwareInstall>
-                <Active/>
-              </SoftwareInstall>
-            </Operational>
+          <filter type="subtree">
+            <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg"/>
           </filter>
         </get>
       </rpc>
@@ -83,35 +75,83 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPTS_RE.append(re.compile(r']]>]]>[\r\n]?'))
+HELLO = """
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <capabilities>
+        <capability>urn:ietf:params:netconf:base:1.1</capability>
+    </capabilities>
+</hello>
+]]>]]>"""
+
+COMMIT = """
+#91
+<rpc message-id="101" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <commit/>
+</rpc>
+##
+"""
+
+CLOSE = """
+#98
+<rpc message-id="102" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <close-session/>
+</rpc>
+##
+"""
 
 def main():
-    module = get_module(
+    module = AnsibleModule(
         argument_spec = dict(
-            xmlfile = dict(required=True)
+            host = dict(required=True),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            xmlfile = dict(required=True),
+            port = dict(required=False, type='int', default=830)
         ),
         supports_check_mode = True
     )
     args = module.params
     xml_file = module.params['xmlfile']
 
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(module.params['host'],
+                port=module.params['port'],
+                username=module.params['username'],
+                password=module.params['password'],
+                timeout=10)
+    transport = ssh.get_transport()
+    channel = transport.open_channel('session')
+    channel.invoke_subsystem('netconf')
+
+    # read hello msg
+    response = channel.recv(1024)
+    while ']]>]]>' not in response:
+        response += channel.recv(1024)
+
     result = dict(changed=False)
     xml_text = open(xml_file).read()
-    if 'edit-config' in xml_text:
+    if 'edit-config' or 'delete-config' in xml_text:
         result['changed'] = True
+    xml_msg = '\n#' + str(len(xml_text)-1) + '\n' + xml_text + '##\n'
 
-    module.execute('netconf format')
-    for line in open(xml_file):
-        module.connection.shell.shell.send(line)
-    module.connection.shell.shell.send(']]>]]>\r')
+    # send hello followed by contents of xml file
+    channel.send(HELLO)
+    channel.send(xml_msg)
 
-    # collect all responses 200 bytes at a time
-    response = ""
-    while ']]>]]>' not in response:
-        response += module.connection.shell.shell.recv(200)
+    # collect all responses 1024 bytes at a time
+    response = channel.recv(1024)
+    while '##' not in response:
+        response += channel.recv(1024)
+
+    # commit changes
+    if result['changed']:
+        channel.send(COMMIT)
+
+    channel.send(CLOSE)
 
     result['stdout'] = response
-    if "error-message" in response:
+    if 'rpc-error' in response:
         return module.fail_json(msg=response)
     else:
         return module.exit_json(**result)

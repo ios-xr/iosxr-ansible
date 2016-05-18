@@ -1,0 +1,1 @@
+ansible-playbook iosxr_nc11_send.yml -e "xml_file=xml/nc11_config_if.xml"

@@ -4,8 +4,8 @@
   gather_facts: no
 
   tasks:
-  - name: send Netconf XML file
-    iosxr_netconf_send:
+  - name: send NETCONF-1.1 XML file
+    iosxr_nc11_send:
       host: '{{ ansible_host }}'
       username: '{{ ansible_ssh_user }}'
       xmlfile: '{{ xml_file }}'

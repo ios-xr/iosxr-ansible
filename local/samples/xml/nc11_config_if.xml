@@ -1,0 +1,21 @@
+<rpc xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="urn:uuid:100">
+  <edit-config>
+  <target><candidate/></target>
+  <default-operation>merge</default-operation>
+  <config>
+    <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
+      <interface-configuration>
+        <active>act</active> 
+        <interface-name>GigabitEthernet0/0/0/1</interface-name>
+        <description>Gigabit Ethernet 1</description>
+        <mtus>
+          <mtu>
+            <owner>GigabitEthernet</owner>
+            <mtu>1492</mtu>
+          </mtu>
+        </mtus>
+      </interface-configuration>
+    </interface-configurations>
+  </config>
+  </edit-config>
+</rpc>

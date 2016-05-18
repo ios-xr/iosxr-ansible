@@ -1,1 +1,0 @@
-ansible-playbook iosxr_netconf_send.yml -e "xml_file=xml/nc_show_install_version.xml"

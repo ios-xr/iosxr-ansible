@@ -1,1 +1,0 @@
-ansible-playbook iosxr_netconf_send.yml -e "xml_file=xml/nc_config_if.xml"

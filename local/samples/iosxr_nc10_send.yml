@@ -1,11 +1,13 @@
 ---
 - hosts: ss-xr
+  connection: local
   gather_facts: no
 
   tasks:
-  - name: remove user cisco
-    iosxr_install_config:
+  - name: send NETCONF-1.0 XML file
+    iosxr_nc10_send:
+      host: '{{ ansible_host }}'
       username: '{{ ansible_ssh_user }}'
-      cfgname: '/tftp://192.168.1.1/user_remove.cfg'
+      xmlfile: '{{ xml_file }}'
     register: output
   - debug: var=output.stdout_lines
