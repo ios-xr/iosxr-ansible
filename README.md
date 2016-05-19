@@ -119,6 +119,8 @@ remote/samples/test     Contains additional playbooks showing direct access
 
 # IOS-XR setup
 
+NOTE: Some of these instruction may require root access for setting IOS-XR.
+
 - Create default crypto key on your XRV9K VMs (select default 2048 bits)
 
 ```
@@ -156,61 +158,25 @@ remote/samples/test     Contains additional playbooks showing direct access
 - Now make sure you can connect to both XRV9K VMs management port from Linux host
 
 ```
-  ssh root@192.168.1.120
-  ssh root@192.168.1.120 "show run"
+  ssh cisco@192.168.1.120
+  ssh cisco@192.168.1.120 "show run"
 ```
+- If your Linux server support HTTPS, you may also want to import the
+  certificate from Linux to IOS-XR so that you can install new SMU package.
+  The IOS-XR certificate store is in /etc/ssl/certs/ca-certificates.crt.
+  Basically, you just need to cut and paste your certificate to this file.
+
 ### Extra IOS-XR setup for remote mode
 
-- Additional steps are required for setting up namespace on IOS-XR for
-  remote mode access.  After IOS-XR is ready, at the IOS-XR console prompt,
-  enter the following commands.
+- Additional steps are required for setting up third party namespace (TPNNS) on
+  IOS-XR for remote mode access.  Please refer to the following link for
+  instruction and make sure you can SSH to the IOS-XR through port 57722.
   
-  For release 6.0.2, here is tpnss setup for SSH port 57722 to allow root
-  access to XR namespace
-```
-  RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_tpnns
-  RP/0/RP0/CPU0:ios# run service sshd_tpnns restart
-  RP/0/RP0/CPU0:ios# run chkconfig --add sshd_tpnns
-```
-  For release 6.1.x, here is operns setup for SSH port 57722 to allow root
-  access to Global-VRF namespace.
-  ```
-  RP/0/RP0/CPU0:ios# run sed -i.bak -e '/^PermitRootLogin/s/no/yes/' /etc/ssh/sshd_config_operns
-  RP/0/RP0/CPU0:ios# run service sshd_operns restart
-  RP/0/RP0/CPU0:ios# run chkconfig --add sshd_operns
-```
-- You also need to add your Linux server SSH public key (~/.ssh/id_rsa.pub)
-  to IOS-XR authorized_key file.
-  
-```
-  cat ~/.ssh/id_rsa.pub
-  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDeyBBEXOyWd/8bL4a/hwEZnOb7vgns
-  vh6jRgsJxNTMrF+NWkeknhXyzT48Wt3bU9Dxtq++unWoIkfOktcK6dVzVk0wrZ/PA64Z
-  c3vVpKPx22AIidwyegSVWtCXuvC1V19gCRg1uddPSRtBbQ6uYjJylu1V9NzJYL4fDts
-  XJiepyyohGLYj+fHHPMdO6LZmGVhEqlLGl4cqRPsD3D7zxIag9E/7CVPGiA+0fVvGOq
-  n7BL0x62bdcSzKDZUT3A0NGqht2RcEnYH7WQjzG3ikw230aiqBBr75LNzVkMxHZr8Mf6
-  Mr5iHcbAyGyjoDKxNA1LoAu6wGgQ4Gg66fr1U8bN ansible@ansible-dev
-```
+  http://www.cisco.com/c/en/us/td/docs/iosxr/AppHosting/b-application-hosting-configuration-guide/AH_User_Guide_chapter_00.html
 
-```
-  RP/0/RP0/CPU0:ios# run vi /root/.ssh/authorized_keys
-```
-- Accessing namespace shell on XR using SSH through port 57722
-
-```
-  ssh -p 57722 root@192.168.1.120
-  ssh -p 57722 root@192.168.1.120 ifconfig
-  ssh -p 57722 root@192.168.1.120 nsenter -t 1 -n -- ifconfig
-```
-  > NOTE:
-  > "nsenter" is part of the util-linux package which allows program to
-  > enter other process namespace.  In release 6.0.x, you will be connected to
-  > the XR namespace and "nsenter" command is required to change to Global-VRF
-  > namespace before running any helper command (/pkg/bin/xr_cli).
-
-  > To determine whether you are in XR namespace or Global-VRF namespace, do
-  > "ifconfig", if you see interface, e.g. fwd_ew or fwdintf, then you are in
-  > the XR namespace.
+- If you want to access IOS-XR without password, you will also need to add your
+  Linux server SSH public key (~/.ssh/id_rsa.pub) to your IOS-XR
+  \<user_home_directory\>/.ssh/authorized_key file.
   
 # Local mode setup and test
 
@@ -226,8 +192,8 @@ remote/samples/test     Contains additional playbooks showing direct access
 
 ```
   [ss-xr]
-  192.168.1.120 ansible_ssh_user=root
-  192.168.1.121 ansible_ssh_user=root
+  192.168.1.120 ansible_ssh_user=cisco
+  192.168.1.121 ansible_ssh_user=cisco
 ```
 - Run sample playbooks
     * Some of sample playbooks will require changes to fit your need
@@ -260,8 +226,8 @@ remote/samples/test     Contains additional playbooks showing direct access
 
 ```
   [ss-xr]
-  192.168.1.120 ansible_ssh_user=root
-  192.168.1.121 ansible_ssh_user=root
+  192.168.1.120 ansible_ssh_user=cisco
+  192.168.1.121 ansible_ssh_user=cisco
 ```
 - Run sample playbooks
     * Some of sample playbooks will require changes to fit your need
@@ -275,3 +241,4 @@ remote/samples/test     Contains additional playbooks showing direct access
 # IOS-XR platforms tested
 - XRv9K (sunstone)
 - ASR9K (classic 32-bit QNX IOS-XR)
+- NCS5500 (fretta)
