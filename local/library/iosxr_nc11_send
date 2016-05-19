@@ -108,7 +108,7 @@ def main():
             xmlfile = dict(required=True),
             port = dict(required=False, type='int', default=830)
         ),
-        supports_check_mode = True
+        supports_check_mode = False
     )
     args = module.params
     xml_file = module.params['xmlfile']

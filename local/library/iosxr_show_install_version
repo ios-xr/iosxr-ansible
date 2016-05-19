@@ -49,7 +49,7 @@ def main():
             username = dict(required=False, default=None),
             password = dict(required=False, default=None),
         ),
-        supports_check_mode = True
+        supports_check_mode = False
     )
 
     args = module.params

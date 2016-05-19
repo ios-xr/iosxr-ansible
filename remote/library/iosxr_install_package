@@ -52,7 +52,7 @@ options:
       - represent state of the package being installed
     required: false
     default: 'present'
-    choices: ['present', 'absent', 'activate', 'deactivate', 'commit']
+    choices: ['present', 'absent', 'activated', 'deactivated', 'committed']
 """
 
 EXAMPLES = """
@@ -63,7 +63,7 @@ EXAMPLES = """
 
 - iosxr_install_package:
     pkgname: 'xrv9k-ospf-1.0.0.0-r61102I'
-    state: activate
+    state: activated
 """
 
 RETURN = """
@@ -115,7 +115,7 @@ def get_operation_id(out):
     pattern = re.compile(r"operation (\d+) started")
     return pattern.search(out)
 
-# add package only when it is not already added or activate
+# add package only when it is not already added or activated
 def install_add(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
@@ -221,11 +221,11 @@ def main():
             state = dict(required=False, default='present',
                          choices = ['present',
                                     'absent',
-                                    'activate',
-                                    'deactivate',
-                                    'commit'])
+                                    'activated',
+                                    'deactivated',
+                                    'committed'])
         ),
-        supports_check_mode=True
+        supports_check_mode = False
     )
     args = module.params
     state = args['state']
@@ -236,11 +236,11 @@ def main():
   
     # do install
     install = {
-        'present':    install_add,
-        'absent':     install_remove,
-        'activate':   install_activate,
-        'deactivate': install_deactivate,
-        'commit':     install_commit
+        'present':     install_add,
+        'absent':      install_remove,
+        'activated':   install_activate,
+        'deactivated': install_deactivate,
+        'committed':   install_commit
     }
     result = install[state](module, args['pkgpath'], args['pkgname'])
   

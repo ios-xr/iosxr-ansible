@@ -19,6 +19,6 @@
       host: '{{ ansible_host }}'
       username: '{{ ansible_ssh_user }}'
       pkgname: 'mem:asr9k-mpls-px-6.1.1.02I'
-      state: activate
+      state: activated
     register: output
   - debug: var=output.stdout_lines

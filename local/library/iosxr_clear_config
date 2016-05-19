@@ -80,7 +80,7 @@ def main():
             password = dict(required=False, default=None),
             confirm  = dict(required=True),
         ),
-        supports_check_mode = True
+        supports_check_mode = False
     )
     if module.params['confirm'] != 'yes':
         result['stdout'] = "clear configs aborted"

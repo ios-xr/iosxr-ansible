@@ -70,7 +70,7 @@ def main():
             username = dict(required=False, default=None),
             password = dict(required=False, default=None),
         ),
-        supports_check_mode = True
+        supports_check_mode = False
     )
     result = dict(changed=False)
     result['stdout'] = module.get_config()

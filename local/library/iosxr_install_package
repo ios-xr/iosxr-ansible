@@ -72,7 +72,12 @@ options:
       - represent state of the package being installed
     required: false
     default: 'present'
-    choices: ['present', 'absent', 'update', 'activate', 'deactivate', 'commit']
+    choices: ['present',
+              'absent',
+              'updated',
+              'activated',
+              'deactivated',
+              'committed']
 """
 
 EXAMPLES = """
@@ -89,7 +94,7 @@ EXAMPLES = """
     username: cisco
     pkgpath: "https://my_secure_server"
     pkgname: "xrv9k-mpls-1.0.0.0-r60204I.CSCxr33333"
-    state: update
+    state: updated
 """
 
 RETURN = """
@@ -146,7 +151,7 @@ def get_operation_id(response):
     pattern = re.compile(r"operation (\d+) started")
     return pattern.search(response[0])
 
-# add package only when it is not already added or activate
+# add package only when it is not already added or activated
 def install_add(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
@@ -273,12 +278,12 @@ def main():
             state = dict(required=False, default='present',
                          choices = ['present',
                                     'absent',
-                                    'update',
-                                    'activate',
-                                    'deactivate',
-                                    'commit'])
+                                    'updated',
+                                    'activated',
+                                    'deactivated',
+                                    'committed'])
         ),
-        supports_check_mode=True
+        supports_check_mode = False
     )
     args = module.params
     state = args['state']
@@ -293,12 +298,12 @@ def main():
         module.fail_json(msg="other install op in progress")
   
     install = {
-        'present':    install_add,
-        'absent':     install_remove,
-        'update':     install_update,
-        'activate':   install_activate,
-        'deactivate': install_deactivate,
-        'commit':     install_commit
+        'present':     install_add,
+        'absent':      install_remove,
+        'updated':     install_update,
+        'activated':   install_activate,
+        'deactivated': install_deactivate,
+        'committed':   install_commit
     }
     result = install[state](module, args['pkgpath'], args['pkgname'])
   

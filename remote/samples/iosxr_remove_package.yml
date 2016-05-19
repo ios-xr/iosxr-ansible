@@ -9,7 +9,7 @@
     iosxr_install_package:
       username: '{{ ansible_ssh_user }}'
       pkgname: '{{ smu_name }}'
-      state: deactivate
+      state: deactivated
     register: output
   - debug: var=output.stdout_lines
 

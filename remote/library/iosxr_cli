@@ -55,7 +55,7 @@ def main():
             password = dict(required=False, default=None),
             command=dict(required=True),
         ),
-        supports_check_mode = True
+        supports_check_mode = False
     )
     command = 'source /etc/profile ; nsenter -t 1 -n -- xr_cli "%s"' % \
               module.params['command']

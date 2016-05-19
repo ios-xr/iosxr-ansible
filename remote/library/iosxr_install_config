@@ -71,7 +71,7 @@ def main():
             logfile  = dict(required=False,
                             default='/tmp/iosxr_install_config.log'),
         ),
-        supports_check_mode=True
+        supports_check_mode = False
     )
     args = module.params
     cfg_name = args['cfgname']

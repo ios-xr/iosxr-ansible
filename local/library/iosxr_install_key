@@ -84,7 +84,7 @@ def main():
             password = dict(required=False, default=None),
             keyfile  = dict(required=True),
         ),
-        supports_check_mode=True
+        supports_check_mode = False
     )
     args = module.params
     keyfile = args['keyfile']

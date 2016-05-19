@@ -90,7 +90,7 @@ def main():
         argument_spec = dict(
             xmlfile = dict(required=True)
         ),
-        supports_check_mode = True
+        supports_check_mode = False
     )
     args = module.params
     xml_file = module.params['xmlfile']

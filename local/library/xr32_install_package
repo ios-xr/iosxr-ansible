@@ -72,7 +72,7 @@ options:
       - represent state of the package being installed
     required: false
     default: 'present'
-    choices: ['present', 'absent', 'activate', 'deactivate', 'commit']
+    choices: ['present', 'absent', 'activated', 'deactivated', 'committed']
 """
 
 EXAMPLES = """
@@ -89,7 +89,7 @@ EXAMPLES = """
     username: cisco
     password: cisco
     pkgname: "xrv9k-ospf-1.0.0.0-r61102I"
-    state: activate
+    state: activated
 """
 
 RETURN = """
@@ -100,8 +100,6 @@ stdout_lines:
   description: list of response lines
   returned: always
 """
-
-legacy = False
 
 # check if another install command in progress
 def is_legacy_iosxr(module):
@@ -149,7 +147,7 @@ def get_operation_id(response):
     pattern = re.compile(r"Install operation (\d+)")
     return pattern.search(response[0])
 
-# add package only when it is not already added or activate
+# add package only when it is not already added or activated
 def install_add(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
@@ -254,21 +252,18 @@ def main():
             state = dict(required=False, default='present',
                          choices = ['present',
                                     'absent',
-                                    'activate',
-                                    'deactivate',
-                                    'commit'])
+                                    'activated',
+                                    'deactivated',
+                                    'committed'])
         ),
-        supports_check_mode=True
+        supports_check_mode = False
     )
     args = module.params
     state = args['state']
     legacy = is_legacy_iosxr(module)
 
-    # cannot run on 64-bit XR or run 'update'
-    if legacy:
-        if state == 'update':
-            module.fail_json(msg="32-bit IOS-XR does not support update")
-    else:
+    # cannot run on 64-bit XR or run 'updated'
+    if not legacy:
         module.fail_json(msg="cannot run on 64-bit IOS-XR")
   
     # make sure no other install in progress
@@ -276,16 +271,15 @@ def main():
         module.fail_json(msg="other install op in progress")
   
     install = {
-        'present':    install_add,
-        'absent':     install_remove,
-        'activate':   install_activate,
-        'deactivate': install_deactivate,
-        'commit':     install_commit
+        'present':     install_add,
+        'absent':      install_remove,
+        'activated':   install_activate,
+        'deactivated': install_deactivate,
+        'committed':   install_commit
     }
     # need to be in "admin" mode for classic XR
-    if legacy:
-        command = "admin"
-        response = execute_command(module, command)
+    command = "admin"
+    response = execute_command(module, command)
 
     result = install[state](module, args['pkgpath'], args['pkgname'])
   

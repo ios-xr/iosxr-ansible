@@ -104,7 +104,7 @@ def main():
               'to_exclude_rollback_id',
               'last_n_committed' ],
         ),
-        supports_check_mode = True
+        supports_check_mode = False
     )
     args = module.params
     force = args['force']

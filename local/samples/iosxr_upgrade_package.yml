@@ -1,0 +1,15 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: upgrade IOS-XR software version
+    iosxr_upgrade_package:
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      version: '6.1.1'
+      pkgpath: 'https://aermongk-dev'
+      #pkgname: 'xrv9k-mpls-2.0.0.0-r60204I.x86_64.rpm'
+    register: output
+  - debug: var=output.stdout_lines

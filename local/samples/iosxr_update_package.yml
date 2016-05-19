@@ -13,6 +13,6 @@
       username: '{{ ansible_ssh_user }}'
       pkgpath: 'https://aermongk-dev/'
       pkgname: '{{ smu_name }}'
-      state: update
+      state: updated
     register: output
   - debug: var=output.stdout_lines
