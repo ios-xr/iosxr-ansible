@@ -97,7 +97,7 @@ def main():
 
     result = dict(changed=False)
     xml_text = open(xml_file).read()
-    if 'edit-config' or 'delete-config' in xml_text:
+    if 'edit-config' in xml_text or 'delete-config' in xml_text:
         result['changed'] = True
 
     module.execute('netconf format')

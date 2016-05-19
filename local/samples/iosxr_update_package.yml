@@ -4,14 +4,14 @@
   gather_facts: no
 
   vars:
-    smu_name: 'xrv9k-ospf-1.0.0.0-r60204I'
+    smu_name: 'xrv9k-mpls-2.0.0.1-r60204I.CSCxr33333'
 
   tasks:
   - name: update SMU package
     iosxr_install_package:
       host: '{{ ansible_host }}'
       username: '{{ ansible_ssh_user }}'
-      pkgpath: 'tftp://192.168.1.1'
+      pkgpath: 'https://aermongk-dev/'
       pkgname: '{{ smu_name }}'
       state: update
     register: output

@@ -72,7 +72,7 @@ options:
       - represent state of the package being installed
     required: false
     default: 'present'
-    choices: ['present', 'absent', 'activate', 'deactivate', 'commit']
+    choices: ['present', 'absent', 'update', 'activate', 'deactivate', 'commit']
 """
 
 EXAMPLES = """
@@ -87,9 +87,9 @@ EXAMPLES = """
 - iosxr_install_package:
     host: '{{ ansible_ssh_host }}'
     username: cisco
-    password: cisco
-    pkgname: "xrv9k-ospf-1.0.0.0-r61102I"
-    state: activate
+    pkgpath: "https://my_secure_server"
+    pkgname: "xrv9k-mpls-1.0.0.0-r60204I.CSCxr33333"
+    state: update
 """
 
 RETURN = """
@@ -191,7 +191,24 @@ def install_remove(module, pkg_path, pkg_name):
 
 # update package
 def install_update(module, pkg_path, pkg_name):
-    module.fail_json(msg="'update' feature is not yet supported")
+    result = dict(changed=False)
+
+    if is_package_already_active(module, pkg_name):
+        response = to_list(pkg_name + " package is already active\n")
+    else:
+        command = ("install update source " +
+                   pkg_path + " " +
+                   pkg_name + ".x86_64.rpm")
+        response = execute_command(module, command)
+        if 'Error:' in response or 'Exception:' in response:
+            module.fail_json(msg=response)
+        oper_id = get_operation_id(response)
+        response = wait_install_response(module, oper_id)
+        result['changed'] = True
+
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
+    return result
 
 # activate package only when it has been added
 def install_activate(module, pkg_path, pkg_name):

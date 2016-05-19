@@ -59,7 +59,7 @@ options:
 """
 
 EXAMPLES = """
-- iosxr_netconf_send:
+- iosxr_nc11_send:
     host: '{{ ansible_ssh_host }}'
     username: cisco
     password: cisco
@@ -131,7 +131,7 @@ def main():
 
     result = dict(changed=False)
     xml_text = open(xml_file).read()
-    if 'edit-config' or 'delete-config' in xml_text:
+    if 'edit-config' in xml_text or 'delete-config' in xml_text:
         result['changed'] = True
     xml_msg = '\n#' + str(len(xml_text)-1) + '\n' + xml_text + '##\n'
 
