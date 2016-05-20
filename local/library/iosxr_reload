@@ -99,6 +99,8 @@ def main():
     args = module.params
     force = args['force']
     location = args['location']
+
+    result = dict(changed=False)
     if args['confirm'] != 'yes':
         result['stdout'] = "reload aborted"
         module.exit_json(**result)
@@ -113,7 +115,6 @@ def main():
     commands.append('\r')
     response = execute_command(module, commands)
   
-    result = dict(changed=False)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
     module.exit_json(**result)
