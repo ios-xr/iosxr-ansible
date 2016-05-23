@@ -82,6 +82,7 @@ def main():
         ),
         supports_check_mode = False
     )
+    result = dict(changed=False)
     if module.params['confirm'] != 'yes':
         result['stdout'] = "clear configs aborted"
         module.exit_json(**result)
