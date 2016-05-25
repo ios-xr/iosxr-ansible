@@ -28,9 +28,10 @@ There are 4 different ways to access IOS-XR in local mode.
                   CLI commands.
 2.	**TPNNS CLI** - connect to IOS-XR Linux shell through SSH port 57722
                   and use helper programs, /pkg/bin/xr_cli or /pkg/sbin/config.
-3.	**Raw NETCONF** - connect to IOS-XR console through SSH port 22 and use
-                  **netconf** CLI command to enter NETCONF interactive mode 
-                  to exchange NETCONF XML construct.
+3.	**Raw NETCONF** - connect to IOS-XR console through SSH port 22 (NETCONF 1.0
+                  or port 830 (NETCONF 1.1) and use **netconf** CLI command to
+                  enter NETCONF interactive mode to exchange NETCONF XML
+                  construct.
 4.	**YDK NETCONF** - use the Cisco YDK API service to manage IOS-XR device
                   through SSH port 830.
 
