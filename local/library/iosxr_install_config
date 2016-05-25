@@ -23,7 +23,6 @@ from ansible.module_utils.shell import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
 from iosxr_common import *
-import logging
 
 DOCUMENTATION = """
 ---
@@ -67,11 +66,6 @@ options:
       - assign a label to this commit
     required: false
     default: none
-  logfile:
-    description:
-      - log output to file
-    required: false
-    default: /tmp/iosxr_install_config.log
 """
 
 EXAMPLES = """
@@ -104,8 +98,6 @@ def main():
             label    = dict(required=False, default=None),
             replace  = dict(required=False, type='bool', default=False),
             force    = dict(required=False, type='bool', default=False),
-            logfile  = dict(required=False,
-                            default='/tmp/iosxr_install_config.log'),
         ),
         supports_check_mode = False
     )
@@ -115,8 +107,7 @@ def main():
     force = args['force']
     replace = args['replace']
   
-    load_command = 'load ' + cfg_name
-    commands = to_list(load_command)
+    commands = ['load ' + cfg_name]
     commands.insert(0, 'configure terminal')
   
     commit_command = 'commit '
@@ -135,16 +126,10 @@ def main():
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
-    # log result to file
-    logging.basicConfig(filename=args['logfile'], level=logging.INFO)
-    logging.getLogger().name = args['host'] + ':iosxr_install_config'
-    logging.info(result['stdout_lines'])
-
     # show and log changes to file
     response = execute_command(module, "show config commit changes last 1")
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
-    logging.info(result['stdout_lines'])
 
     module.exit_json(**result)
 

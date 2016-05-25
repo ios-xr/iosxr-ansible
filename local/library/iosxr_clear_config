@@ -87,8 +87,7 @@ def main():
         result['stdout'] = "clear configs aborted"
         module.exit_json(**result)
 
-    clear_command = 'commit replace'
-    commands = to_list(clear_command)
+    commands = ['commit replace']
     commands.insert(0, 'configure terminal')
     commands.append('yes')
     try:

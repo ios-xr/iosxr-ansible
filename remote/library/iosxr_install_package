@@ -42,26 +42,28 @@ options:
         e.g. The package name for 'xrv9k-ospf-1.0.0.0-r61102I.x86_64.rpm'
              is 'xrv9k-ospf-1.0.0.0-r61102I'
     required: true
-  logfile:
-    description:
-      - log output to file
-    required: false
-    default: /tmp/iosxr_install_package.log
   state:
     description:
       - represent state of the package being installed
     required: false
     default: 'present'
-    choices: ['present', 'absent', 'activated', 'deactivated', 'committed']
+    choices: ['present',
+              'absent',
+              'updated',
+              'activated',
+              'deactivated',
+              'committed']
 """
 
 EXAMPLES = """
 - iosxr_install_package:
+    username: cisco
     pkgpath: 'tftp://192.168.1.1'
     pkgname: 'xrv9k-ospf-1.0.0.0-r61102I'
     state: present
 
 - iosxr_install_package:
+    username: cisco
     pkgname: 'xrv9k-ospf-1.0.0.0-r61102I'
     state: activated
 """
@@ -105,24 +107,31 @@ def wait_install_response(module, oper_id):
             retries -= 1
             time.sleep(3)
         else:
-            command = "show install log " + oper_id.group(1)
-            return execute_command(module, command)
+            response = list()
+            for inst_id in oper_id:
+                command = "show install log " + inst_id
+                (rc, out, err) = execute_command(module, command)
+                response.append(out)
+            for rmsg in response:
+                if 'aborted' in rmsg:
+                    module.fail_json(msg=rmsg)
+            return response
     else:
         module.fail_json(msg="timeout waiting for install to complete")
 
 # get install operation id from log
 def get_operation_id(out):
     pattern = re.compile(r"operation (\d+) started")
-    return pattern.search(out)
+    return pattern.findall(out)
 
 # add package only when it is not already added or activated
 def install_add(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        out = pkg_name + " package is already active\n"
+        response = [pkg_name + " package is already active\n"]
     elif is_package_already_added(module, pkg_name):
-        out = pkg_name + " package is already added\n"
+        response = [pkg_name + " package is already added\n"]
     elif pkg_path == None:
         module.fail_json(msg="package path required")
     else:
@@ -131,11 +140,11 @@ def install_add(module, pkg_path, pkg_name):
                    pkg_name + ".x86_64.rpm")
         (rc, out, err) = execute_command(module, command)
         oper_id = get_operation_id(out)
-        (rc, out, err) = wait_install_response(module, oper_id)
+        response = wait_install_response(module, oper_id)
         result['changed'] = True
 
-    result['stdout'] = out
-    result['stdout_lines'] = str(result['stdout']).splitlines()
+    result['stdout'] = response
+    result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
 
 # remove package only when it is in inactive state
@@ -149,13 +158,32 @@ def install_remove(module, pkg_path, pkg_name):
         command = "install remove " + pkg_name
         (rc, out, err) = execute_command(module, command)
         oper_id = get_operation_id(out)
-        (rc, out, err) = wait_install_response(module, oper_id)
+        response = wait_install_response(module, oper_id)
         result['changed'] = True
     else:
-        out = pkg_name + " package has already been removed\n"
+        response = [pkg_name + " package has already been removed\n"]
 
-    result['stdout'] = out
-    result['stdout_lines'] = str(result['stdout']).splitlines()
+    result['stdout'] = response
+    result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
+    return result
+
+# update package
+def install_update(module, pkg_path, pkg_name):
+    result = dict(changed=False)
+
+    if is_package_already_active(module, pkg_name):
+        response = [pkg_name + " package is already active\n"]
+    else:
+        command = ("install update source " +
+                   pkg_path + " " +
+                   pkg_name + ".x86_64.rpm")
+        (rc, out, err) = execute_command(module, command)
+        oper_id = get_operation_id(out)
+        response = wait_install_response(module, oper_id)
+        result['changed'] = True
+
+    result['stdout'] = response
+    result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
 
 # activate package only when it has been added
@@ -163,19 +191,19 @@ def install_activate(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        out = pkg_name + " package is already active\n"
+        response = [pkg_name + " package is already active\n"]
     elif is_package_already_added(module, pkg_name):
         command = "install activate " + pkg_name
         (rc, out, err) = execute_command(module, command)
         oper_id = get_operation_id(out)
-        (rc, out, err) = wait_install_response(module, oper_id)
+        response = wait_install_response(module, oper_id)
         result['changed'] = True
     else:
         error = pkg_name + " must be present before activate"
         module.fail_json(msg=error)
 
-    result['stdout'] = out
-    result['stdout_lines'] = str(result['stdout']).splitlines()
+    result['stdout'] = response
+    result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
 
 # deactivate package only when it is in active state
@@ -186,15 +214,15 @@ def install_deactivate(module, pkg_path, pkg_name):
         command = "install deactivate " + pkg_name
         (rc, out, err) = execute_command(module, command)
         oper_id = get_operation_id(out)
-        (rc, out, err) = wait_install_response(module, oper_id)
+        response = wait_install_response(module, oper_id)
         result['changed'] = True
     elif is_package_already_added(module, pkg_name):
-        out = pkg_name + " package is already deactivated\n"
+        response = [pkg_name + " package is already deactivated\n"]
     else:
-        out = pkg_name + " package has already been removed\n"
+        response = [pkg_name + " package has already been removed\n"]
 
-    result['stdout'] = out
-    result['stdout_lines'] = str(result['stdout']).splitlines()
+    result['stdout'] = response
+    result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
   
 # commit active packages
@@ -202,11 +230,11 @@ def install_commit(module, pkg_path, pkg_name):
     command = "install commit"
     (rc, out, err) = execute_command(module, command)
     oper_id = get_operation_id(out)
-    (rc, out, err) = wait_install_response(module, oper_id)
+    response = wait_install_response(module, oper_id)
 
     result = dict(changed=True)
-    result['stdout'] = out
-    result['stdout_lines'] = str(result['stdout']).splitlines()
+    result['stdout'] = response
+    result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
 
 def main():
@@ -216,11 +244,10 @@ def main():
             password = dict(required=False, default=None),
             pkgpath = dict(required=False, default=None),
             pkgname = dict(required=True, default=None),
-            logfile = dict(required=False,
-                           default='/tmp/iosxr_install_package.log'),
             state = dict(required=False, default='present',
                          choices = ['present',
                                     'absent',
+                                    'updated',
                                     'activated',
                                     'deactivated',
                                     'committed'])
@@ -238,15 +265,13 @@ def main():
     install = {
         'present':     install_add,
         'absent':      install_remove,
+        'updated':     install_update,
         'activated':   install_activate,
         'deactivated': install_deactivate,
         'committed':   install_commit
     }
     result = install[state](module, args['pkgpath'], args['pkgname'])
   
-    # log to file and return result
-    with open(args['logfile'], "a") as logfile:
-        logfile.write(result['stdout'])
     module.exit_json(**result)
 
 if __name__ == "__main__":

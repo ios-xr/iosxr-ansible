@@ -23,7 +23,6 @@ from ansible.module_utils.shell import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
 from iosxr_common import *
-import logging
 
 DOCUMENTATION = """
 ---
@@ -62,11 +61,6 @@ options:
         e.g. The package name for 'xrv9k-ospf-1.0.0.0-r61102I.x86_64.rpm'
              is 'xrv9k-ospf-1.0.0.0-r61102I'
     required: true
-  logfile:
-    description:
-      - log output to file
-    required: false
-    default: /tmp/iosxr_install_package.log
   state:
     description:
       - represent state of the package being installed
@@ -138,10 +132,13 @@ def wait_install_response(module, oper_id):
             retries -= 1
             time.sleep(3)
         else:
-            command = "show install log " + oper_id.group(1)
-            response = execute_command(module, command)
-            if 'ERROR' in response[0]:
-                module.fail_json(msg=response[0])
+            response = list()
+            for inst_id in oper_id:
+                command = "show install log " + inst_id
+                response.append(execute_command(module, command))
+            for rmsg in response[0]:
+                if 'aborted' in rmsg:
+                    module.fail_json(msg=rmsg)
             return response
     else:
         module.fail_json(msg="timeout waiting for install to complete")
@@ -149,16 +146,16 @@ def wait_install_response(module, oper_id):
 # get install operation id from log
 def get_operation_id(response):
     pattern = re.compile(r"operation (\d+) started")
-    return pattern.search(response[0])
+    return pattern.findall(response[0])
 
 # add package only when it is not already added or activated
 def install_add(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        response = to_list(pkg_name + " package is already active\n")
+        response = [pkg_name + " package is already active\n"]
     elif is_package_already_added(module, pkg_name):
-        response = to_list(pkg_name + " package is already added\n")
+        response = [pkg_name + " package is already added\n"]
     elif pkg_path == None:
         module.fail_json(msg="package path required")
     else:
@@ -188,7 +185,7 @@ def install_remove(module, pkg_path, pkg_name):
         response = wait_install_response(module, oper_id)
         result['changed'] = True
     else:
-        response = to_list(pkg_name + " package has already been removed\n")
+        response = [pkg_name + " package has already been removed\n"]
 
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
@@ -199,7 +196,7 @@ def install_update(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        response = to_list(pkg_name + " package is already active\n")
+        response = [pkg_name + " package is already active\n"]
     else:
         command = ("install update source " +
                    pkg_path + " " +
@@ -220,7 +217,7 @@ def install_activate(module, pkg_path, pkg_name):
     result = dict(changed=False)
 
     if is_package_already_active(module, pkg_name):
-        response = to_list(pkg_name + " package is already active\n")
+        response = [pkg_name + " package is already active\n"]
     elif is_package_already_added(module, pkg_name):
         command = "install activate " + pkg_name
         response = execute_command(module, command)
@@ -246,9 +243,9 @@ def install_deactivate(module, pkg_path, pkg_name):
         response = wait_install_response(module, oper_id)
         result['changed'] = True
     elif is_package_already_added(module, pkg_name):
-        response = to_list(pkg_name + " package is already deactivated\n")
+        response = [pkg_name + " package is already deactivated\n"]
     else:
-        response = to_list(pkg_name + " package has already been removed\n")
+        response = [pkg_name + " package has already been removed\n"]
 
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
@@ -273,8 +270,6 @@ def main():
             password = dict(required=False, default=None),
             pkgpath = dict(required=False, default=None),
             pkgname = dict(required=True, default=None),
-            logfile = dict(required=False,
-                           default='/tmp/iosxr_install_package.log'),
             state = dict(required=False, default='present',
                          choices = ['present',
                                     'absent',
@@ -307,11 +302,6 @@ def main():
     }
     result = install[state](module, args['pkgpath'], args['pkgname'])
   
-    # log to file and return result
-    logging.basicConfig(filename=args['logfile'], level=logging.INFO)
-    logging.getLogger().name = args['host'] + ':iosxr_install_package'
-    logging.info(result['stdout'][0])
-
     module.exit_json(**result)
 
 if __name__ == "__main__":

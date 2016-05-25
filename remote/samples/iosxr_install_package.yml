@@ -1,8 +1,9 @@
 ---
 - hosts: ss-xr
   gather_facts: no
+
   vars:
-    smu_name: 'xrv9k-ospf-1.0.0.0-r60201I'
+    smu_name: 'xrv9k-mpls-2.0.0.1-r60204I.CSCxr33333'
 
   tasks:
   - name: add SMU package

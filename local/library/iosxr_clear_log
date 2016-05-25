@@ -75,8 +75,7 @@ def main():
         ),
         supports_check_mode = False
     )
-    clear_command = 'clear logging'
-    commands = to_list(clear_command)
+    commands = ['clear logging']
     commands.append('y')
     response = execute_command(module, commands)
   

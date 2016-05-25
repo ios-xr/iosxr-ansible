@@ -38,11 +38,6 @@ options:
       - assign a label to this commit
     required: false
     default: none
-  logfile:
-    description:
-      - log output to file
-    required: false
-    default: /tmp/iosxr_install_config.log
 """
 
 EXAMPLES = """
@@ -68,8 +63,6 @@ def main():
             password = dict(required=False, default=None),
             cfgname  = dict(required=True),
             label    = dict(required=False, default=None),
-            logfile  = dict(required=False,
-                            default='/tmp/iosxr_install_config.log'),
         ),
         supports_check_mode = False
     )
@@ -87,23 +80,14 @@ def main():
     if err != "":
         module.fail_json(msg=err)
   
-    # prepare result
-    result = dict(changed=True)
-    result['stdout'] = out if out != "" else err
-    result['stdout_lines'] = str(result['stdout']).splitlines()
-
-    # log result to file
-    logfile = open(args['logfile'], "a")
-    logfile.write(result['stdout'])
-
-    # log changes to file
     change_command = 'show config commit changes last 1'
     command = 'source /etc/profile ; nsenter -t 1 -n -- xr_cli "%s"' % \
               change_command
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+
+    result = dict(changed=False)
     result['stdout'] = out
     result['stdout_lines'] = str(result['stdout']).splitlines()
-    logfile.write(result['stdout'])
 
     module.exit_json(**result)
 

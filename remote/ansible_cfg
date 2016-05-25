@@ -60,6 +60,7 @@ remote_port = 57722
 # logging is off by default unless this path is defined
 # if so defined, consider logrotate
 #log_path = /var/log/ansible.log
+log_path = /tmp/ansible.log
 
 # default module name for /usr/bin/ansible
 #module_name = command

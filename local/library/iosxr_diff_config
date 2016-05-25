@@ -23,7 +23,6 @@ from ansible.module_utils.shell import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
 from iosxr_common import *
-import logging
 
 DOCUMENTATION = """
 ---
@@ -53,11 +52,6 @@ options:
     description:
       - fully qualified config filename, e.g. tftp://192.168.1.1/user_add.cfg
     required: true
-  logfile:
-    description:
-      - log output to file
-    required: false
-    default: /tmp/iosxr_diff_config.log
 """
 
 EXAMPLES = """
@@ -83,16 +77,13 @@ def main():
             username  = dict(required=False, default=None),
             password  = dict(required=False, default=None),
             cfgname   = dict(required=True),
-            logfile   = dict(required=False,
-                             default='/tmp/iosxr_diff_config.log'),
         ),
         supports_check_mode = False
     )
     args = module.params
     cfg_name = args['cfgname']
   
-    load_command = 'load ' + cfg_name
-    commands = to_list(load_command)
+    commands = ['load ' + cfg_name]
     commands.insert(0, 'configure terminal')
     commands.append('show commit changes diff')
     response = execute_command(module, commands)
@@ -100,10 +91,6 @@ def main():
     result = dict(changed=False)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).split(r'\n')
-
-    logging.basicConfig(filename=args['logfile'], level=logging.INFO)
-    logging.getLogger().name = args['host'] + ':iosxr_diff_config'
-    logging.info(result['stdout_lines'])
 
     module.exit_json(**result)
 

@@ -61,11 +61,6 @@ options:
       - override commit blocks
     required: false
     default: false
-  logfile:
-    description:
-      - log output to file
-    required: false
-    default: /tmp/iosxr_rollback.log
 """
 
 EXAMPLES = """
@@ -95,8 +90,6 @@ def main():
             last_n_committed = dict(required=False, type='int', default=None),
             label = dict(required=False, default=None),
             force = dict(required=False, type='bool', default=False),
-            logfile = dict(required=False,
-                           default='/tmp/iosxr_rollback.log')
         ),
         mutually_exclusive = (
             [ 'rollback_id',
@@ -132,8 +125,6 @@ def main():
   
     result = dict(changed=False)
     result['stdout'] = err
-    with open(args['logfile'], "a") as logfile:
-        logfile.write(result['stdout'][0])
     if 'successfully' in result['stdout']:
         result['changed'] = True
         result['stdout_lines'] = str(result['stdout']).split(r'\n')

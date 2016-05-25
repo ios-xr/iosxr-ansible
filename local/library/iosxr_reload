@@ -110,7 +110,7 @@ def main():
         reload_command = reload_command + 'location %s ' % location
     if force is True:
         reload_command = reload_command + 'force '
-    commands = to_list(reload_command)
+    commands = [reload_command]
     commands.append('\r')
     commands.append('\r')
     response = execute_command(module, commands)

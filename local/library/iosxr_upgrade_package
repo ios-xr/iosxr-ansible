@@ -23,7 +23,6 @@ from ansible.module_utils.shell import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
 from iosxr_common import *
-import logging
 
 DOCUMENTATION = """
 ---
@@ -69,11 +68,6 @@ options:
         e.g. xrv9k-ospf-1.0.0.0-r61102I.x86_64.rpm
     required: false
     default: none
-  logfile:
-    description:
-      - log output to file
-    required: false
-    default: /tmp/iosxr_upgrade_package.log
 """
 
 EXAMPLES = """
@@ -113,8 +107,6 @@ def main():
             version = dict(required=True, default=None),
             pkgpath = dict(required=True, default=None),
             pkgname = dict(required=False, default=""),
-            logfile = dict(required=False,
-                           default='/tmp/iosxr_upgrade_package.log'),
         ),
         supports_check_mode = False
     )
@@ -141,11 +133,6 @@ def main():
     while not prompt.search(response):
         response += module.connection.shell.shell.recv(1024)
 
-    # log to file and return result
-    logging.basicConfig(filename=args['logfile'], level=logging.INFO)
-    logging.getLogger().name = args['host'] + ':iosxr_upgrade_package'
-    logging.info(response)
-
     # exit if error
     result = dict(changed=False)
     if 'aborted' not in response:
@@ -154,6 +141,7 @@ def main():
     # show result
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).splitlines()
+
     module.exit_json(**result)
 
 if __name__ == "__main__":

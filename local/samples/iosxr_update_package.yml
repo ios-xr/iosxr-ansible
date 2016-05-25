@@ -11,7 +11,8 @@
     iosxr_install_package:
       host: '{{ ansible_host }}'
       username: '{{ ansible_ssh_user }}'
-      pkgpath: 'https://aermongk-dev/'
+      pkgpath: 'https://aermongk-dev'
+      #pkgpath: 'tftp://192.168.1.1/'
       pkgname: '{{ smu_name }}'
       state: updated
     register: output

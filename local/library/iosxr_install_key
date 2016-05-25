@@ -23,7 +23,6 @@ from ansible.module_utils.shell import *
 from ansible.module_utils.netcfg import *
 from ansible.module_utils.iosxr import *
 from iosxr_common import *
-import logging
 
 DOCUMENTATION = """
 ---
@@ -92,8 +91,7 @@ def main():
     show_command = 'show crypto key authentication rsa'
     response = execute_command(module, show_command)
 
-    crypto_command = 'crypto key import authentication rsa ' + keyfile
-    commands = to_list(crypto_command)
+    commands = ['crypto key import authentication rsa ' + keyfile]
     if 'authentication' in response[0]:
         commands.append('yes')
     response = execute_command(module, commands)
