@@ -28,10 +28,10 @@ There are 4 different ways to access IOS-XR in local mode.
                   CLI commands.
 2.	**TPNNS CLI** - connect to IOS-XR Linux shell through SSH port 57722
                   and use helper programs, /pkg/bin/xr_cli or /pkg/sbin/config.
-3.	**Raw NETCONF** - connect to IOS-XR console through SSH port 22 (NETCONF 1.0
-                  or port 830 (NETCONF 1.1) and use **netconf** CLI command to
-                  enter NETCONF interactive mode to exchange NETCONF XML
-                  construct.
+3.	**Raw XML/NETCONF** - connect to IOS-XR console through SSH port 22
+                  (Cisco XML/NETCONF 1.0) or port 830 (NETCONF 1.1) and use
+                  **xml** or **netconf** CLI command to enter interactive mode
+                  to exchange XML construct.
 4.	**YDK NETCONF** - use the Cisco YDK API service to manage IOS-XR device
                   through SSH port 830.
 
@@ -49,10 +49,10 @@ implementing Ansible modules, one needs to be aware of their limitation.
   * Earlier version of Linux-based IOS-XR also can only run in local mode due
     to incomplete Python libraries
   * Linux-based IOS-XR (eXR 6.0.2 or later) can run both remote and local modes
--	**CLI vs. NETCONF**
+-	**CLI vs. XML/NETCONF**
   * With CLI mode, you can do all CLI commands as you would do interactively.
-  * The NETCONF mode allows you to use NETCONF commands in RPC XML construct
-    to configure IOS-XR.
+  * The XML/NETCONF mode allows you to use Cisco XML or NETCONF commands in XML
+    construct to configure IOS-XR.
 -	**Console CLI vs. TPNNS CLI**
   * Console CLI allows you to do all CLI commands as you would do interactively.
   * TPNNS CLI can either be implemented in local or remote mode.  It connects
@@ -67,8 +67,8 @@ implementing Ansible modules, one needs to be aware of their limitation.
     port 830.  The API automatically generates the RPC XML construct based on
     the YANG model provided.
     
-**NOTE:** IOS-XR NETCONF XML construct is based on Cisco IOS-XR YANG model which
-      is currently limited, e.g. it doesn’t support SMU installation.
+**NOTE:** IOS-XR NETCONF 1.1 XML construct is based on Cisco IOS-XR YANG model 
+      which is currently limited, e.g. it doesn’t support SMU installation.
       Although, currently limited, the Cisco IOS-XR YANG definitions will
       continue to grow as more definitions are added and would be a preferred
       method for accessing IOS-XR. 
