@@ -1,0 +1,1 @@
+ansible-playbook iosxr_xml_send.yml -e "xml_file=xml/xml_show_mgmt_if.xml" $1

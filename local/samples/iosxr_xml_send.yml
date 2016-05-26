@@ -1,0 +1,13 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: send Cisco XML file
+    iosxr_xml_send:
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      xmlfile: '{{ xml_file }}'
+    register: output
+  - debug: var=output.stdout_lines

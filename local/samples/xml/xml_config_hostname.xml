@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Request MajorVersion="1" MinorVersion="0">
+  <CLI>
+    <Configuration>
+      hostname iosxr
+      exit
+      commit
+    </Configuration>
+    <Exec>
+      show config commit changes last 1
+    </Exec>
+  </CLI>
+</Request>

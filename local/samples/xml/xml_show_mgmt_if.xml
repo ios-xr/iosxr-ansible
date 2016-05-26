@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Request MajorVersion="1" MinorVersion="0">
+  <Get>
+    <Configuration>
+      <InterfaceConfigurationTable>
+        <InterfaceConfiguration>
+          <Naming>
+            <Active>act</Active>
+            <InterfaceName>MgmtEth0/RP0/CPU0/0</InterfaceName>
+          </Naming>
+        </InterfaceConfiguration>
+      </InterfaceConfigurationTable>
+    </Configuration>
+  </Get>
+</Request>
