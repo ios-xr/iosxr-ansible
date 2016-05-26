@@ -41,7 +41,7 @@ deliver CLI commands and configuration to the IOS-XR, respectively.  This
 remote mode connection is identical to TPNNS CLI running in local mode except
 for how the SSH connection is being established and where the script is run.
 
-# Understanding connection variants
+# Understand connection variants
 With different variants for local and remote modes mentioned earlier, before
 implementing Ansible modules, one needs to be aware of their limitation.
 -	**Linux-based vs. QNX-based IOS-XR**
