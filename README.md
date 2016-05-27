@@ -138,6 +138,7 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
   RP/0/RP0/CPU0:ios(config)# ssh server netconf vrf default
   RP/0/RP0/CPU0:ios(config)# ssh server logging
   RP/0/RP0/CPU0:ios(config)# xml agent ssl
+  RP/0/RP0/CPU0:ios(config)# xml agent tty
   RP/0/RP0/CPU0:ios(config)# netconf agent tty
   RP/0/RP0/CPU0:ios(config)# netconf-yang agent ssh
   RP/0/RP0/CPU0:ios(config)# commit
