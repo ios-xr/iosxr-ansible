@@ -243,3 +243,4 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
 - XRv9K (sunstone)
 - ASR9K (classic 32-bit QNX IOS-XR)
 - NCS5500 (fretta)
+- NCS1000 (Rosco) - tested by Rosco team
