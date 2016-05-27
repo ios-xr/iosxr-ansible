@@ -30,7 +30,7 @@ description:
 options:
   rollback_id:
     description:
-      - rollback configuration committted to particular id
+      - rollback configuration committed to particular id
         e.g. 1000000012
     required: false
     default: None
@@ -48,7 +48,7 @@ options:
     default: None
   last_n_committed:
     description:
-      - rollback configuration last N committted made
+      - rollback configuration last N committed made
         e.g. 5
     required: false
     default: None
@@ -109,18 +109,18 @@ def main():
     force = args['force']
 
     reload_command = 'source /etc/profile ; nsenter -t 1 -n -- config_rollback '
-    if rollback_id != None:
-        reload_command = reload_command + '-j %s ' % rollback_id
-    if to_id != None:
-        reload_command = reload_command + '-i %s ' % to_id
-    if to_excl_id != None:
-        reload_command = reload_command + '-u %s ' % to_excl_id
-    if last_n != None:
-        reload_command = reload_command + '-n %s ' % hex(last_n)
+    if rollback_id is not None:
+        reload_command += '-j %s ' % rollback_id
+    if to_id is not None:
+        reload_command += '-i %s ' % to_id
+    if to_excl_id is not None:
+        reload_command += '-u %s ' % to_excl_id
+    if last_n is not None:
+        reload_command += '-n %s ' % hex(last_n)
     if force is True:
-        reload_command = reload_command + '-f '
-    if label != None:
-        reload_command = reload_command + '-l %s ' % label
+        reload_command += '-f '
+    if label is not None:
+        reload_command += '-l %s ' % label
     (rc, out, err) = module.run_command(reload_command, use_unsafe_shell=True)
   
     result = dict(changed=False)

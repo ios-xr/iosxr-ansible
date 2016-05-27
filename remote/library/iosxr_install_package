@@ -132,7 +132,7 @@ def install_add(module, pkg_path, pkg_name):
         response = [pkg_name + " package is already active\n"]
     elif is_package_already_added(module, pkg_name):
         response = [pkg_name + " package is already added\n"]
-    elif pkg_path == None:
+    elif pkg_path is None:
         module.fail_json(msg="package path required")
     else:
         command = ("install add source " +

@@ -128,18 +128,18 @@ def main():
     force = args['force']
   
     reload_command = 'rollback configuration '
-    if rollback_id != None:
-        reload_command = reload_command + rollback_id
-    if to_id != None:
-        reload_command = reload_command + 'to %s ' % to_id
-    if to_excl_id != None:
-        reload_command = reload_command + 'to-exclude %s ' % to_excl_id
-    if last_n != None:
-        reload_command = reload_command + 'last %s ' % last_n
+    if rollback_id is not None:
+        reload_command += rollback_id
+    if to_id is not None:
+        reload_command += 'to %s ' % to_id
+    if to_excl_id is not None:
+        reload_command += 'to-exclude %s ' % to_excl_id
+    if last_n is not None:
+        reload_command += 'last %s ' % last_n
     if force is True:
-        reload_command = reload_command + 'force '
-    if label != None:
-        reload_command = reload_command + 'label %s ' % label
+        reload_command += 'force '
+    if label is not None:
+        reload_command += 'label %s ' % label
     response = execute_command(module, reload_command)
   
     result = dict(changed=True)

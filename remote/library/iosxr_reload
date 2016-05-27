@@ -35,7 +35,7 @@ options:
     value: "yes" or other string
   force:
     description:
-      - force reaload without doing any cleanup
+      - force reload without doing any cleanup
     required: false
     default: false
 """

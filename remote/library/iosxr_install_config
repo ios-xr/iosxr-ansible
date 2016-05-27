@@ -71,7 +71,7 @@ def main():
     label = args['label']
   
     load_command = 'config -f %s ' % cfg_name
-    if label != None:
+    if label is not None:
         load_command = load_command + '-l "%s"' % label
     command = "source /etc/profile ; nsenter -t 1 -n -- %s" % load_command
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
