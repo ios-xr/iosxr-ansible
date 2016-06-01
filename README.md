@@ -68,8 +68,8 @@ implementing Ansible modules, one needs to be aware of their limitation.
     the YANG model provided.
     
 **NOTE:** IOS-XR NETCONF 1.1 XML construct is based on Cisco IOS-XR YANG model 
-      which is currently limited, e.g. it doesn’t support SMU installation.
-      Although, currently limited, the Cisco IOS-XR YANG definitions will
+      which is currently limited, e.g. it doesn’t support SMU package 
+      installation.  Although limited, the Cisco IOS-XR YANG definitions will
       continue to grow as more definitions are added and would be a preferred
       method for accessing IOS-XR. 
 
@@ -97,6 +97,7 @@ iosxr-ansible
 │   ├── library
 │   ├── samples
 │   │   ├── cli
+│   │   ├── tpnns
 │   │   ├── xml
 │   │   └── ydk
 │   └── common
@@ -109,6 +110,7 @@ Directory               Description
 
 local/library           Contains Ansible modules for local mode
 local/samples/cli       Contains sample playbooks using Console CLI
+local/samples/tpnns     Contains sample playbooks using TPNNS access method
 local/samples/xml       Contains sample RPC XML used with iosxr_netconf_send
 local/samples/ydk       Contains sample playbooks using YDK API's
 local/common            Contains IOS-XR common Python functions
@@ -203,7 +205,7 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
 ```
 - Run sample playbooks
     * Some of sample playbooks will require changes to fit your need
-      e.g. edit iosxr_install_smu.yml to change location of your package.
+      e.g. edit iosxr_install_package.yml to change location of your package.
 
 ```
   cd samples
@@ -237,7 +239,7 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
 ```
 - Run sample playbooks
     * Some of sample playbooks will require changes to fit your need
-      e.g. edit iosxr_install_smu.yml to change location of your package.
+      e.g. edit iosxr_install_package.yml to change location of your package.
 
 ```
   cd samples
