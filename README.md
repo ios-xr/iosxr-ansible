@@ -163,26 +163,26 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
   ssh cisco@192.168.1.120
   ssh cisco@192.168.1.120 "show run"
 ```
+
+- Set third party namespace (TPNNS) access on IOS-XR.  Please refer to the
+  following link for instruction and make sure you can SSH to the IOS-XR
+  through port **57722**.
+  
+    http://www.cisco.com/c/en/us/td/docs/iosxr/AppHosting/b-application-hosting-configuration-guide/AH_User_Guide_chapter_00.html
+
+    To access IOS-XR without password, you will also need to add your 
+    Linux server SSH public key (~/.ssh/id_rsa.pub) to your IOS-XR
+    \<your_xr_home\>/.ssh/authorized_key file by using **ssh-copy-id**
+    command, for example,
+
+```
+  ssh-copy-id -i ~/.ssh/id_rsa.pub -p 57722 cisco@192.168.1.120
+```
+
 - If your Linux server support HTTPS, you may also want to import the
   certificate from Linux to IOS-XR so that you can install new SMU package.
   The IOS-XR certificate store is in /etc/ssl/certs/ca-certificates.crt.
   Basically, you just need to cut and paste your certificate to this file.
-
-### Extra IOS-XR setup for remote mode
-
-- Additional steps are required for setting up third party namespace (TPNNS) on
-  IOS-XR for remote mode access.  Please refer to the following link for
-  instruction and make sure you can SSH to the IOS-XR through port 57722.
-  
-  http://www.cisco.com/c/en/us/td/docs/iosxr/AppHosting/b-application-hosting-configuration-guide/AH_User_Guide_chapter_00.html
-
-- If you want to access IOS-XR without password, you will also need to add your
-  Linux server SSH public key (~/.ssh/id_rsa.pub) to your IOS-XR
-  \<user_home_directory\>/.ssh/authorized_key file by using **ssh-copy-id**
-  command, for example,
-```
-  ssh-copy-id -i ~/.ssh/id_rsa.pub -p 57722 cisco@192.168.1.120
-```
   
 # Local mode setup and test
 
