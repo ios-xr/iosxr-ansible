@@ -23,16 +23,19 @@ There are 2 implementions of local mode, CLI and NECONF XML. And there are 2
 options for NETCONF XML, raw and YDK options. The YDK option requires ydk-py
 python libraries from github.
 
-There are 4 different ways to access IOS-XR in local mode.
+There are 6 different ways to access IOS-XR in local mode.
 1.	**Console CLI** - connect to IOS-XR console through SSH port 22 and use
                   CLI commands.
 2.	**TPNNS CLI** - connect to IOS-XR Linux shell through SSH port 57722
                   and use helper programs, /pkg/bin/xr_cli or /pkg/sbin/config.
-3.	**Raw XML/NETCONF** - connect to IOS-XR console through SSH port 22
-                  (Cisco XML/NETCONF 1.0) or port 830 (NETCONF 1.1) and use
-                  **xml** or **netconf** CLI command to enter interactive mode
-                  to exchange XML construct.
-4.	**YDK NETCONF** - use the Cisco YDK API service to manage IOS-XR device
+3.	**Raw XML** - connect to IOS-XR console through SSH port 22 to exchange XML
+                  construct with IOS-XR xml agent.
+4.	**Raw NETCONF 1.0** - connect to IOS-XR console through SSH port 22 to
+                  exchange NETCONF 1.0 XML construct with IOS-XR netconf agent.
+5.	**Raw NETCONF 1.1** - connect to IOS-XR console through SSH port 830 to
+                  exchange NETCONF 1.1 XML construct with IOS-XR netconf-yang
+                  agent.
+6.	**YDK NETCONF** - use the Cisco YDK API service to manage IOS-XR device
                   through SSH port 830.
 
 Managing the IOS-XR device in the remote mode required TPNNS through SSH
@@ -59,10 +62,11 @@ implementing Ansible modules, one needs to be aware of their limitation.
     to IOS-XR Linux shell and requires helper programs, /pkg/bin/xr_cli or
     /pkg/sbin/config, to deliver CLI commands or configure IOS-XR, respectively.
     Currently, "commit replace" is not supported by /pkg/sbin/config.
--	**Raw NETCONF vs. YDK NETCONF**
+-	**Raw XML/NETCONF vs. YDK NETCONF**
   * Raw NETCONF mode allows you to configure IOS-XR using NETCONF commands in
-    RPC XML construct through standard SSH port 22 with appropriate termination
-    sequence (]]>]]>).  The response is also in RPC XML construct.
+    RPC XML construct through standard SSH port 22 with termination sequence
+    **]]>]]>** and port 830 with **##** termination sequence.  The response is
+    also in RPC XML construct.
   * Alternatively, you can use YDK python API to configure IOS-XR through SSH
     port 830.  The API automatically generates the RPC XML construct based on
     the YANG model provided.
