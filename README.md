@@ -178,7 +178,8 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
 
 - If you want to access IOS-XR without password, you will also need to add your
   Linux server SSH public key (~/.ssh/id_rsa.pub) to your IOS-XR
-  \<user_home_directory\>/.ssh/authorized_key file.
+  \<user_home_directory\>/.ssh/authorized_key file or use **ssh-copy-id** Linux
+  command.
   
 # Local mode setup and test
 
