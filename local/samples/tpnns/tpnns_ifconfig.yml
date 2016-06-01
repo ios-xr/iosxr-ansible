@@ -1,0 +1,10 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: run IOS-XR CLI command
+    shell: 'ssh -p 57722 {{ ansible_ssh_user}}@{{ ansible_host }} ifconfig'
+    register: output
+  - debug: var=output.stdout_lines

@@ -1,0 +1,19 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: copy config file to IOS-XR
+    shell: 'scp -P 57722 {{ path }}/{{ config_file }} {{ ansible_ssh_user}}@{{ ansible_host }}:/tmp'
+
+  - name: load config file to IOS-XR
+    shell: 'ssh -p 57722 {{ ansible_ssh_user}}@{{ ansible_host }} "source /etc/profile; nsenter -t 1 -n -- config -f \"/tmp/{{ config_file }}\""'
+
+  - name: clean up
+    shell: 'ssh -p 57722 {{ ansible_ssh_user}}@{{ ansible_host }} "rm -f /tmp/{{ config_file }}"'
+
+  - name: show commit changes
+    shell: 'ssh -p 57722 {{ ansible_ssh_user}}@{{ ansible_host }} "source /etc/profile; nsenter -t 1 -n -- xr_cli  \"show configuration commit changes last 1\""'
+    register: output
+  - debug: var=output.stdout_lines
