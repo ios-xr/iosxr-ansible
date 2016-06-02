@@ -1,1 +1,1 @@
-ansible-playbook tpnns_config.yml -e "path=../../.. config_file=user_add.cfg"
+ansible-playbook tpnns/tpnns_config.yml -e "path=../../config config_file=user_add.cfg"
