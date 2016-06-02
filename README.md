@@ -108,7 +108,7 @@ iosxr-ansible
 └── remote
     ├── library
     └── samples
-        └── test
+        └── install
 
 Directory               Description
 
@@ -120,7 +120,7 @@ local/samples/ydk       Contains sample playbooks using YDK API's
 local/common            Contains IOS-XR common Python functions
 remote/library          Contains Ansible modules for remote mode
 remote/samples          Contains sample playbooks using Namespace Shell CLI
-remote/samples/test     Contains additional playbooks showing direct access
+remote/samples/install  Contains additional playbooks showing direct access
                         to IOS-XR using shell
 ```
 
