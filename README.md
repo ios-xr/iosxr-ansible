@@ -170,7 +170,7 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
   ssh cisco@192.168.1.120 "show run"
 ```
 
-- Set third party namespace (TPNNS) access on IOS-XR.  Please refer to the
+- Setup the third party namespace (TPNNS) access on IOS-XR.  Please refer to the
   following link for instruction and make sure you can SSH to the IOS-XR
   through port **57722**.
   
@@ -185,10 +185,10 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
   ssh-copy-id -i ~/.ssh/id_rsa.pub -p 57722 cisco@192.168.1.120
 ```
 
-- If your Linux server support HTTPS, you may also want to import the
-  certificate from Linux to IOS-XR so that you can install new SMU package.
-  The IOS-XR certificate store is in /etc/ssl/certs/ca-certificates.crt.
-  Basically, you just need to cut and paste your certificate to this file.
+- If your Linux server support HTTPS and you want a secure communication during
+  SMU package installation, you can import your certificate from Linux to
+  IOS-XR. The IOS-XR certificate store is in /etc/ssl/certs/ca-certificates.crt.
+  Basically, you just need to cut and paste your certificate text to this file.
   
 # Local mode setup and test
 
