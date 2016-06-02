@@ -97,14 +97,15 @@ implementing Ansible modules, one needs to be aware of their limitation.
 
 ```
 iosxr-ansible
+├── config
 ├── local
-│   ├── library
-│   ├── samples
-│   │   ├── cli
-│   │   ├── tpnns
-│   │   ├── xml
-│   │   └── ydk
-│   └── common
+│   ├── common
+│   ├── library
+│   └── samples
+│       ├── cli
+│       ├── tpnns
+│       ├── xml
+│       └── ydk
 └── remote
     ├── library
     └── samples
@@ -112,6 +113,7 @@ iosxr-ansible
 
 Directory               Description
 
+config                  Contains sample IOS-XR configuration files
 local/library           Contains Ansible modules for local mode
 local/samples/cli       Contains sample playbooks using Console CLI
 local/samples/tpnns     Contains sample playbooks using TPNNS access method
