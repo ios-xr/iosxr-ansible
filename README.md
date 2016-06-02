@@ -4,17 +4,17 @@ In the nutshell, Ansible is an automation tool for configuring system,
 deploying software, and orchestrating services. Unlike Puppet and Chef which
 is an agent-based architecture, Ansible does not require daemon running or
 agent pre-installed on the target nodes to interact with the Ansible server.
-Ansible could be specified to run either on **local** server or on **remote**
+Ansible could be specified to run either on local server or on remote
 node.
 
 The different between local and remote connection mode in Ansible is basically
-where the script (so-called Ansible module) is being run.  For the remote mode,
-Ansible automatically attempts to establish SSH connection to the remote node.
-Once established, it transfers the script and runs it on the remote node.
+where the script (so-called Ansible module) is being run.  For the **remote**
+mode, Ansible automatically attempts to establish SSH connection to the remote
+node.  Once established, it transfers the script and runs it on the remote node.
 The script responds to the server in JSON formatted text. This mode requires
 setting up third-party namespace (TPNNS) on the IOS-XR node.
 
-As for the local mode, Ansible run the module script on the local server.
+As for the **local** mode, Ansible run the module script on the local server.
 The script has to establish a connection to the remote node itself. The
 local mode module uses Ansible network module to establish SSH connection
 to the IOS-XR console to run CLI command.
