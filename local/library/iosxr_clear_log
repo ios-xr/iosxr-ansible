@@ -28,7 +28,7 @@ DOCUMENTATION = """
 ---
 module: iosxr_clear_log
 author: Adisorn Ermongkonchai
-short_description: Clear log
+short_description: Clear system log
 description:
   - Clear system log
 options:

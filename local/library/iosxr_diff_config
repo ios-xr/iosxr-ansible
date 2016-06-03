@@ -28,7 +28,7 @@ DOCUMENTATION = """
 ---
 module: iosxr_diff_config
 author: Adisorn Ermongkonchai
-short_description: Compare config file provided with the running config
+short_description: Compare a given config file with the running config
 description:
   - Compare config file provided with the running configuration
     on the IOS-XR node.

@@ -24,7 +24,7 @@ DOCUMENTATION = """
 ---
 module: iosxr_rollback
 author: Adisorn Ermongkonchai
-short_description: Rollback configuration
+short_description: Rollback configuration on IOS-XR device
 description:
   - Rollback IOS-XR configuration
 options:

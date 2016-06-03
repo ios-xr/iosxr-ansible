@@ -24,10 +24,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_install_package
 author: Adisorn Ermongkonchai
-short_description: Run install commands on IOS-XR devices.
+short_description: Install SMU package on IOS-XR device
 description:
-  - Install IOS-XR package or SMU (Software Maintenance Updates)
-    on the IOS-XR node.
+  - Install SMU package on IOS-XR device
 options:
   pkgpath:
     description:

@@ -219,7 +219,7 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
   ansible-playbook iosxr_get_config.yml
   ansible-playbook iosxr_clear_log.yml
   ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'
-  ansible-playbook iosxr_netconf_send.yml -e "xml_file=xml/nc_show_install_active.xml"
+  ansible-playbook iosxr_netconf_send.yml -e "xml_file=xml/nc11_show_install_active.xml"
 ```
 # Remote mode setup and test
 
@@ -253,8 +253,49 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
   ansible-playbook iosxr_get_config.yml
   ansible-playbook iosxr_cli.yml -e 'cmd="show interface brief"'
 ```
+# Local Mode Modules Description
+
+  * iosxr_clear_config - Clear all configurations on IOS-XR device
+  * iosxr_clear_log - Clear system log
+  * iosxr_cli - Run a command on IOS-XR device
+  * iosxr_diff_config - Compare a given configuration file with the running configuration
+  * iosxr_get_config - Show running configuration on IOS-XR device
+  * iosxr_get_facts - Get status and information from IOS-XR device
+  * iosxr_install_config - Commit a configuration file on IOS-XR device
+  * iosxr_install_key - Install BASE64 crypto key on IOS-XR device
+  * iosxr_install_package - Install SMU package on IOS-XR device
+  * iosxr_nc10_send - Send NETCONF 1.0 XML file to IOS-XR device
+  * iosxr_nc11_send - Send NETCONF-YANG 1.1 XML file to IOS-XR device
+  * iosxr_reload - Reload IOS-XR device
+  * iosxr_rollback - Rollback configuration on IOS-XR device
+  * iosxr_upgrade_package - Upgrade packages on IOS-XR device
+  * iosxr_xml_send - Performs Cisco XML request to IOS-XR device
+  * xr32_install_package - Run install commands on IOS-XR device
+
+  **Sample Modules using Cisco YDK services**
+
+  * iosxr_show_install_active - show active package
+  * iosxr_show_install_committed - show committed package
+  * iosxr_show_install_inactive - show inactive package in the repository
+  * iosxr_show_install_last_log - show installation log
+  * iosxr_show_install_log - show installation log
+  * iosxr_show_install_request - show current install request
+  * iosxr_show_install_version - show current software install version
+
+# Remote Mode Modules Description
+
+  * iosxr_clear_log - Clear system log
+  * iosxr_cli - Run a command on IOS-XR device
+  * iosxr_get_config - Show running configuration on IOS-XR device
+  * iosxr_get_facts - Get status and information from IOS-XR device
+  * iosxr_install_config - Commit configuration file on IOS-XR device
+  * iosxr_install_package - Install SMU package on IOS-XR device
+  * iosxr_reload - Reload IOS-XR device
+  * iosxr_rollback - Rollback configuration on IOS-XR device
+
 # IOS-XR platforms tested
+
 - XRv9K (sunstone)
 - ASR9K (classic 32-bit QNX IOS-XR)
+- NCS1K (rosco)
 - NCS5500 (fretta)
-- NCS1000 (Rosco) - tested by Rosco team

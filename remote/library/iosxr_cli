@@ -24,7 +24,7 @@ DOCUMENTATION = """
 ---
 module: iosxr_cli
 author: Adisorn Ermongkonchai
-short_description: Run a command on IOS-XR devices.
+short_description: Run a command on IOS-XR node
 description:
   - Run an IOS-XR CLI command
 options:

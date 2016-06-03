@@ -28,9 +28,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_install_config
 author: Adisorn Ermongkonchai
-short_description: Commit configuration file on IOS-XR node.
+short_description: Commit configuration file on IOS-XR device
 description:
-  - load and commit configuration file on IOS-XR node.
+  - load and commit configuration file on IOS-XR device
 options:
   host:
     description:

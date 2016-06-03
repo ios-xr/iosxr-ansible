@@ -24,10 +24,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_install_config
 author: Adisorn Ermongkonchai
-short_description: Commit configuration file on IOS-XR node.
+short_description: Commit configuration file on IOS-XR device
 description:
-  - Install IOS-XR package or SMU (Software Maintenance Updates)
-    on the IOS-XR node.
+  - Commit configuration file on IOS-XR device
 options:
   cfgname:
     description:

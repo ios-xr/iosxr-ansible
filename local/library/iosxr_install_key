@@ -28,9 +28,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_install_key
 author: Adisorn Ermongkonchai
-short_description: Install BASE64 crypto key on the IOS-XR
+short_description: Install BASE64 crypto key on IOS-XR device
 description:
-  - Install BASE64 crypto key on the IOS-XR node.
+  - Install BASE64 crypto key on IOS-XR device
 options:
   host:
     description:

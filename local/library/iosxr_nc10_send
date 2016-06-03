@@ -28,9 +28,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_nc10_send
 author: Adisorn Ermongkonchai
-short_description: Performs Netconf XML RPC to IOS-XR node
+short_description: Send NETCONF 1.0 XML file to IOS-XR device
 description:
-  - Performs Netconf XML RPC to IOS-XR node
+  - Send NETCONF 1.0 XML file to IOS-XR device
 options:
   host:
     description:

@@ -27,7 +27,7 @@ DOCUMENTATION = """
 ---
 module: iosxr_get_facts
 author: Adisorn Ermongkonchai
-short_description: Get IOS-XR information
+short_description: Get status and information from IOS-XR device
 description:
   - Get IOS-XR configuration and status
 options:

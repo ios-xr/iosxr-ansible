@@ -28,9 +28,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_clear_config
 author: Adisorn Ermongkonchai
-short_description: Clear all configurations
+short_description: Clear all configurations on IOS-XR device
 description:
-  - Clear system all configurations
+  - Clear all configurations on IOS-XR device
 options:
   host:
     description:

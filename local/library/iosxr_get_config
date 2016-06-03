@@ -26,9 +26,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_get_config
 author: Adisorn Ermongkonchai
-short_description: show running-config
+short_description: Show running configuration on IOS-XR device
 description:
-  - Get running configuration from IOS-XR node.
+  - Get running configuration from IOS-XR device
 options:
   host:
     description:

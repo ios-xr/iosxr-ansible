@@ -25,9 +25,9 @@ DOCUMENTATION = """
 ---
 module: iosxr_nc11_send
 author: Adisorn Ermongkonchai
-short_description: Performs NETCONF-YANG XML RPC to IOS-XR node
+short_description: Send NETCONF-YANG 1.1 XML file to IOS-XR device
 description:
-  - Performs NETCONF-YANG XML RPC to IOS-XR node
+  - Send NETCONF-YANG 1.1 XML file to IOS-XR device
 options:
   host:
     description:
