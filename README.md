@@ -80,7 +80,7 @@ implementing Ansible modules, one needs to be aware of their limitation.
 
 # Dependencies
 
-- k9sec security package is required on IOS-XR.
+- manageability (mgbl) and security (k9sec) packages are required on IOS-XR.
 
 - Pull YDK from the github onto a Linux server
   * git clone https://github.com/CiscoDevNet/ydk-py

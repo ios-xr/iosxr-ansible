@@ -9,25 +9,25 @@ galaxy_info:
   galaxy_tags:
   - networking
 
-  platforms:
-  - name: Ubuntu
-    versions:
-    - 15.10
-  - name: ASR9K
-    versions:
-    - any
-  - name: XRV9K
-    versions:
-    - 6.0.2
-  - name: NCS1K
-    versions:
-    - 6.0.2
-  - name: NCS5K
-    versions:
-    - 6.0.2
-  - name: NCS5500
-    versions:
-    - 6.0.2
+  #platforms:
+  #- name: Ubuntu
+  #  versions:
+  #  - 15.10
+  #- name: ASR9K
+  #  versions:
+  #  - any
+  #- name: XRV9K
+  #  versions:
+  #  - 6.0.2
+  #- name: NCS1K
+  #  versions:
+  #  - 6.0.2
+  #- name: NCS5K
+  #  versions:
+  #  - 6.0.2
+  #- name: NCS5500
+  #  versions:
+  #  - 6.0.2
 
 dependencies: []
   # List your role dependencies here, one per line. Only
