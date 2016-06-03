@@ -19,10 +19,6 @@ The script has to establish a connection to the remote node itself. The
 local mode module uses Ansible network module to establish SSH connection
 to the IOS-XR console to run CLI command.
 
-There are 2 implementions of local mode, CLI and NECONF XML. And there are 2
-options for NETCONF XML, raw and YDK options. The YDK option requires ydk-py
-python libraries from github.
-
 There are 6 different ways to access IOS-XR in local mode.
 
 1. **Console CLI** - connect to IOS-XR console through SSH port 22 and use
