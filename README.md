@@ -50,17 +50,20 @@ With different variants for local and remote modes mentioned earlier, before
 implementing Ansible modules, one needs to be aware of their limitation.
 
 **Linux-based vs. QNX-based IOS-XR**
+
   * QNX-based IOS-XR can only run in local mode
   * Earlier version of Linux-based IOS-XR also can only run in local mode due
     to incomplete Python libraries
   * Linux-based IOS-XR (eXR 6.0.2 or later) can run both remote and local modes
 
 **CLI vs. XML/NETCONF**
+
   * With CLI mode, you can do all CLI commands as you would do interactively.
   * The XML/NETCONF mode allows you to use Cisco XML or NETCONF commands in XML
     construct to configure IOS-XR.
 
 **Console CLI vs. TPNNS CLI**
+
   * Console CLI allows you to do all CLI commands as you would do interactively.
   * TPNNS CLI can either be implemented in local or remote mode.  It connects
     to IOS-XR Linux shell and requires helper programs, /pkg/bin/xr_cli or
@@ -68,6 +71,7 @@ implementing Ansible modules, one needs to be aware of their limitation.
     Currently, "commit replace" is not supported by /pkg/sbin/config.
 
 **Raw XML/NETCONF vs. YDK NETCONF**
+
   * Raw NETCONF mode allows you to configure IOS-XR using NETCONF commands in
     RPC XML construct through standard SSH port 22 with termination sequence
     **]]>]]>** and port 830 with **##** termination sequence.  The response is
