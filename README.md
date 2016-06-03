@@ -25,18 +25,18 @@ python libraries from github.
 
 There are 6 different ways to access IOS-XR in local mode.
 
-1.	**Console CLI** - connect to IOS-XR console through SSH port 22 and use
+1. **Console CLI** - connect to IOS-XR console through SSH port 22 and use
                   CLI commands.
-2.	**TPNNS CLI** - connect to IOS-XR Linux shell through SSH port 57722
+2. **TPNNS CLI** - connect to IOS-XR Linux shell through SSH port 57722
                   and use helper programs, /pkg/bin/xr_cli or /pkg/sbin/config.
-3.	**Raw XML** - connect to IOS-XR console through SSH port 22 to exchange XML
+3. **Raw XML** - connect to IOS-XR console through SSH port 22 to exchange XML
                   construct with IOS-XR xml agent.
-4.	**Raw NETCONF 1.0** - connect to IOS-XR console through SSH port 22 to
+4. **Raw NETCONF 1.0** - connect to IOS-XR console through SSH port 22 to
                   exchange NETCONF 1.0 XML construct with IOS-XR netconf agent.
-5.	**Raw NETCONF 1.1** - connect to IOS-XR console through SSH port 830 to
+5. **Raw NETCONF 1.1** - connect to IOS-XR console through SSH port 830 to
                   exchange NETCONF 1.1 XML construct with IOS-XR netconf-yang
                   agent.
-6.	**YDK NETCONF** - use the Cisco YDK API service to manage IOS-XR device
+6. **YDK NETCONF** - use the Cisco YDK API service to manage IOS-XR device
                   through SSH port 830.
 
 Managing the IOS-XR device in the remote mode required TPNNS through SSH
@@ -49,22 +49,22 @@ for how the SSH connection is being established and where the script is run.
 With different variants for local and remote modes mentioned earlier, before
 implementing Ansible modules, one needs to be aware of their limitation.
 
--	**Linux-based vs. QNX-based IOS-XR**
+1. **Linux-based vs. QNX-based IOS-XR**
   * QNX-based IOS-XR can only run in local mode
   * Earlier version of Linux-based IOS-XR also can only run in local mode due
     to incomplete Python libraries
   * Linux-based IOS-XR (eXR 6.0.2 or later) can run both remote and local modes
--	**CLI vs. XML/NETCONF**
+2. **CLI vs. XML/NETCONF**
   * With CLI mode, you can do all CLI commands as you would do interactively.
   * The XML/NETCONF mode allows you to use Cisco XML or NETCONF commands in XML
     construct to configure IOS-XR.
--	**Console CLI vs. TPNNS CLI**
+3. **Console CLI vs. TPNNS CLI**
   * Console CLI allows you to do all CLI commands as you would do interactively.
   * TPNNS CLI can either be implemented in local or remote mode.  It connects
     to IOS-XR Linux shell and requires helper programs, /pkg/bin/xr_cli or
     /pkg/sbin/config, to deliver CLI commands or configure IOS-XR, respectively.
     Currently, "commit replace" is not supported by /pkg/sbin/config.
--	**Raw XML/NETCONF vs. YDK NETCONF**
+4. **Raw XML/NETCONF vs. YDK NETCONF**
   * Raw NETCONF mode allows you to configure IOS-XR using NETCONF commands in
     RPC XML construct through standard SSH port 22 with termination sequence
     **]]>]]>** and port 830 with **##** termination sequence.  The response is
