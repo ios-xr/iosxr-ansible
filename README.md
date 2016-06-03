@@ -78,20 +78,17 @@ implementing Ansible modules, one needs to be aware of their limitation.
       continue to grow as more definitions are added and would be a preferred
       method for accessing IOS-XR. 
 
-# Ansible Test Setup
+# Dependencies
 
-- **Prerequisite**
-  * Create 2 XRV9K (Sunstone) VM's with k9sec security package
-  * 1 Linux server
-  * Create network connection between XRV9K and Linux server
+- k9sec security package is required on IOS-XR.
 
-- Pull YDK from the github into the Linux server
+- Pull YDK from the github onto a Linux server
   * git clone https://github.com/CiscoDevNet/ydk-py
 
-- Pull Ansible Core modules
+- Pull Ansible Core modules onto a Linux server
   * git clone git://github.com/ansible/ansible.git --recursive
 
-  Addition read on Ansible installation is here
+  Additional read on Ansible installation is here
   * http://docs.ansible.com/ansible/intro_installation.html#getting-ansible
 
 # Directories structure
@@ -299,3 +296,10 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
 - ASR9K (classic 32-bit QNX IOS-XR)
 - NCS1K (rosco)
 - NCS5500 (fretta)
+
+# Ansible Test Setup
+
+  * 1 or more IOS-XR device(s)
+  * 1 Linux server (ubuntu 15.10)
+  * Create network connection between XRV9K and Linux server
+
