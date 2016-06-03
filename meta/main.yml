@@ -9,10 +9,11 @@ galaxy_info:
   galaxy_tags:
   - networking
 
-  #platforms:
-  #- name: Ubuntu
-  #  versions:
-  #  - 15.10
+  platforms:
+  - name: ubuntu
+    versions:
+    - trusty
+    - wily
   #- name: ASR9K
   #  versions:
   #  - any
