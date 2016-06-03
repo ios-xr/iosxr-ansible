@@ -48,6 +48,7 @@ for how the SSH connection is being established and where the script is run.
 # Understand connection variants
 With different variants for local and remote modes mentioned earlier, before
 implementing Ansible modules, one needs to be aware of their limitation.
+
 -	**Linux-based vs. QNX-based IOS-XR**
   * QNX-based IOS-XR can only run in local mode
   * Earlier version of Linux-based IOS-XR also can only run in local mode due
