@@ -24,6 +24,7 @@ options for NETCONF XML, raw and YDK options. The YDK option requires ydk-py
 python libraries from github.
 
 There are 6 different ways to access IOS-XR in local mode.
+
 1.	**Console CLI** - connect to IOS-XR console through SSH port 22 and use
                   CLI commands.
 2.	**TPNNS CLI** - connect to IOS-XR Linux shell through SSH port 57722
