@@ -309,5 +309,5 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
 
   * 1 or more IOS-XR device(s)
   * 1 Linux server (ubuntu 15.10)
-  * Create network connection between XRV9K and Linux server
+  * Create network connection between IOS-XR device and Linux server
 
