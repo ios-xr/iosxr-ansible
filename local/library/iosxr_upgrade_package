@@ -122,23 +122,28 @@ def main():
     # make sure no other install in progress
     if is_install_in_progress(module):
         module.fail_json(msg="other install op in progress")
-  
+
+    # run install upgrade command
     command = ('install upgrade source ' +
                pkg_path + ' version ' + version + ' ' + pkg_name + '\r')
     module.connection.shell.shell.send(command)
 
-    # collect all responses 1024 bytes at a time
-    prompt = re.compile(r'[\r\n]?[\w+\-\.:\/\[\]]+(?:>|#)')
-    response = module.connection.shell.shell.recv(1024)
-    while not prompt.search(response):
-        response += module.connection.shell.shell.recv(1024)
+    try:
+        # collect all responses 1024 bytes at a time
+        prompt = re.compile(r'[\r\n]?[\w+\-\.:\/\[\]]+(?:>|#)')
+        response = module.connection.shell.shell.recv(1024)
+        while not prompt.search(response):
+            response += module.connection.shell.shell.recv(1024)
+    except:
+        response += '\r\nNOTE: install upgrade is running in background and can take a long time, use "show install <request|log>" command to check its status\r\n'
+        pass
 
-    # exit if error
-    result = dict(changed=False)
-    if 'aborted' not in response:
-        result['changed'] = True
+    # check result
+    if 'aborted' in response:
+        module.fail_json(msg=response)
 
     # show result
+    result = dict(changed=True)
     result['stdout'] = response
     result['stdout_lines'] = str(result['stdout']).splitlines()
 
