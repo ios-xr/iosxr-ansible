@@ -124,7 +124,7 @@ def main():
         module.fail_json(msg="other install op in progress")
   
     command = ('install upgrade source ' +
-               pkg_path + ' version ' + version + pkg_name + '\r')
+               pkg_path + ' version ' + version + ' ' + pkg_name + '\r')
     module.connection.shell.shell.send(command)
 
     # collect all responses 1024 bytes at a time
