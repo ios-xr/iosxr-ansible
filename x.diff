@@ -1,0 +1,183 @@
+Only in /tftpboot/iosxr-ansible/.git: COMMIT_EDITMSG
+diff -r ./.git/config /tftpboot/iosxr-ansible/.git/config
+7c7
+< 	url = http://github.com/ios-xr/iosxr-ansible.git
+---
+> 	url = http://gitlab.cisco.com/aermongk/iosxr-ansible.git
+Only in /tftpboot/iosxr-ansible/.git: FETCH_HEAD
+Binary files ./.git/index and /tftpboot/iosxr-ansible/.git/index differ
+diff -r ./.git/logs/HEAD /tftpboot/iosxr-ansible/.git/logs/HEAD
+1c1,3
+< 0000000000000000000000000000000000000000 f51eef015061173cfa19308467b2d38c3ac92654 Adisorn Ermongkonchai <aermongk@cisco.com> 1466754346 +0000	clone: from http://github.com/ios-xr/iosxr-ansible.git
+---
+> 0000000000000000000000000000000000000000 89f485f49ab7465a46bf36e9c5f2cf4f1d40c485 Adisorn Ermongkonchai <aermongk@cisco.com> 1466548128 +0000	clone: from http://gitlab.cisco.com/aermongk/iosxr-ansible.git
+> 89f485f49ab7465a46bf36e9c5f2cf4f1d40c485 6885dd93a8a50f9ecbc3a85c38fe81b80bb768bb Adisorn Ermongkonchai <aermongk@cisco.com> 1466548232 +0000	commit: Added note to warn user of lengthy install
+> 6885dd93a8a50f9ecbc3a85c38fe81b80bb768bb a8b509c735126a777e97a376dc914ab296a2040f Adisorn Ermongkonchai <aermongk@cisco.com> 1466754071 +0000	commit: added new module to activate upgraded packages due to install intermittent bug
+diff -r ./.git/logs/refs/heads/master /tftpboot/iosxr-ansible/.git/logs/refs/heads/master
+1c1,3
+< 0000000000000000000000000000000000000000 f51eef015061173cfa19308467b2d38c3ac92654 Adisorn Ermongkonchai <aermongk@cisco.com> 1466754346 +0000	clone: from http://github.com/ios-xr/iosxr-ansible.git
+---
+> 0000000000000000000000000000000000000000 89f485f49ab7465a46bf36e9c5f2cf4f1d40c485 Adisorn Ermongkonchai <aermongk@cisco.com> 1466548128 +0000	clone: from http://gitlab.cisco.com/aermongk/iosxr-ansible.git
+> 89f485f49ab7465a46bf36e9c5f2cf4f1d40c485 6885dd93a8a50f9ecbc3a85c38fe81b80bb768bb Adisorn Ermongkonchai <aermongk@cisco.com> 1466548232 +0000	commit: Added note to warn user of lengthy install
+> 6885dd93a8a50f9ecbc3a85c38fe81b80bb768bb a8b509c735126a777e97a376dc914ab296a2040f Adisorn Ermongkonchai <aermongk@cisco.com> 1466754071 +0000	commit: added new module to activate upgraded packages due to install intermittent bug
+diff -r ./.git/logs/refs/remotes/origin/HEAD /tftpboot/iosxr-ansible/.git/logs/refs/remotes/origin/HEAD
+1c1
+< 0000000000000000000000000000000000000000 f51eef015061173cfa19308467b2d38c3ac92654 Adisorn Ermongkonchai <aermongk@cisco.com> 1466754346 +0000	clone: from http://github.com/ios-xr/iosxr-ansible.git
+---
+> 0000000000000000000000000000000000000000 89f485f49ab7465a46bf36e9c5f2cf4f1d40c485 Adisorn Ermongkonchai <aermongk@cisco.com> 1466548128 +0000	clone: from http://gitlab.cisco.com/aermongk/iosxr-ansible.git
+Only in /tftpboot/iosxr-ansible/.git/logs/refs/remotes/origin: master
+Only in /tftpboot/iosxr-ansible/.git/objects: 36
+Only in /tftpboot/iosxr-ansible/.git/objects: 46
+Only in /tftpboot/iosxr-ansible/.git/objects: 49
+Only in /tftpboot/iosxr-ansible/.git/objects: 51
+Only in /tftpboot/iosxr-ansible/.git/objects: 60
+Only in /tftpboot/iosxr-ansible/.git/objects: 68
+Only in /tftpboot/iosxr-ansible/.git/objects: 7f
+Only in /tftpboot/iosxr-ansible/.git/objects: 85
+Only in /tftpboot/iosxr-ansible/.git/objects: 8e
+Only in /tftpboot/iosxr-ansible/.git/objects: 99
+Only in /tftpboot/iosxr-ansible/.git/objects: a2
+Only in /tftpboot/iosxr-ansible/.git/objects: a8
+Only in /tftpboot/iosxr-ansible/.git/objects: bc
+Only in /tftpboot/iosxr-ansible/.git/objects: be
+Only in /tftpboot/iosxr-ansible/.git/objects: dc
+Only in /tftpboot/iosxr-ansible/.git/objects: e2
+Only in /tftpboot/iosxr-ansible/.git/objects: f7
+Only in /tftpboot/iosxr-ansible/.git/objects: fa
+Only in ./.git/objects/pack: pack-5ba641a494511c7726663cf6dff1e386e7c1edb6.idx
+Only in ./.git/objects/pack: pack-5ba641a494511c7726663cf6dff1e386e7c1edb6.pack
+Only in /tftpboot/iosxr-ansible/.git/objects/pack: pack-debf696ea3a9509213ac959f42cc6ec11b8775be.idx
+Only in /tftpboot/iosxr-ansible/.git/objects/pack: pack-debf696ea3a9509213ac959f42cc6ec11b8775be.pack
+Only in /tftpboot/iosxr-ansible/.git: ORIG_HEAD
+diff -r ./.git/packed-refs /tftpboot/iosxr-ansible/.git/packed-refs
+2,5c2
+< f51eef015061173cfa19308467b2d38c3ac92654 refs/remotes/origin/master
+< 24b4799497122b056395a18e9df6f66c945f0582 refs/tags/0.1.0
+< 3d2e0d0009494f87e3c173bafa4d365960717e08 refs/tags/0.1.1
+< f51eef015061173cfa19308467b2d38c3ac92654 refs/tags/0.1.3
+---
+> 89f485f49ab7465a46bf36e9c5f2cf4f1d40c485 refs/remotes/origin/master
+diff -r ./.git/refs/heads/master /tftpboot/iosxr-ansible/.git/refs/heads/master
+1c1
+< f51eef015061173cfa19308467b2d38c3ac92654
+---
+> a8b509c735126a777e97a376dc914ab296a2040f
+Only in /tftpboot/iosxr-ansible/.git/refs/remotes/origin: master
+diff -r ./local/library/iosxr_install_package /tftpboot/iosxr-ansible/local/library/iosxr_install_package
+137,140c137,140
+<                 response.append(execute_command(module, command))
+<             for rmsg in response[0]:
+<                 if 'aborted' in rmsg:
+<                     module.fail_json(msg=rmsg)
+---
+>                 rmsg = module.execute(command)
+>                 if 'aborted' in rmsg[0]:
+>                     module.fail_json(msg=rmsg[0])
+>                 response.append(rmsg[0])
+292c292
+<         module.fail_json(msg="other install op in progress")
+---
+>         module.fail_json(msg="other install operation in progress")
+Only in /tftpboot/iosxr-ansible/local/library: iosxr_upgrade_activate
+diff -r ./local/library/iosxr_upgrade_package /tftpboot/iosxr-ansible/local/library/iosxr_upgrade_package
+49a50,54
+>   confirm:
+>     description:
+>       - make sure user really want to reload
+>     required: true
+>     value: "yes" or other string
+77a83
+>     confirm: yes
+107a114
+>             confirm = dict(required=True),
+117a125,128
+>     # confirm upgrade
+>     if args['confirm'] != 'yes':
+>         module.fail_json(msg='upgrade aborted')
+> 
+120c131
+<         module.fail_json(msg="install upgrade cannot run on 32-bit IOS-XR")
+---
+>         module.fail_json(msg='this upgrade module cannot run on 32-bit IOS-XR')
+124c135,138
+<         module.fail_json(msg="other install op in progress")
+---
+>         module.fail_json(msg='other install operation in progress')
+> 
+>     # ignore timeout
+>     module.connection.shell.shell.settimeout(None)
+128c142
+<                pkg_path + ' version ' + version + ' ' + pkg_name + '\r')
+---
+>                pkg_path + ' version ' + version + ' ' + pkg_name + '\n')
+131,135c145,151
+<     try:
+<         # collect all responses 1024 bytes at a time
+<         prompt = re.compile(r'[\r\n]?[\w+\-\.:\/\[\]]+(?:>|#)')
+<         response = module.connection.shell.shell.recv(1024)
+<         while not prompt.search(response):
+---
+>     response = ''
+>     prompt = re.compile(r'[\r\n]?[\w+\-\.:\/\[\]]+(?:>|#)')
+>     ask = re.compile(r'[\r\n]?\[yes\/no]:\[\w+]\s')
+> 
+>     # wait for either command prompt or activate prompt
+>     while True:
+>         try:
+137,143c153,176
+<     except:
+<         response += '\r\nNOTE: install upgrade is running in background and can take a long time, use "show install <request|log>" command to check its status\r\n'
+<         pass
+< 
+<     # check result
+<     if 'aborted' in response:
+<         module.fail_json(msg=response)
+---
+> 
+>             # if activate prompt then send yes
+>             if ask.search(response):
+>                 module.connection.shell.shell.send('yes\n')
+>                 break
+> 
+>             # if command prompt then it probably is error response
+>             elif prompt.search(response):
+>                 if 'aborted' in response:
+>                     module.fail_json(msg=response)
+>                 break
+>         except:
+>             break
+> 
+>     # now wait till reload
+>     while True:
+>         try:
+>             #  install operation done
+>             if not is_install_in_progress(module):
+>                 break
+>             sleep(5)
+>         # or socket exception when reload
+>         except:
+>             break
+Only in /tftpboot/iosxr-ansible/local/samples: iosxr_upgrade_activate.yml
+diff -r ./local/samples/iosxr_upgrade_package.yml /tftpboot/iosxr-ansible/local/samples/iosxr_upgrade_package.yml
+2c2
+< - hosts: ss-xr
+---
+> - hosts: 192.168.1.5
+5a6,9
+>   vars_prompt:
+>   - name: yesno
+>     prompt: 'Upgrade can take an hour to finish, are you sure you want to contiue (yes/no)? '
+> 
+7c11
+<   - name: upgrade IOS-XR software version
+---
+>   - name: upgrade IOS-XR software version, please do not hit Ctrl-C
+10a15
+>       confirm: '{{ yesno }}'
+12,13c17,18
+<       pkgpath: 'https://aermongk-dev'
+<       #pkgname: 'xrv9k-mpls-2.0.0.0-r60204I.x86_64.rpm'
+---
+>       pkgpath: 'tftp://192.168.1.1/6.1.1'
+>       pkgname: 'xrv9k-k9sec-3.1.0.0-r61119I.x86_64.rpm xrv9k-mgbl-3.0.0.0-r61119I.x86_64.rpm xrv9k-ospf-1.0.0.0-r61119I.x86_64.rpm'
+Only in .: x.diff

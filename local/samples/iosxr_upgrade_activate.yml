@@ -1,0 +1,13 @@
+---
+- hosts: 192.168.1.5
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: activate packages
+    iosxr_upgrade_activate:
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      pkgname: 'xrv9k-mini-x-6.1.1.19I xrv9k-mgbl-3.0.0.0-r61119I xrv9k-k9sec-3.1.0.0-r61119I xrv9k-ospf-1.0.0.0-r61119I'
+    register: output
+  - debug: var=output.stdout_lines

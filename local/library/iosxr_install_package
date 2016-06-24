@@ -134,10 +134,10 @@ def wait_install_response(module, oper_id):
             response = list()
             for inst_id in oper_id:
                 command = "show install log " + inst_id
-                response.append(execute_command(module, command))
-            for rmsg in response[0]:
-                if 'aborted' in rmsg:
-                    module.fail_json(msg=rmsg)
+                rmsg = module.execute(command)
+                if 'aborted' in rmsg[0]:
+                    module.fail_json(msg=rmsg[0])
+                response.append(rmsg[0])
             return response
     else:
         module.fail_json(msg="timeout waiting for install to complete")
@@ -289,7 +289,7 @@ def main():
 
     # make sure no other install in progress
     if is_install_in_progress(module):
-        module.fail_json(msg="other install op in progress")
+        module.fail_json(msg="other install operation in progress")
   
     install = {
         'present':     install_add,

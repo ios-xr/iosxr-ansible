@@ -26,11 +26,11 @@ from iosxr_common import *
 
 DOCUMENTATION = """
 ---
-module: iosxr_upgrade_package
+module: iosxr_upgrade_activate
 author: Adisorn Ermongkonchai
-short_description: Upgrade packages on IOS-XR device.
+short_description: Activate packages in IOS-XR repository.
 description:
-  - Upgrade IOS-XR packages on the IOS-XR device.
+  - Activate IOS-XR packages in IOS-XR repository.
 options:
   host:
     description:
@@ -47,41 +47,18 @@ options:
       - password used to login to IOS-XR
     required: true
     default: none
-  confirm:
-    description:
-      - make sure user really want to reload
-    required: true
-    value: "yes" or other string
-  version:
-    description:
-      - new software version
-    required: true
-  pkgpath:
-    description:
-      - souce directory for the package(s)
-        Example:
-          sftp://user@server/directory/
-          ftp://user@server/directory/
-          scp://user@server/directory/
-          tftp://server/directory/
-          http://server/directory/
-          https://server/directory/
-    required: true
   pkgname:
     description:
-      - IOS-XR software packages
-        e.g. xrv9k-ospf-1.0.0.0-r61102I.x86_64.rpm
-    required: false
-    default: none
+      - IOS-XR software packages in the repository
+        NOTE: use 'show install inactive' to see packages in repository
+    required: true
 """
 
 EXAMPLES = """
-- iosxr_upgrade_package:
+- iosxr_upgrade_activate:
     host: '{{ ansible_ssh_host }}'
     username: cisco
-    version: 6.1.1
-    confirm: yes
-    pkgpath: "https://secure_server_name"
+    pkgname: 'xrv9k-mgbl-3.0.0.0-r60204I xrv9k-k9sec-2.0.0.0-r60204I'
 """
 
 RETURN = """
@@ -105,26 +82,19 @@ def is_install_in_progress(module):
     response = execute_command(module, command)
     return "No install operation in progress" not in response[0]
 
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?\[yes\/no]:\[\w+]\s'))
+
 def main():
     module = get_module(
         argument_spec = dict(
             username = dict(required=False, default=None),
             password = dict(required=False, default=None),
-            version = dict(required=True, default=None),
-            confirm = dict(required=True),
-            pkgpath = dict(required=True, default=None),
-            pkgname = dict(required=False, default=""),
+            pkgname = dict(required=True, default=None),
         ),
         supports_check_mode = False
     )
     args = module.params
-    version = args['version']
-    pkg_path = args['pkgpath']
     pkg_name = args['pkgname']
-
-    # confirm upgrade
-    if args['confirm'] != 'yes':
-        module.fail_json(msg='upgrade aborted')
 
     # cannot run on classic XR
     if is_legacy_iosxr(module):
@@ -137,48 +107,21 @@ def main():
     # ignore timeout
     module.connection.shell.shell.settimeout(None)
 
-    # run install upgrade command
-    command = ('install upgrade source ' +
-               pkg_path + ' version ' + version + ' ' + pkg_name + '\n')
-    module.connection.shell.shell.send(command)
+    # run install activate command
+    commands = [ 'install activate ' + pkg_name ]
+    commands.append('yes\n')
 
-    response = ''
-    prompt = re.compile(r'[\r\n]?[\w+\-\.:\/\[\]]+(?:>|#)')
-    ask = re.compile(r'[\r\n]?\[yes\/no]:\[\w+]\s')
-
-    # wait for either command prompt or activate prompt
+    response = execute_command(module, commands)
     while True:
         try:
-            response += module.connection.shell.shell.recv(1024)
-
-            # if activate prompt then send yes
-            if ask.search(response):
-                module.connection.shell.shell.send('yes\n')
-                break
-
-            # if command prompt then it probably is error response
-            elif prompt.search(response):
-                if 'aborted' in response:
-                    module.fail_json(msg=response)
-                break
-        except:
-            break
-
-    # now wait till reload
-    while True:
-        try:
-            #  install operation done
             if not is_install_in_progress(module):
                 break
-            sleep(5)
-        # or socket exception when reload
         except:
             break
 
-    # show result
     result = dict(changed=True)
     result['stdout'] = response
-    result['stdout_lines'] = str(result['stdout']).splitlines()
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
     module.exit_json(**result)
 
