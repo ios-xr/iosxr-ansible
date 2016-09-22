@@ -53,7 +53,7 @@ def main():
   
     command = '/bin/echo yes > yes'
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
-    command = 'source /etc/profile ; nsenter -t 1 -n -- clr_logging < yes'
+    command = 'source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- clr_logging < yes'
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
   
     result = dict(changed=True)

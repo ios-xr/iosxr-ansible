@@ -71,7 +71,7 @@ def main():
  
     command = '/bin/echo y > yes'
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
-    reload_command = 'source /etc/profile ; nsenter -t 1 -n -- reload -t 0x0 '
+    reload_command = 'source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- reload -t 0x0 '
     reload_options = '-a' if args['force'] is True else '-d'
     command = reload_command + reload_options + ' < yes'
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)

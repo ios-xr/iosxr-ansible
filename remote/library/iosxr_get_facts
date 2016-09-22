@@ -68,7 +68,7 @@ def main():
 
     result = dict(changed=False)
     for cmd in cmds:
-        command = "source /etc/profile ; nsenter -t 1 -n -- xr_cli '%s'" % cmd
+        command = "source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- xr_cli '%s'" % cmd
         (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
         result[cmd] = str(out).splitlines()
     return module.exit_json(**result)
