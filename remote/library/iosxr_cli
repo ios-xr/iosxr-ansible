@@ -57,7 +57,7 @@ def main():
         ),
         supports_check_mode = False
     )
-    command = 'source /etc/profile ; nsenter -t 1 -n -- xr_cli "%s"' % \
+    command = 'source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- xr_cli "%s"' % \
               module.params['command']
     (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
   

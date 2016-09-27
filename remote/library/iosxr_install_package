@@ -77,7 +77,7 @@ stdout_lines:
 """
 
 def execute_command(module, command):
-    cmd = "source /etc/profile ; nsenter -t 1 -n -- xr_cli '%s'" % command
+    cmd = "source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- xr_cli '%s'" % command
     return module.run_command(cmd, use_unsafe_shell=True)
 
 # check if another install command in progress
