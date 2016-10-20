@@ -4,7 +4,7 @@
   gather_facts: no
 
   vars:
-  - ansible_ssh_pass: 'lab'
+  - ansible_ssh_pass: 'cisco'
 
   tasks:
   - iosxr_show_install_last_log:
