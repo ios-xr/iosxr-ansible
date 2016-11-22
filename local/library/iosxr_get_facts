@@ -20,8 +20,8 @@
 
 from ansible.module_utils.basic import *
 from ansible.module_utils.netcfg import *
-from ansible.module_utils.iosxr import *
 from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
