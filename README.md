@@ -178,7 +178,7 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
   following link for instruction and make sure you can SSH to the IOS-XR
   through port **57722**.
   
-    http://www.cisco.com/c/en/us/td/docs/iosxr/AppHosting/b-application-hosting-configuration-guide/AH_User_Guide_chapter_00.html
+    http://www.cisco.com/c/en/us/td/docs/iosxr/ncs5500/app-hosting/b-application-hosting-configuration-guide-ncs5500/b-application-hosting-configuration-guide-ncs5500_chapter_00.html
 
     To access IOS-XR without password, you will also need to add your 
     Linux server SSH public key (~/.ssh/id_rsa.pub) to your IOS-XR
