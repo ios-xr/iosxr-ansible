@@ -5,6 +5,6 @@
 
   tasks:
   - name: run IOS-XR CLI command
-    shell: 'ssh -p 57722 {{ ansible_ssh_user}}@{{ ansible_host }} "source /etc/profile; nsenter -t 1 -n -- xr_cli \"show run\""'
+    shell: 'ssh -p 57722 {{ ansible_ssh_user}}@{{ ansible_host }} "source /etc/profile; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- xr_cli \"show run\""'
     register: output
   - debug: var=output.stdout_lines
