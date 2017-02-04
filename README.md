@@ -180,6 +180,15 @@ NOTE: Some of these instruction may require root access for setting IOS-XR.
   
     http://www.cisco.com/c/en/us/td/docs/iosxr/ncs5500/app-hosting/b-application-hosting-configuration-guide-ncs5500/b-application-hosting-configuration-guide-ncs5500_chapter_00.html
 
+    NOTE: Newer version of IOS-XR has renamed tpnns to operns resulting in filename changed, e.g. sshd_tpnns to sshd_operns
+    
+    ```
+    RP/0/RP0/CPU0:aermongk-ss1# run
+    [xr-vm_node0_RP0_CPU0:~]$ . /etc/init.d/operns-functions
+    [xr-vm_node0_RP0_CPU0:~]$ operns_wait_until_ready
+    [xr-vm_node0_RP0_CPU0:~]$ service sshd_operns start
+    ```
+    
     To access IOS-XR without password, you will also need to add your 
     Linux server SSH public key (~/.ssh/id_rsa.pub) to your IOS-XR
     \<your_xr_home\>/.ssh/authorized_key file by using **ssh-copy-id**
