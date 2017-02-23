@@ -3,8 +3,8 @@
 In the nutshell, Ansible is an automation tool for configuring system,
 deploying software, and orchestrating services. Unlike Puppet and Chef which
 is an agent-based architecture, Ansible does not require daemon running or
-agent pre-installed on the target nodes to interact with the Ansible server.
-Ansible could be specified to run either on local server or on remote
+agent pre-installed on the target nodes to interact with a server.
+Ansible could be specified to run either on a local server or on a remote
 node.
 
 The different between local and remote connection mode in Ansible is basically
