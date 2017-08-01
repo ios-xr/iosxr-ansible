@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #
 #    Copyright (C) 2016 Cisco Systems, Inc.
 #
@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 from ansible.module_utils.basic import *
 
@@ -76,9 +76,11 @@ stdout_lines:
   returned: always
 """
 
+
 def execute_command(module, command):
     cmd = "source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- xr_cli '%s'" % command
     return module.run_command(cmd, use_unsafe_shell=True)
+
 
 # check if another install command in progress
 def is_install_in_progress(module):
@@ -86,17 +88,20 @@ def is_install_in_progress(module):
     (rc, out, err) = execute_command(module, command)
     return "No install operation in progress" not in out
 
+
 # check if the package is already added
 def is_package_already_added(module, pkg_name):
     command = "show install inactive"
     (rc, out, err) = execute_command(module, command)
     return pkg_name in out
 
+
 # check if the package is already active
 def is_package_already_active(module, pkg_name):
     command = "show install active"
     (rc, out, err) = execute_command(module, command)
     return pkg_name in out
+
 
 # wait for install command to complete
 def wait_install_response(module, oper_id):
@@ -118,10 +123,12 @@ def wait_install_response(module, oper_id):
     else:
         module.fail_json(msg="timeout waiting for install to complete")
 
+
 # get install operation id from log
 def get_operation_id(out):
     pattern = re.compile(r"operation (\d+) started")
     return pattern.findall(out)
+
 
 # add package only when it is not already added or activated
 def install_add(module, pkg_path, pkg_name):
@@ -146,6 +153,7 @@ def install_add(module, pkg_path, pkg_name):
     result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
 
+
 # remove package only when it is in inactive state
 def install_remove(module, pkg_path, pkg_name):
     result = dict(changed=False)
@@ -166,6 +174,7 @@ def install_remove(module, pkg_path, pkg_name):
     result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
 
+
 # update package
 def install_update(module, pkg_path, pkg_name):
     result = dict(changed=False)
@@ -184,6 +193,7 @@ def install_update(module, pkg_path, pkg_name):
     result['stdout'] = response
     result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
+
 
 # activate package only when it has been added
 def install_activate(module, pkg_path, pkg_name):
@@ -205,6 +215,7 @@ def install_activate(module, pkg_path, pkg_name):
     result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
 
+
 # deactivate package only when it is in active state
 def install_deactivate(module, pkg_path, pkg_name):
     result = dict(changed=False)
@@ -223,7 +234,8 @@ def install_deactivate(module, pkg_path, pkg_name):
     result['stdout'] = response
     result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
-  
+
+
 # commit active packages
 def install_commit(module, pkg_path, pkg_name):
     command = "install commit"
@@ -236,42 +248,44 @@ def install_commit(module, pkg_path, pkg_name):
     result['stdout_lines'] = [str(rmsg).splitlines() for rmsg in response]
     return result
 
+
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            username = dict(required=False, default=None),
-            password = dict(required=False, default=None),
-            pkgpath = dict(required=False, default=None),
-            pkgname = dict(required=True, default=None),
-            state = dict(required=False, default='present',
-                         choices = ['present',
-                                    'absent',
-                                    'updated',
-                                    'activated',
-                                    'deactivated',
-                                    'committed'])
+        argument_spec=dict(
+            username=dict(required=False, default=None),
+            password=dict(required=False, default=None),
+            pkgpath=dict(required=False, default=None),
+            pkgname=dict(required=True, default=None),
+            state=dict(required=False, default='present',
+                       choices=['present',
+                                'absent',
+                                'updated',
+                                'activated',
+                                'deactivated',
+                                'committed'])
         ),
-        supports_check_mode = False
+        supports_check_mode=False
     )
     args = module.params
     state = args['state']
-  
+
     # make sure no other install in progress
     if is_install_in_progress(module):
         module.fail_json(msg="other install op in progress")
-  
+
     # do install
     install = {
-        'present':     install_add,
-        'absent':      install_remove,
-        'updated':     install_update,
-        'activated':   install_activate,
+        'present': install_add,
+        'absent': install_remove,
+        'updated': install_update,
+        'activated': install_activate,
         'deactivated': install_deactivate,
-        'committed':   install_commit
+        'committed': install_commit
     }
     result = install[state](module, args['pkgpath'], args['pkgname'])
-  
+
     module.exit_json(**result)
+
 
 if __name__ == "__main__":
     main()
