@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #
 #    Copyright (C) 2016 Cisco Systems, Inc.
 #
@@ -16,9 +16,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 from ansible.module_utils.basic import *
+import sys
+sys.path.append("/pkg/bin/")
+from ztp_helper import ZtpHelpers
 
 DOCUMENTATION = """
 ---
@@ -55,40 +58,36 @@ stdout_lines:
   returned: always
 """
 
+
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            username = dict(required=False, default=None),
-            password = dict(required=False, default=None),
-            cfgname  = dict(required=True),
-            label    = dict(required=False, default=None),
+        argument_spec=dict(
+            username=dict(required=False, default=None),
+            password=dict(required=False, default=None),
+            cfgname=dict(required=True),
+            label=dict(required=False, default=None),
         ),
-        supports_check_mode = False
+        supports_check_mode=False
     )
+    script = ZtpHelpers()
+
     args = module.params
     cfg_name = args['cfgname']
     label = args['label']
-  
-    load_command = 'config -f %s ' % cfg_name
-    if label is not None:
-        load_command = load_command + '-l "%s"' % label
-    command = "source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- %s" % load_command
-    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+    command = cfg_name
+    if label:
+        command += label
+    script.xrapply(command)
 
-    # check for error
-    if err != "":
-        module.fail_json(msg=err)
-  
     change_command = 'show config commit changes last 1'
-    command = 'source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- xr_cli "%s"' % \
-              change_command
-    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+    out = script.xrcmd({"exec_cmd": change_command})
 
     result = dict(changed=False)
     result['stdout'] = out
-    result['stdout_lines'] = str(result['stdout']).splitlines()
+    result['stdout_lines'] = str(out['output']).splitlines()
 
     module.exit_json(**result)
+
 
 if __name__ == "__main__":
     main()
