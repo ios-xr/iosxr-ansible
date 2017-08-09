@@ -1,6 +1,7 @@
 ---
 - hosts: ss-xr
   gather_facts: no
+  become: yes
 
   tasks:
   - name: apply configuration file on the IOS-XR node
