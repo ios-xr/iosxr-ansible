@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rpc message-id="104" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <edit-config>
+    <target><candidate/></target>
+    <default-operation>merge</default-operation>
+    <config>
+      <Configuration>
+        <InterfaceConfigurationTable>
+          <InterfaceConfiguration>
+            <Naming>
+              <Active>act</Active>
+              <InterfaceName>GigabitEthernet0/0/0/0</InterfaceName>
+            </Naming>
+            <Description>
+              <Description>Gigabit Ethernet 0</Description>
+            </Description>
+            <MTUConfiguration>
+              <MTU>
+                <Naming>
+                  <Owner>GigabitEthernet</Owner>
+                </Naming>
+                <MTU>1492</MTU>
+              </MTU>
+            </MTUConfiguration>
+          </InterfaceConfiguration>
+        </InterfaceConfigurationTable>
+      </Configuration>
+    </config>
+  </edit-config>
+  <commit/>
+</rpc>

@@ -1,0 +1,7 @@
+export BASEDIR=/scratch
+export IOSXRDIR=$BASEDIR/ansible/iosxr/iosxr-ansible
+export ANSIBLE_INVENTORY=$IOSXRDIR/remote/ansible_hosts
+export ANSIBLE_LIBRARY=$IOSXRDIR/remote/library
+export ANSIBLE_CONFIG=$IOSXRDIR/remote/ansible_cfg
+export YDK_DIR=$BASEDIR/ydk/ydk-py
+export PYTHONPATH=$YDK_DIR

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rpc xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="urn:uuid:6fc280a6-0041-11e6-be69-0200c0a8f00b">
+  <get>
+    <filter type="subtree">
+      <software-install xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-spirit-install-instmgr-oper"/>
+    </filter>
+  </get>
+</rpc>

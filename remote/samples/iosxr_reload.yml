@@ -1,0 +1,15 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  vars_prompt:
+    - name: yesno
+      prompt: "Are you sure you want to reload the router (yes/no)? "
+
+  tasks:
+  - iosxr_reload:
+      username: "{{ ansible_ssh_user }}"
+      confirm: "{{ yesno }}"
+      force: True
+    register: output
+  - debug: var=output.stdout_lines

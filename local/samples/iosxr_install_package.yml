@@ -1,0 +1,30 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  vars:
+    cli:
+       host: "{{ ansible_host }}"
+       username: "{{ ansible_user }}"
+       password: "{{ ansible_ssh_pass }}"
+       timeout: 180
+    smu_name: "xrv9k-ospf-2.0.0.0-r64121I"
+
+  tasks:
+  - name: add SMU package
+    iosxr_install_package:
+      provider: "{{ cli }}"
+      pkgpath: "tftp://192.168.1.28"
+      pkgname: "{{ smu_name }}"
+      state: present
+    register: output
+  - debug: var=output.stdout_lines
+
+  - name: activate SMU package
+    iosxr_install_package:
+      provider: "{{ cli }}"
+      pkgname: "{{ smu_name }}"
+      state: activated
+    register: output
+  - debug: var=output.stdout_lines

@@ -1,0 +1,29 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  vars:
+    cli:
+       host: "{{ ansible_host }}"
+       username: "{{ ansible_user }}"
+       password: "{{ ansible_ssh_pass }}"
+       timeout: 180
+
+  tasks:
+  - name: add SMU package
+    xr32_install_package:
+      provider: "{{ cli }}"
+      pkgpath: "tftp://172.18.188.194/aermongk"
+      pkgname: "asr9k-mpls-px.pie"
+      state: present
+    register: output
+  - debug: var=output.stdout_lines
+
+  - name: activate SMU package
+    xr32_install_package:
+      provider: "{{ cli }}"
+      pkgname: "mem:asr9k-mpls-px-6.1.1.02I"
+      state: activated
+    register: output
+  - debug: var=output.stdout_lines

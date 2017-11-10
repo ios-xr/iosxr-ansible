@@ -1,0 +1,20 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  vars:
+    cli:
+       host: "{{ ansible_host }}"
+       username: "{{ ansible_user }}"
+       password: "{{ ansible_ssh_pass }}"
+    smu_name: "xrv9k-mpls-2.0.0.1-r64121I"
+
+  tasks:
+  - name: update SMU package
+    iosxr_install_package:
+      provider: "{{ cli }}"
+      pkgpath: "tftp://192.168.1.1/"
+      pkgname: "{{ smu_name }}"
+      state: updated
+    register: output
+  - debug: var=output.stdout_lines

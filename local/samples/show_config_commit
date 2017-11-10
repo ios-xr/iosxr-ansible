@@ -1,0 +1,1 @@
+ansible-playbook iosxr_cli.yml -e 'cmd="show config commit list"'

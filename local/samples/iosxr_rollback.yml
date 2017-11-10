@@ -1,0 +1,21 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  vars:
+    cli:
+       host: "{{ ansible_host }}"
+       username: "{{ ansible_user }}"
+       password: "{{ ansible_ssh_pass }}"
+
+  tasks:
+  - name: rollback configuration
+    iosxr_rollback:
+      provider: "{{ cli }}"
+      last_n_committed: 1
+      #rollback_id: 1000000016
+      #to_rollback_id: 1000000017
+      #to_exclude_rollback_id: 1000000018
+    register: output
+  - debug: var=output.stdout_lines

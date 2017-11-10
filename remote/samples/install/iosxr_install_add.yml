@@ -1,0 +1,13 @@
+---
+- hosts: ss-xr
+  gather_facts: no
+
+  vars:
+    pkgpath: 'tftp://192.168.1.1'
+    pkgname: 'xrv9k-mpls-2.0.0.1-r60204I.CSCxr33333.x86_64.rpm'
+
+  tasks:
+  - name: 'add and activate package {{ pkgname }}'
+    shell: 'source /etc/profile ; nsenter -t 1 -n -- sdr_instcmd install add source {{ pkgpath }} {{ pkgname }} || true'
+    register: str
+  - debug: var=str.stdout_lines

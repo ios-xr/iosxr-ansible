@@ -1,0 +1,19 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  vars:
+    cli:
+       host: "{{ ansible_host }}"
+       username: "{{ ansible_user }}"
+       password: "{{ ansible_ssh_pass }}"
+
+  tasks:
+  - name: remove user cisco
+    iosxr_config:
+      provider: "{{ cli }}"
+      commands: "no username cisco"
+      force: True
+    register: output
+  - debug: var=output.updates

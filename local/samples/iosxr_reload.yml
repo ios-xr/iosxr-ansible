@@ -1,0 +1,23 @@
+---
+- hosts: ss-xr
+  connection: local
+  gather_facts: no
+
+  vars:
+    cli:
+       host: "{{ ansible_host }}"
+       username: "{{ ansible_user }}"
+       password: "{{ ansible_ssh_pass }}"
+
+  vars_prompt:
+  - name: yesno
+    prompt: "Are you sure you want to reload the router (yes/no)? "
+
+  tasks:
+  - iosxr_reload:
+      provider: "{{ cli }}"
+      confirm: "{{ yesno }}"
+      location: "0/RP0/CPU0"
+      force: True
+    register: output
+  - debug: var=output.stdout_lines

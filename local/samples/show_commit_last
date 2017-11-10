@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ $# -lt 1 ]; then
+  echo 'usage: show_commit_last <number-of-commits>'
+  exit 1
+fi
+ansible-playbook iosxr_cli.yml -e "cmd=\"show configuration commit changes last $1\""

@@ -1,0 +1,7 @@
+<rpc message-id="101" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <get>
+    <filter>
+      <ip-domain xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ip-domain-cfg"/>
+    </filter>
+  </get>
+</rpc>
