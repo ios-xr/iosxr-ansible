@@ -18,9 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-import re
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -29,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Activate packages in IOS-XR repository.
 description:
   - Activate IOS-XR packages in IOS-XR repository.
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -46,29 +47,18 @@ provider options:
       - password used to login to IOS-XR
     required: true
     default: none
-
-module options:
-  timeout:
-    description:
-      - default timeout value might be too short for IOS-XR install 
-        due to several different factors so put timeout value that
-        work for you, e.g. 30 seconds
-    required: true
-    value: integer in seconds
   pkgname:
     description:
       - IOS-XR software packages in the repository
-        NOTE: use "show install inactive" to see packages in repository
+        NOTE: use 'show install inactive' to see packages in repository
     required: true
 """
 
 EXAMPLES = """
 - iosxr_upgrade_activate:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
-    pkgname: "xrv9k-mgbl-3.0.0.0-r60204I xrv9k-k9sec-2.0.0.0-r60204I"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    pkgname: 'xrv9k-mgbl-3.0.0.0-r60204I xrv9k-k9sec-2.0.0.0-r60204I'
 """
 
 RETURN = """
@@ -81,67 +71,59 @@ stdout_lines:
 """
 
 # check if another install command in progress
-def is_legacy_iosxr (module):
+def is_legacy_iosxr(module):
     command = "show version"
-    response = run_commands (module, command)
+    response = execute_command(module, command)
     return "Build Information:" not in response[0]
 
 # check if another install command in progress
-def is_install_in_progress (module):
+def is_install_in_progress(module):
     command = "show install request"
-    response = run_commands (module, command)
+    response = execute_command(module, command)
     return "No install operation in progress" not in response[0]
 
-CLI_PROMPT_RE = [ r"[\r\n]?\[yes\/no]:\[\w+]\s" ]
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?\[yes\/no]:\[\w+]\s'))
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 pkgname = dict (required = True, default = None))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            pkgname = dict(required=True, default=None),
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    pkg_name = args["pkgname"]
+    pkg_name = args['pkgname']
 
     # cannot run on classic XR
-    if is_legacy_iosxr (module):
-        module.fail_json (msg="this upgrade module cannot run on 32-bit IOS-XR")
+    if is_legacy_iosxr(module):
+        module.fail_json(msg='this upgrade module cannot run on 32-bit IOS-XR')
 
     # make sure no other install in progress
-    if is_install_in_progress (module):
-        module.fail_json (msg="other install operation in progress")
+    if is_install_in_progress(module):
+        module.fail_json(msg='other install operation in progress')
+
+    # ignore timeout
+    module.connection.shell.shell.settimeout(None)
 
     # run install activate command
-    install_command = "install activate " + pkg_name
-    command = {"command": install_command,
-               "prompt": CLI_PROMPT_RE,
-               "answer": "yes"}
-    response = run_commands (module, command)
+    commands = [ 'install activate ' + pkg_name ]
+    commands.append('yes\n')
 
-    # check if operation successful
-    if re.search ("(?i)aborted", response[0]) or \
-       re.search ("(?i)error", response[0]):
-        pattern = re.compile (r"operation (\d+) started")
-        oper_id = pattern.findall (response[0])
-        command = "show install log " + oper_id[0]
-        log_msg = run_commands (module, command)
-        for line in str (log_msg).split (r"\n"):
-            if "ERROR" in line or "Error" in line:
-                response = line
-        result = dict (changed = False, failed = True)
-    else:
-        while True:
-            try:
-                if not is_install_in_progress (module):
-                    break
-            except:
+    response = execute_command(module, commands)
+    while True:
+        try:
+            if not is_install_in_progress(module):
                 break
-        result = dict (changed = True)
+        except:
+            break
 
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
-    module.exit_json (**result)
+    module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

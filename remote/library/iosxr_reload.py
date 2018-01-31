@@ -19,7 +19,6 @@
 #------------------------------------------------------------------------------
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.iosxr import iosxr_argument_spec
 
 DOCUMENTATION = """
 ---
@@ -28,25 +27,7 @@ author: Adisorn Ermongkonchai
 short_description: Reload IOS-XR device
 description:
   - Restart specified IOS-XR device
-
-provider options:
-  host:
-    description:
-      - IP address or hostname (resolvable by Ansible control host) of
-        the target IOS-XR node.
-    required: true
-  username:
-    description:
-      - username used to login to IOS-XR
-    required: false
-    default: none
-  password:
-    description:
-      - password used to login to IOS-XR
-    required: false
-    default: none
-
-module options:
+options:
   confirm:
     description:
       - make sure user really want to reload
@@ -61,10 +42,6 @@ module options:
 
 EXAMPLES = """
 - iosxr_reload:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
     force: True
 """
 
@@ -78,28 +55,31 @@ stdout_lines:
 """
 
 def main():
-    spec = dict (provider = dict (required = True),
-                 confirm = dict (required = True),
-                 force = dict (type = 'bool', default = False))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
+    module = AnsibleModule(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            confirm = dict(required=True),
+            force   = dict(required=False, type='bool', default=False)
+        ),
+        supports_check_mode = False
+    )
     args = module.params
     if args['confirm'] != 'yes':
         result['stdout'] = "reload aborted"
-        module.exit_json (**result)
+        module.exit_json(**result)
  
     command = '/bin/echo y > yes'
-    (rc, out, err) = module.run_command(command, use_unsafe_shell = True)
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
     reload_command = 'source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- reload -t 0x0 '
     reload_options = '-a' if args['force'] is True else '-d'
     command = reload_command + reload_options + ' < yes'
-    (rc, out, err) = module.run_command (command, use_unsafe_shell = True)
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
   
-    result = dict (changed = False)
+    result = dict(changed=False)
     result['stdout'] = out
     result['stdout_lines'] = err if err != "" else out
-    return module.exit_json (**result)
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
     main()

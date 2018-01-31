@@ -18,7 +18,10 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
 from iosxr import *
 
 DOCUMENTATION = """
@@ -28,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Send NETCONF 1.0 XML file to IOS-XR device
 description:
   - Send NETCONF 1.0 XML file to IOS-XR device
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -45,34 +47,30 @@ provider options:
       - password used to login to IOS-XR
     required: false
     default: none
-
-module options:
   xmlfile:
     description:
       - XML file
     required: true
-
-example: nc_show_install_active.xml
-  <?xml version="1.0" encoding="UTF-8"?>
-  <rpc message-id="101" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
-    <get>
-      <filter>
-        <Operational>
-          <SoftwareInstall>
-            <Active/>
-          </SoftwareInstall>
-        </Operational>
-      </filter>
-    </get>
-  </rpc>
+    example: nc_show_install_active.xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <rpc message-id="101" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+        <get>
+          <filter>
+            <Operational>
+              <SoftwareInstall>
+                <Active/>
+              </SoftwareInstall>
+            </Operational>
+          </filter>
+        </get>
+      </rpc>
 """
 
 EXAMPLES = """
 - iosxr_nc10_send:
-    provider:
-      host: "{{ ansible_ssh_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
     xmlfile: xml/nc_show_install_active.xml
 """
 
@@ -85,35 +83,37 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPTS_RE.append(re.compile(r"]]>]]>[\r\n]?"))
+CLI_PROMPTS_RE.append(re.compile(r']]>]]>[\r\n]?'))
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 xmlfile = dict (required = True))
-    module = get_module (argument_spec = spec)
-
+def main():
+    module = get_module(
+        argument_spec = dict(
+            xmlfile = dict(required=True)
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    xml_file = args["xmlfile"]
+    xml_file = module.params['xmlfile']
 
-    result = dict (changed = False)
-    xml_text = open (xml_file).read ()
-    if "edit-config" in xml_text or "delete-config" in xml_text:
-        result["changed"] = True
+    result = dict(changed=False)
+    xml_text = open(xml_file).read()
+    if 'edit-config' in xml_text or 'delete-config' in xml_text:
+        result['changed'] = True
 
-    module.execute ("netconf format")
-    module.connection.shell.shell.send (xml_text)
-    module.connection.shell.shell.send ("]]>]]>\n")
+    module.execute('netconf format')
+    module.connection.shell.shell.send(xml_text)
+    module.connection.shell.shell.send(']]>]]>\n')
 
     # collect all responses 1024 bytes at a time
-    response = module.connection.shell.shell.recv (1024)
-    while "]]>]]>" not in response:
-        response += module.connection.shell.shell.recv (1024)
+    response = module.connection.shell.shell.recv(1024)
+    while ']]>]]>' not in response:
+        response += module.connection.shell.shell.recv(1024)
 
-    result["stdout"] = response
-    if "rpc-error" in response:
-        return module.fail_json (msg = response)
+    result['stdout'] = response
+    if 'rpc-error' in response:
+        return module.fail_json(msg=response)
     else:
-        return module.exit_json (**result)
+        return module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

@@ -18,8 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -28,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Rollback configuration on IOS-XR device
 description:
   - Rollback IOS-XR configuration
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -43,8 +45,6 @@ provider options:
     description:
       - password used to login to IOS-XR
     required: true
-
-module options:
   rollback_id:
     description:
       - rollback configuration committted to particular id
@@ -82,10 +82,9 @@ module options:
 
 EXAMPLES = """
 - iosxr_rollback:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
     last_n_committed: 2
     label: bgp_rollback
 """
@@ -99,53 +98,55 @@ stdout_lines:
   returned: always
 """
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 rollback_id = dict (required = False, default = None),
-                 to_rollback_id = dict (required = False, default = None),
-                 to_exclude_rollback_id = dict (required = False,
-                                                default = None),
-                 last_n_committed = dict (required = False, type = 'int',
-                                          default = None),
-                 label = dict (required = False, default = None),
-                 force = dict (required = False, type = "bool",
-                               default = False))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec,
-                            mutually_exclusive = (["rollback_id", 
-                                                   "to_rollback_id", 
-                                                   "to_exclude_rollback_id",
-                                                   "last_n_committed"]))
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            to_rollback_id = dict(required=False, default=None),
+            to_exclude_rollback_id = dict(required=False, default=None),
+            rollback_id = dict(required=False, default=None),
+            last_n_committed = dict(required=False, default=None),
+            label = dict(required=False, default=None),
+            force = dict(required=False, type='bool', default=False),
+        ),
+        mutually_exclusive = (
+            [ 'rollback_id', 
+              'to_rollback_id', 
+              'to_exclude_rollback_id',
+              'last_n_committed' ],
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    force = args["force"]
-    rollback_id = args["rollback_id"]
-    to_id = args["to_rollback_id"]
-    to_excl_id = args["to_exclude_rollback_id"]
-    last_n = args["last_n_committed"]
-    label = args["label"]
-    force = args["force"]
+    force = args['force']
+    rollback_id = args['rollback_id']
+    to_id = args['to_rollback_id']
+    to_excl_id = args['to_exclude_rollback_id']
+    last_n = args['last_n_committed']
+    label = args['label']
+    force = args['force']
   
-    # construct rollback command
-    reload_command = "rollback configuration "
+    reload_command = 'rollback configuration '
     if rollback_id is not None:
         reload_command += rollback_id
     if to_id is not None:
-        reload_command += "to %s " % to_id
+        reload_command += 'to %s ' % to_id
     if to_excl_id is not None:
-        reload_command += "to-exclude %s " % to_excl_id
+        reload_command += 'to-exclude %s ' % to_excl_id
     if last_n is not None:
-        reload_command += "last %s " % last_n
+        reload_command += 'last %s ' % last_n
     if force is True:
-        reload_command += "force "
+        reload_command += 'force '
     if label is not None:
-        reload_command += "label %s " % label
-    response = run_commands (module, reload_command)
+        reload_command += 'label %s ' % label
+    response = execute_command(module, reload_command)
   
-    result = dict (changed = True)
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
-    module.exit_json (**result)
+    module.exit_json(**result)
 
 if __name__ == "__main__":
-  main ()
+  main()

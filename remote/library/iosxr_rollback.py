@@ -19,7 +19,6 @@
 #------------------------------------------------------------------------------
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.iosxr import iosxr_argument_spec
 
 DOCUMENTATION = """
 ---
@@ -28,25 +27,7 @@ author: Adisorn Ermongkonchai
 short_description: Rollback configuration on IOS-XR device
 description:
   - Rollback IOS-XR configuration
-
-provider options:
-  host:
-    description:
-      - IP address or hostname (resolvable by Ansible control host) of
-        the target IOS-XR node.
-    required: true
-  username:
-    description:
-      - username used to login to IOS-XR
-    required: false
-    default: none
-  password:
-    description:
-      - password used to login to IOS-XR
-    required: false
-    default: none
-
-module options:
+options:
   rollback_id:
     description:
       - rollback configuration committed to particular id
@@ -84,10 +65,6 @@ module options:
 
 EXAMPLES = """
 - iosxr_rollback:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
     last_n_committed: 1
     label: bgp_rollback
     force: True
@@ -103,22 +80,25 @@ stdout_lines:
 """
 
 def main():
-    spec = dict (provider = dict (required = True),
-                 rollback_id = dict (required = False, default = None),
-                 to_rollback_id = dict (required = False, default = None),
-                 to_exclude_rollback_id = dict (required = False,
-                                                default = None),
-                 last_n_committed = dict (required = False, type = 'int',
-                                          default = None),
-                 label = dict (required = False, default = None),
-                 force = dict (required = False, type = 'bool',
-                               default = False))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec,
-                            mutually_exclusive = (['rollback_id',
-                                                   'to_rollback_id',
-                                                   'to_exclude_rollback_id',
-                                                   'last_n_committed']))
+    module = AnsibleModule(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            rollback_id = dict(required=False, default=None),
+            to_rollback_id = dict(required=False, default=None),
+            to_exclude_rollback_id = dict(required=False, default=None),
+            last_n_committed = dict(required=False, type='int', default=None),
+            label = dict(required=False, default=None),
+            force = dict(required=False, type='bool', default=False),
+        ),
+        mutually_exclusive = (
+            [ 'rollback_id',
+              'to_rollback_id',
+              'to_exclude_rollback_id',
+              'last_n_committed' ],
+        ),
+        supports_check_mode = False
+    )
     args = module.params
     force = args['force']
     rollback_id = args['rollback_id']
@@ -141,17 +121,16 @@ def main():
         reload_command += '-f '
     if label is not None:
         reload_command += '-l %s ' % label
-    (rc, out, err) = module.run_command (reload_command,
-                                         use_unsafe_shell = True)
+    (rc, out, err) = module.run_command(reload_command, use_unsafe_shell=True)
   
-    result = dict(changed = False)
+    result = dict(changed=False)
     result['stdout'] = err
     if 'successfully' in result['stdout']:
         result['changed'] = True
         result['stdout_lines'] = str(result['stdout']).split(r'\n')
         return module.exit_json(**result)
     else:
-        return module.fail_json(msg = result['stdout'])
+        return module.fail_json(msg=result['stdout'])
 
 if __name__ == "__main__":
     main()

@@ -25,47 +25,53 @@ from ydk.models.cisco_ios_xr.Cisco_IOS_XR_spirit_install_instmgr_oper import Sof
 import sys
 import logging
 
-def init_logging (logfile):
+def init_logging(logfile):
     # Initialize the logging infra and add a handler
-    logger = logging.getLogger ("ydk") 
-    logger.setLevel (logging.DEBUG)
+    logger = logging.getLogger('ydk') 
+    logger.setLevel(logging.DEBUG)
   
     # create file handler             
-    fh = logging.FileHandler (logfile)
-    fh.setLevel (logging.DEBUG)
+    fh = logging.FileHandler(logfile)
+    fh.setLevel(logging.DEBUG)
   
     # create a console logger too
-    ch = logging.StreamHandler ()
-    ch.setLevel (logging.ERROR)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.ERROR)
   
     # add the handlers to the logger
-    logger.addHandler (fh)
-    logger.addHandler (ch)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
 
-def main ():
-    module = AnsibleModule (argument_spec = 
-                                dict (provider = dict (required = True)))
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            host = dict(required=True),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+        ),
+        supports_check_mode = False
+    )
 
     args = module.params
 
-    init_logging ("/tmp/iosxr_show_install_version.log")
+    init_logging("/tmp/iosxr_show_install_version.log")
 
     # establish ssh connection
-    provider = NetconfServiceProvider (address = args["host"],
-                                       port=830,
-                                       username = args["username"],
-                                       password = args["password"],
-                                       protocol="ssh")
+    provider = NetconfServiceProvider(address=args['host'],
+                                      port=830,
+                                      username=args['username'],
+                                      password=args['password'],
+                                      protocol='ssh')
     # establish CRUD service
-    crud = CRUDService ()
+    crud = CRUDService()
 
     # retrieve software install version
-    install = SoftwareInstall ()
-    info = crud.read (provider, install)
+    install = SoftwareInstall()
+    info = crud.read(provider, install)
 
-    result = dict (changed = False)
-    result["stdout"] = info.version.log
-    return module.exit_json (**result)
+    result = dict(changed=False)
+    result['stdout'] = info.version.log
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

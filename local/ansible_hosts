@@ -1,2 +1,2 @@
 [ss-xr]
-192.168.1.19 ansible_user=root ansible_ssh_pass=lab
+192.168.1.15 ansible_ssh_user=root ansible_ssh_pass=lab

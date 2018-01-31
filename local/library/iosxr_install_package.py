@@ -18,11 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-import re
-import time
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
-from ansible.module_utils.connection import exec_command
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -31,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Install SMU package on IOS-XR device
 description:
   - Install SMU package on IOS-XR device
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -48,58 +47,44 @@ provider options:
       - password used to login to IOS-XR
     required: true
     default: none
-  timeout:
-    description:
-      - default timeout value might be too short for IOS-XR install 
-        due to several different factors so put timeout value that
-        work for you, e.g. 30 seconds
-    required: true
-    value: integer in seconds
   pkgpath:
     description:
       - path to where the package file is stored
         e.g. tftp://192.168.1.1
              ftp://192.168.1.1
              /disk0:
-    required: Only when state is "present"
-
-install options:
+    required: Only when state is 'present'
   pkgname:
     description:
       - IOS-XR software package without file extension
-        e.g. The package name for "xrv9k-ospf-1.0.0.0-r61102I.x86_64.rpm"
-             is "xrv9k-ospf-1.0.0.0-r61102I"
+        e.g. The package name for 'xrv9k-ospf-1.0.0.0-r61102I.x86_64.rpm'
+             is 'xrv9k-ospf-1.0.0.0-r61102I'
     required: true
   state:
     description:
       - represent state of the package being installed
     required: false
-    default: "present"
-    choices: ["present",
-              "absent",
-              "updated",
-              "activated",
-              "deactivated",
-              "committed"]
+    default: 'present'
+    choices: ['present',
+              'absent',
+              'updated',
+              'activated',
+              'deactivated',
+              'committed']
 """
 
 EXAMPLES = """
 - iosxr_install_package:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
-      timeout: 60
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
     pkgpath: "tftp://192.168.1.1"
     pkgname: "xrv9k-ospf-1.0.0.0-r61102I"
     state: present
 
 - iosxr_install_package:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
-      timeout: 60
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
     pkgpath: "https://my_secure_server"
     pkgname: "xrv9k-mpls-1.0.0.0-r60204I.CSCxr33333"
     state: updated
@@ -115,206 +100,208 @@ stdout_lines:
 """
 
 # check if another install command in progress
-def is_legacy_iosxr (module):
+def is_legacy_iosxr(module):
     command = "show version"
-    response = run_commands (module, command)
+    response = execute_command(module, command)
     return "Build Information:" not in response[0]
 
 # check if another install command in progress
-def is_install_in_progress (module):
+def is_install_in_progress(module):
     command = "show install request"
-    response = run_commands (module, command)
+    response = execute_command(module, command)
     return "No install operation in progress" not in response[0]
 
 # check if the package is already added
-def is_package_already_added (module, pkg_name):
+def is_package_already_added(module, pkg_name):
     command = "show install inactive"
-    response = run_commands (module, command)
+    response = execute_command(module, command)
     return pkg_name in response[0]
 
 # check if the package is already active
-def is_package_already_active (module, pkg_name):
+def is_package_already_active(module, pkg_name):
     command = "show install active"
-    response = run_commands (module, command)
+    response = execute_command(module, command)
     return pkg_name in response[0]
 
 # wait for install command to complete
-def wait_install_response (module, oper_id):
+def wait_install_response(module, oper_id):
     retries = 100
     while retries > 0:
-        if is_install_in_progress (module):
+        if is_install_in_progress(module):
             retries -= 1
-            time.sleep (3)
+            time.sleep(3)
         else:
-            response = list ()
+            response = list()
             for inst_id in oper_id:
                 command = "show install log " + inst_id
-                rc, out, err = exec_command (module, command)
-                if "aborted" in out:
-                    module.fail_json (msg = out)
-                response.append (out)
+                rmsg = module.execute(command)
+                if 'aborted' in rmsg[0]:
+                    module.fail_json(msg=rmsg[0])
+                response.append(rmsg[0])
             return response
     else:
-        module.fail_json (msg = "timeout waiting for install to complete")
+        module.fail_json(msg="timeout waiting for install to complete")
 
 # get install operation id from log
-def get_operation_id (response):
-    pattern = re.compile (r"operation (\d+) started")
-    return pattern.findall (response[0])
+def get_operation_id(response):
+    pattern = re.compile(r"operation (\d+) started")
+    return pattern.findall(response[0])
 
 # add package only when it is not already added or activated
-def install_add (module, pkg_path, pkg_name):
-    result = dict (changed = False)
+def install_add(module, pkg_path, pkg_name):
+    result = dict(changed=False)
 
-    if is_package_already_active (module, pkg_name):
+    if is_package_already_active(module, pkg_name):
         response = [pkg_name + " package is already active\n"]
-    elif is_package_already_added (module, pkg_name):
+    elif is_package_already_added(module, pkg_name):
         response = [pkg_name + " package is already added\n"]
     elif pkg_path == None:
-        module.fail_json (msg = "package path required")
+        module.fail_json(msg="package path required")
     else:
         command = ("install add source " +
                    pkg_path + " " +
                    pkg_name + ".x86_64.rpm")
-        response = run_commands (module, command)
-        oper_id = get_operation_id (response)
-        response = wait_install_response (module, oper_id)
-        result["changed"] = True
+        response = execute_command(module, command)
+        oper_id = get_operation_id(response)
+        response = wait_install_response(module, oper_id)
+        result['changed'] = True
 
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
     return result
 
 # remove package only when it is in inactive state
-def install_remove (module, pkg_path, pkg_name):
-    result = dict (changed = False)
+def install_remove(module, pkg_path, pkg_name):
+    result = dict(changed=False)
 
-    if is_package_already_active (module, pkg_name):
+    if is_package_already_active(module, pkg_name):
         error = pkg_name + " is active, please deactivate first"
-        module.fail_json (msg = error)
-    elif is_package_already_added (module, pkg_name):
+        module.fail_json(msg=error)
+    elif is_package_already_added(module, pkg_name):
         command = "install remove " + pkg_name
-        response = run_commands (module, command)
-        oper_id = get_operation_id (response)
-        response = wait_install_response (module, oper_id)
-        result["changed"] = True
+        response = execute_command(module, command)
+        oper_id = get_operation_id(response)
+        response = wait_install_response(module, oper_id)
+        result['changed'] = True
     else:
         response = [pkg_name + " package has already been removed\n"]
 
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
     return result
 
 # update package
-def install_update (module, pkg_path, pkg_name):
-    result = dict (changed = False)
+def install_update(module, pkg_path, pkg_name):
+    result = dict(changed=False)
 
-    if is_package_already_active (module, pkg_name):
+    if is_package_already_active(module, pkg_name):
         response = [pkg_name + " package is already active\n"]
     else:
         command = ("install update source " +
                    pkg_path + " " +
                    pkg_name + ".x86_64.rpm")
-        response = run_commands (module, command)
-        if "Error:" in response or "Exception:" in response:
-            module.fail_json (msg = response)
-        oper_id = get_operation_id (response)
-        response = wait_install_response (module, oper_id)
-        result["changed"] = True
+        response = execute_command(module, command)
+        if 'Error:' in response or 'Exception:' in response:
+            module.fail_json(msg=response)
+        oper_id = get_operation_id(response)
+        response = wait_install_response(module, oper_id)
+        result['changed'] = True
 
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
     return result
 
 # activate package only when it has been added
-def install_activate (module, pkg_path, pkg_name):
-    result = dict (changed = False)
+def install_activate(module, pkg_path, pkg_name):
+    result = dict(changed=False)
 
-    if is_package_already_active (module, pkg_name):
+    if is_package_already_active(module, pkg_name):
         response = [pkg_name + " package is already active\n"]
-    elif is_package_already_added (module, pkg_name):
+    elif is_package_already_added(module, pkg_name):
         command = "install activate " + pkg_name
-        response = run_commands (module, command)
-        oper_id = get_operation_id (response)
-        response = wait_install_response (module, oper_id)
-        result["changed"] = True
+        response = execute_command(module, command)
+        oper_id = get_operation_id(response)
+        response = wait_install_response(module, oper_id)
+        result['changed'] = True
     else:
         error = pkg_name + " must be present before activate"
-        module.fail_json (msg = error)
+        module.fail_json(msg=error)
 
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
     return result
 
 # deactivate package only when it is in active state
-def install_deactivate (module, pkg_path, pkg_name):
-    result = dict (changed = False)
+def install_deactivate(module, pkg_path, pkg_name):
+    result = dict(changed=False)
 
-    if is_package_already_active (module, pkg_name):
+    if is_package_already_active(module, pkg_name):
         command = "install deactivate " + pkg_name
-        response = run_commands (module, command)
-        oper_id = get_operation_id (response)
-        response = wait_install_response (module, oper_id)
-        result["changed"] = True
-    elif is_package_already_added (module, pkg_name):
+        response = execute_command(module, command)
+        oper_id = get_operation_id(response)
+        response = wait_install_response(module, oper_id)
+        result['changed'] = True
+    elif is_package_already_added(module, pkg_name):
         response = [pkg_name + " package is already deactivated\n"]
     else:
         response = [pkg_name + " package has already been removed\n"]
 
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
     return result
   
 # commit active packages
-def install_commit (module, pkg_path, pkg_name):
+def install_commit(module, pkg_path, pkg_name):
     command = "install commit"
-    response = run_commands (module, command)
-    oper_id = get_operation_id (response)
-    response = wait_install_response (module, oper_id)
+    response = execute_command(module, command)
+    oper_id = get_operation_id(response)
+    response = wait_install_response(module, oper_id)
 
-    result = dict (changed = True)
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
     return result
 
-def main ():
-    spec = dict (provider = dict (requreid = True),
-                 pkgpath= dict (required = False, default = None),
-                 pkgname = dict (required = True, default = None),
-                 state = dict (required = False, default = "present",
-                               choices = ["present",
-                                          "absent",
-                                          "updated",
-                                          "activated",
-                                          "deactivated",
-                                          "committed"]))
-    spec.update (iosxr_argument_spec)
-
-    module = AnsibleModule (argument_spec = spec)
-
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            pkgpath = dict(required=False, default=None),
+            pkgname = dict(required=True, default=None),
+            state = dict(required=False, default='present',
+                         choices = ['present',
+                                    'absent',
+                                    'updated',
+                                    'activated',
+                                    'deactivated',
+                                    'committed'])
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    state = args["state"]
+    state = args['state']
 
     # cannot run on classic XR
-    if is_legacy_iosxr (module):
-        module.fail_json (msg =
-                          "use 'xr32_install_package' on 32-bit IOS-XR instead")
+    if is_legacy_iosxr(module):
+        module.fail_json(msg=
+            "use 'xr32_install_package' on 32-bit IOS-XR instead")
 
     # make sure no other install in progress
-    if is_install_in_progress (module):
-        module.fail_json (msg = "other install operation in progress")
+    if is_install_in_progress(module):
+        module.fail_json(msg="other install operation in progress")
   
     install = {
-        "present":     install_add,
-        "absent":      install_remove,
-        "updated":     install_update,
-        "activated":   install_activate,
-        "deactivated": install_deactivate,
-        "committed":   install_commit
+        'present':     install_add,
+        'absent':      install_remove,
+        'updated':     install_update,
+        'activated':   install_activate,
+        'deactivated': install_deactivate,
+        'committed':   install_commit
     }
-    result = install[state] (module, args["pkgpath"], args["pkgname"])
+    result = install[state](module, args['pkgpath'], args['pkgname'])
   
-    module.exit_json (**result)
+    module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

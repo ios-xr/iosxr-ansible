@@ -23,29 +23,35 @@ from ydk.providers import NetconfServiceProvider
 from ydk.services import CRUDService
 from ydk.models.cisco_ios_xr.Cisco_IOS_XR_spirit_install_instmgr_oper import SoftwareInstall
 
-def main ():
-    module = AnsibleModule (argument_spec = 
-                                dict (provider = dict (required = True)))
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            host = dict(required=True),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+        ),
+        supports_check_mode = False
+    )
 
     args = module.params
 
     # establish ssh connection
-    provider = NetconfServiceProvider (address = args["host"],
-                                       port=830,
-                                       username = args["username"],
-                                       password = args["password"],
-                                       protocol="ssh")
+    provider = NetconfServiceProvider(address=args['host'],
+                                      port=830,
+                                      username=args['username'],
+                                      password=args['password'],
+                                      protocol='ssh')
     # establish CRUD service
-    crud = CRUDService ()
+    crud = CRUDService()
 
     # retrieve software install version
-    install = SoftwareInstall ()
-    info = crud.read (provider, install)
+    install = SoftwareInstall()
+    info = crud.read(provider, install)
     inactive = info.inactive
 
-    result = dict (changed = False)
-    result["stdout"] = inactive.log
-    return module.exit_json (**result)
+    result = dict(changed=False)
+    result['stdout'] = inactive.log
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

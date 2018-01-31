@@ -18,8 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -28,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Install BASE64 crypto key on IOS-XR device
 description:
   - Install BASE64 crypto key on IOS-XR device
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -45,11 +47,9 @@ provider options:
       - password used to login to IOS-XR
     required: false
     default: none
-
-module options:
   keyfile:
     description:
-      - fully qualified base64 key file, e.g. tftp://192.168.1.28/id_rsa_pub.b64
+      - fully qualified base64 key file, e.g. tftp://192.168.1.1/id_rsa_pub.b64
     note:
       - following commands show how to convert Linux rsa key file to base64 file
         $cut -d" " -f2 ~/.ssh/id_rsa.pub | base64 -d > ~/.ssh/id_rsa_pub.b64
@@ -58,11 +58,10 @@ module options:
 
 EXAMPLES = """
 - iosxr_install_config:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
-    keyfile: "tftp://192.168.1.28/id_rsa_pub.b64"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
+    keyfile: 'tftp://192.168.1.1/id_rsa_pub.b64'
 
 """
 
@@ -75,37 +74,36 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPT_RE = [ r"[\r\n]?\[yes\/no\]: $" ]
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 keyfile = dict (required = True))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            keyfile  = dict(required=True),
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    keyfile = args["keyfile"]
+    keyfile = args['keyfile']
   
-    show_command = "show crypto key authentication rsa"
-    response = run_commands (module, show_command)
+    show_command = 'show crypto key authentication rsa'
+    response = execute_command(module, show_command)
 
-    cmd = "crypto key import authentication rsa " + keyfile
-    if "authentication" in response[0]:
-        crypto_command = {"command": cmd,
-                          "prompt": CLI_PROMPT_RE,
-                          "answer": "yes"}
-    else:
-        crypto_command = cmd
-    response = run_commands (module, crypto_command)
+    commands = ['crypto key import authentication rsa ' + keyfile]
+    if 'authentication' in response[0]:
+        commands.append('yes')
+    response = execute_command(module, commands)
 
-    # now show the new key
-    response = run_commands (module, show_command)
+    show_command = 'show crypto key authentication rsa'
+    response = execute_command(module, show_command)
 
-    result = dict (changed = True)
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
-    module.exit_json (**result)
+    module.exit_json(**result)
 
 if __name__ == "__main__":
-  main ()
+  main()

@@ -1,26 +1,21 @@
 ---
-- hosts: ss-xr
+- hosts: 192.168.1.5
   connection: local
   gather_facts: no
 
-  vars:
-    cli:
-       host: "{{ ansible_host }}"
-       username: "{{ ansible_user }}"
-       password: "{{ ansible_ssh_pass }}"
-       timeout: 3600
-
   vars_prompt:
   - name: yesno
-    prompt: "Upgrade could take an hour to finish, do you want to contiue (yes/no)? "
+    prompt: 'Upgrade can take an hour to finish, are you sure you want to contiue (yes/no)? '
 
   tasks:
   - name: upgrade IOS-XR software version, please do not hit Ctrl-C
     iosxr_upgrade_package:
-      provider: "{{ cli }}"
-      confirm: "{{ yesno }}"
-      version: "6.4.1.21I"
-      pkgpath: "tftp://192.168.1.28"
-      rpmname: "xrv9k-li-x-1.1.0.0-r64121I.x86_64.rpm xrv9k-ospf-2.0.0.0-r64121I.x86_64.rpm"
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      password: '{{ ansible_ssh_pass }}'
+      confirm: '{{ yesno }}'
+      version: '6.1.1'
+      pkgpath: 'tftp://192.168.1.1/6.1.1'
+      pkgname: 'xrv9k-k9sec-3.1.0.0-r61119I.x86_64.rpm xrv9k-mgbl-3.0.0.0-r61119I.x86_64.rpm xrv9k-ospf-1.0.0.0-r61119I.x86_64.rpm'
     register: output
   - debug: var=output.stdout_lines

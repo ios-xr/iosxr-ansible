@@ -18,8 +18,8 @@
 #
 #------------------------------------------------------------------------------
 
+from ansible.module_utils.shell import *
 from ansible.module_utils.basic import *
-from ansible.module_utils.iosxr import iosxr_argument_spec
 
 DOCUMENTATION = """
 ---
@@ -28,31 +28,10 @@ author: Adisorn Ermongkonchai
 short_description: Get status and information from IOS-XR device
 description:
   - Get status and information from IOS-XR device
-
-provider options:
-  host:
-    description:
-      - IP address or hostname (resolvable by Ansible control host) of
-        the target IOS-XR node.
-    required: true
-  username:
-    description:
-      - username used to login to IOS-XR
-    required: false
-    default: none
-  password:
-    description:
-      - password used to login to IOS-XR
-    required: false
-    default: none
 """
 
 EXAMPLES = """
 - iosxr_get_facts:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
 """
 
 RETURN = """
@@ -65,31 +44,34 @@ stdout_lines:
 """
 
 def main():
-    spec = dict (provider = dict (required = True))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
+    module = AnsibleModule(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+        ),
+        supports_check_mode = False
+    )
     # make sure "terminal length 0" is set on XR console
-    cmds = [ "show platform",
-             "show version",
-             "show inventory all",
-             "show memory summary",
-             "show install active",
-             "show filesystem",
-             "show media",
-             "show license all",
-             "show route",
-             "show running-config",
-             "show arp",
-             "show ipv4 int brief",
-             "show ipv6 int brief" ]
+    cmds = [ 'show platform',
+             'show version',
+             'show inventory all',
+             'show memory summary',
+             'show install active',
+             'show filesystem',
+             'show media',
+             'show license all',
+             'show route',
+             'show running-config',
+             'show arp',
+             'show ipv4 int brief',
+             'show ipv6 int brief' ]
 
-    result = dict (changed = False)
+    result = dict(changed=False)
     for cmd in cmds:
         command = "source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- xr_cli '%s'" % cmd
-        (rc, out, err) = module.run_command (command, use_unsafe_shell = True)
+        (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
         result[cmd] = str(out).splitlines()
-    return module.exit_json (**result)
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
     main()

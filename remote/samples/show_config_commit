@@ -1,1 +1,1 @@
-ansible-playbook iosxr_cli.yml --extra-vars='cmd="show config commit list"' -M ../library $*
+ansible-playbook iosxr_cli.yml --extra-vars='cmd="show config commit list"'

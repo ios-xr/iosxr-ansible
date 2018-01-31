@@ -18,8 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -28,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Clear system log
 description:
   - Clear system log
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -49,10 +51,9 @@ provider options:
 
 EXAMPLES = """
 - iosxr_clear_log:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
 """
 
 RETURN = """
@@ -64,23 +65,24 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPT_RE = [ r"[\r\n]?\[confirm\] \[y\/n\] :$" ]
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
 
-def main ():
-    spec = dict (provider = dict (required = True))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
-    command = {"command": "clear logging",
-               "prompt": CLI_PROMPT_RE,
-               "answer": "y"}
-
-    response = run_commands (module, command)
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+        ),
+        supports_check_mode = False
+    )
+    commands = ['clear logging']
+    commands.append('y')
+    response = execute_command(module, commands)
   
-    result = dict (changed = True)
-    result["stdout"] = response
-    result["stdout_lines"] = response
-    return module.exit_json (**result)
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

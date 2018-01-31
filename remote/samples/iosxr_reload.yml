@@ -8,7 +8,7 @@
 
   tasks:
   - iosxr_reload:
-      username: "{{ ansible_ssh_user }}"
+      username: '{{ ansible_ssh_user }}'
       confirm: "{{ yesno }}"
       force: True
     register: output

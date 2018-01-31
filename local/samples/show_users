@@ -1,1 +1,1 @@
-ansible-playbook iosxr_cli.yml -e 'cmd="show running username"' $*
+ansible-playbook iosxr_cli.yml -e 'cmd="show running username"'

@@ -18,9 +18,8 @@
 #
 #------------------------------------------------------------------------------
 
+from ansible.module_utils.basic import *
 import paramiko
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec
 
 DOCUMENTATION = """
 ---
@@ -29,8 +28,7 @@ author: Adisorn Ermongkonchai
 short_description: Send NETCONF-YANG 1.1 XML file to IOS-XR device
 description:
   - Send NETCONF-YANG 1.1 XML file to IOS-XR device
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -46,29 +44,25 @@ provider options:
       - password used to login to IOS-XR
     required: false
     default: none
-
-module options:
   xmlfile:
     description:
       - XML file
     required: true
-
-example: nc_show_install_active.xml
-  <rpc message-id="101" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-    <get>
-      <filter type="subtree">
-        <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg"/>
-      </filter>
-    </get>
-  </rpc>
+    example: nc_show_install_active.xml
+      <rpc message-id="101" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+        <get>
+          <filter type="subtree">
+            <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg"/>
+          </filter>
+        </get>
+      </rpc>
 """
 
 EXAMPLES = """
 - iosxr_nc11_send:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
     xmlfile: xml/nc_show_install_active.xml
 """
 
@@ -105,60 +99,62 @@ CLOSE = """
 ##
 """
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 xmlfile = dict (required = True),
-                 netconf_port = dict (type="int",default=830))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            host = dict(required=True),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            xmlfile = dict(required=True),
+            port = dict(required=False, type='int', default=830)
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    xml_file = args["xmlfile"]
-    provider = args["provider"]
-    netconf_port = args["netconf_port"]
-    client = paramiko.SSHClient ()
-    client.set_missing_host_key_policy (paramiko.AutoAddPolicy ())
-    client.connect (hostname = provider.get ("host"),
-                    port = netconf_port,
-                    username = provider.get ("username"),
-                    password = provider.get ("password"),
-                    look_for_keys = False,
-                    timeout=10)
+    xml_file = module.params['xmlfile']
 
-    channel = client.get_transport ().open_session ()
-    channel.invoke_subsystem ("netconf")
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(module.params['host'],
+                port=module.params['port'],
+                username=module.params['username'],
+                password=module.params['password'],
+                timeout=10)
+    transport = ssh.get_transport()
+    channel = transport.open_channel('session')
+    channel.invoke_subsystem('netconf')
 
     # read hello msg
-    response = channel.recv (1024)
-    while "]]>]]>" not in response:
-        response += channel.recv (1024)
+    response = channel.recv(1024)
+    while ']]>]]>' not in response:
+        response += channel.recv(1024)
 
-    result = dict (changed = False)
-    xml_text = open (xml_file).read ()
-    if "edit-config" in xml_text or "delete-config" in xml_text:
-        result["changed"] = True
-    xml_msg = "\n#" + str (len (xml_text)-1) + "\n" + xml_text + "##\n"
+    result = dict(changed=False)
+    xml_text = open(xml_file).read()
+    if 'edit-config' in xml_text or 'delete-config' in xml_text:
+        result['changed'] = True
+    xml_msg = '\n#' + str(len(xml_text)-1) + '\n' + xml_text + '##\n'
 
     # send hello followed by contents of xml file
-    channel.send (HELLO)
-    channel.send (xml_msg)
+    channel.send(HELLO)
+    channel.send(xml_msg)
 
     # collect all responses 1024 bytes at a time
-    response = channel.recv (1024)
-    while "##" not in response:
-        response += channel.recv (1024)
+    response = channel.recv(1024)
+    while '##' not in response:
+        response += channel.recv(1024)
 
     # commit changes
-    if result["changed"]:
-        channel.send (COMMIT)
+    if result['changed']:
+        channel.send(COMMIT)
 
-    channel.send (CLOSE)
+    channel.send(CLOSE)
 
-    result["stdout"] = response
-    if "rpc-error" in response:
-        return module.fail_json (msg = response)
+    result['stdout'] = response
+    if 'rpc-error' in response:
+        return module.fail_json(msg=response)
     else:
-        return module.exit_json (**result)
+        return module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

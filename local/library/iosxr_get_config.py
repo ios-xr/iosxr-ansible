@@ -18,8 +18,9 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
+from ansible.module_utils.basic import *
+from ansible.module_utils.netcfg import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -28,8 +29,7 @@ author: Adisorn Ermongkonchai
 short_description: Show running configuration on IOS-XR device
 description:
   - Get running configuration from IOS-XR device
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -45,29 +45,13 @@ provider options:
       - password used to login to IOS-XR
     required: false
     default: none
-
-module options:
-  component:
-    description:
-      - component to query
-    required: false
-    default: all
 """
 
 EXAMPLES = """
 - iosxr_get_config:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
-    component: "all"
-
-- iosxr_get_config:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
-    component: "router static"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
 """
 
 RETURN = """
@@ -80,20 +64,16 @@ stdout_lines:
 """
 
 def main():
-    spec = dict (provider = dict (required = True),
-                 component = dict (required = False, default = "all"))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
-    args = module.params
-    comp = args["component"]
-    command = "show running-config " + comp
-    response = run_commands (module, command)
-
-    result = dict (changed = False)
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
-    return module.exit_json (**result)
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+        ),
+        supports_check_mode = False
+    )
+    result = dict(changed=False)
+    result['stdout'] = module.get_config()
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

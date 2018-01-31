@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# ------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 #
 #    Copyright (C) 2016 Cisco Systems, Inc.
 #
@@ -16,13 +16,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# ------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.iosxr import iosxr_argument_spec
-import sys
-sys.path.append("/pkg/bin/")
-from ztp_helper import ZtpHelpers
 
 DOCUMENTATION = """
 ---
@@ -31,25 +27,7 @@ author: Adisorn Ermongkonchai
 short_description: Commit configuration file on IOS-XR device
 description:
   - Commit configuration file on IOS-XR device
-
-provider options:
-  host:
-    description:
-      - IP address or hostname (resolvable by Ansible control host) of
-        the target IOS-XR node.
-    required: true
-  username:
-    description:
-      - username used to login to IOS-XR
-    required: false
-    default: none
-  password:
-    description:
-      - password used to login to IOS-XR
-    required: false
-    default: none
-
-module options:
+options:
   cfgname:
     description:
       - fully qualified config filename, e.g. tftp://192.168.1.1/user_add.cfg
@@ -63,10 +41,6 @@ module options:
 
 EXAMPLES = """
 - iosxr_install_config:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
     cfgname: "/tftp://192.168.1.1/user_add.cfg"
     label: "bgp_config_commit"
 
@@ -81,33 +55,40 @@ stdout_lines:
   returned: always
 """
 
-
 def main():
-    spec = dict (provider = dict (required = True),
-                 cfgname = dict (required = True),
-                 label = dict (required = False, default = None))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
-    script = ZtpHelpers()
-
+    module = AnsibleModule(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            cfgname  = dict(required=True),
+            label    = dict(required=False, default=None),
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    cfg_name = args["cfgname"]
-    label = args["label"]
-    command = cfg_name
-    if label:
-        command += label
-    script.xrapply (command)
+    cfg_name = args['cfgname']
+    label = args['label']
+  
+    load_command = 'config -f %s ' % cfg_name
+    if label is not None:
+        load_command = load_command + '-l "%s"' % label
+    command = "source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- %s" % load_command
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
 
-    change_command = "show config commit changes last 1"
-    out = script.xrcmd ({"exec_cmd": change_command})
+    # check for error
+    if err != "":
+        module.fail_json(msg=err)
+  
+    change_command = 'show config commit changes last 1'
+    command = 'source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- xr_cli "%s"' % \
+              change_command
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
 
-    result = dict (changed = False)
-    result["stdout"] = out
-    result["stdout_lines"] = str(out["output"]).splitlines()
+    result = dict(changed=False)
+    result['stdout'] = out
+    result['stdout_lines'] = str(result['stdout']).splitlines()
 
-    module.exit_json (**result)
-
+    module.exit_json(**result)
 
 if __name__ == "__main__":
     main()

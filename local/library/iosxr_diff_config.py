@@ -18,10 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils._text import to_text
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
-from ansible.module_utils.connection import exec_command
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -31,8 +32,7 @@ short_description: Compare a given config file with the running config
 description:
   - Compare config file provided with the running configuration
     on the IOS-XR node.
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -48,8 +48,6 @@ provider options:
       - password used to login to IOS-XR
     required: false
     default: none
-
-module options:
   cfgname:
     description:
       - fully qualified config filename, e.g. tftp://192.168.1.1/user_add.cfg
@@ -58,11 +56,10 @@ module options:
 
 EXAMPLES = """
 - iosxr_diff_config:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
-    cfgname: "tftp://192.168.1.1/add_replace.cfg"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
+    cfgname: 'tftp://192.168.1.1/add_replace.cfg'
 """
 
 RETURN = """
@@ -74,30 +71,28 @@ stdout_lines:
   returned: always
 """
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 cfgname = dict (required = True))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username  = dict(required=False, default=None),
+            password  = dict(required=False, default=None),
+            cfgname   = dict(required=True),
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    cfg_name = args["cfgname"]
+    cfg_name = args['cfgname']
   
-    command = "configure terminal"
-    rc, out, err = exec_command (module, command)
-    if rc != 0:
-        module.fail_json (msg="unable to enter configuration mode",
-                          err = to_text (err, errors="surrogate_or_strict"))
-
-    commands = ["load " + cfg_name]
-    commands.append ("show commit changes diff")
-    response = run_commands  (module, commands)
+    commands = ['load ' + cfg_name]
+    commands.insert(0, 'configure terminal')
+    commands.append('show commit changes diff')
+    response = execute_command(module, commands)
   
-    result = dict (changed = False)
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result = dict(changed=False)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
-    module.exit_json (**result)
+    module.exit_json(**result)
 
 if __name__ == "__main__":
-  main ()
+  main()

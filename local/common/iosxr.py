@@ -20,8 +20,8 @@
 import re
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback, get_exception
-from shell import Shell, ShellError, HAS_PARAMIKO
-from netcfg import parse
+from ansible.module_utils.shell import Shell, ShellError, HAS_PARAMIKO
+from ansible.module_utils.netcfg import parse
 
 NET_PASSWD_RE = re.compile(r"[\r\n]?password: $", re.I)
 

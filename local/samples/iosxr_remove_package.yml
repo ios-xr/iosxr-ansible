@@ -4,26 +4,25 @@
   gather_facts: no
 
   vars:
-    cli:
-       host: "{{ ansible_host }}"
-       username: "{{ ansible_user }}"
-       password: "{{ ansible_ssh_pass }}"
-       timeout: 180
-    smu_name: "xrv9k-ospf-2.0.0.0-r64121I"
+    smu_name: 'xrv9k-mpls-2.0.0.1-r60204I.CSCxr33333'
 
   tasks:
   - name: deactivate SMU package
     iosxr_install_package:
-      provider: "{{ cli }}"
-      pkgname: "{{ smu_name }}"
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      password: '{{ ansible_ssh_pass }}'
+      pkgname: '{{ smu_name }}'
       state: deactivated
     register: output
   - debug: var=output.stdout_lines
 
   - name: remove SMU package
     iosxr_install_package:
-      provider: "{{ cli }}"
-      pkgname: "{{ smu_name }}"
+      host: '{{ ansible_host }}'
+      username: '{{ ansible_ssh_user }}'
+      password: '{{ ansible_ssh_pass }}'
+      pkgname: '{{ smu_name }}'
       state: absent
     register: output
   - debug: var=output.stdout_lines

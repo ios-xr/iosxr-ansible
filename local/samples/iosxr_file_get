@@ -1,0 +1,2 @@
+# NOTE: a path name must end with a "/"
+ansible-playbook iosxr_file_copy.yml -e 'path=/tmp/' -e 'filename=status_file' -e 'dir=get' $*

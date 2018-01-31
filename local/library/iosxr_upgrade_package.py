@@ -18,9 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-import re
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -29,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Upgrade packages on IOS-XR device.
 description:
   - Upgrade IOS-XR packages on the IOS-XR device.
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -46,15 +47,6 @@ provider options:
       - password used to login to IOS-XR
     required: true
     default: none
-
-module options:
-  timeout:
-    description:
-      - default timeout value might be too short for IOS-XR install 
-        due to several different factors so put timeout value that
-        work for you, e.g. 30 seconds
-    required: true
-    value: integer in seconds
   confirm:
     description:
       - make sure user really want to reload
@@ -75,7 +67,7 @@ module options:
           http://server/directory/
           https://server/directory/
     required: true
-  rpmname:
+  pkgname:
     description:
       - IOS-XR software packages
         e.g. xrv9k-ospf-1.0.0.0-r61102I.x86_64.rpm
@@ -85,14 +77,11 @@ module options:
 
 EXAMPLES = """
 - iosxr_upgrade_package:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
     version: 6.1.1
     confirm: yes
     pkgpath: "https://secure_server_name"
-    rpmname: "xrv9k-ospf-2.0.0.0-r64121I.x86_64.rpm"
 """
 
 RETURN = """
@@ -105,83 +94,93 @@ stdout_lines:
 """
 
 # check if another install command in progress
-def is_legacy_iosxr (module):
+def is_legacy_iosxr(module):
     command = "show version"
-    response = run_commands (module, command)
+    response = execute_command(module, command)
     return "Build Information:" not in response[0]
 
 # check if another install command in progress
-def is_install_in_progress (module):
+def is_install_in_progress(module):
     command = "show install request"
-    response = run_commands (module, command)
+    response = execute_command(module, command)
     return "No install operation in progress" not in response[0]
 
-CLI_PROMPT_RE = [ r"[\r\n]?\[yes\/no]:\[\w+]\s" ]
-
-def main ():
-    spec = dict (provider = dict (required = True),
-                 confirm = dict (required = True),
-                 version = dict (required = True, default = None),
-                 pkgpath = dict (required = True, default = None),
-                 rpmname = dict (required = False, default = ""))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            version = dict(required=True, default=None),
+            confirm = dict(required=True),
+            pkgpath = dict(required=True, default=None),
+            pkgname = dict(required=False, default=""),
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    version = args["version"]
-    pkg_path = args["pkgpath"]
-    rpm_name = args["rpmname"]
+    version = args['version']
+    pkg_path = args['pkgpath']
+    pkg_name = args['pkgname']
 
     # confirm upgrade
-    result = dict (changed = False)
-    if args["confirm"] != "yes":
-        result["stdout"] = "upgrade aborted"
-        module.exit_json (**result)
+    if args['confirm'] != 'yes':
+        module.fail_json(msg='upgrade aborted')
 
     # cannot run on classic XR
-    if is_legacy_iosxr (module):
-        module.fail_json (msg="this upgrade module cannot run on 32-bit IOS-XR")
+    if is_legacy_iosxr(module):
+        module.fail_json(msg='this upgrade module cannot run on 32-bit IOS-XR')
 
     # make sure no other install in progress
-    if is_install_in_progress (module):
-        module.fail_json (msg="other install operation in progress")
+    if is_install_in_progress(module):
+        module.fail_json(msg='other install operation in progress')
+
+    # ignore timeout
+    module.connection.shell.shell.settimeout(None)
 
     # run install upgrade command
-    install_command = ('install upgrade source ' + pkg_path +
-                       ' version ' + version + ' ' + rpm_name + '\n')
-    command = {"command": install_command,
-               "prompt": CLI_PROMPT_RE,
-               "answer": "yes"}
-    response = run_commands (module, command)
+    command = ('install upgrade source ' +
+               pkg_path + ' version ' + version + ' ' + pkg_name + '\n')
+    module.connection.shell.shell.send(command)
 
-    # check if operation successful
-    if re.search ("(?i)aborted", response[0]) or \
-       re.search ("(?i)error", response[0]):
-        pattern = re.compile (r"operation (\d+) started")
-        oper_id = pattern.findall (response[0])
-        command = "show install log " + oper_id[0]
-        log_msg = run_commands (module, command)
-        for line in str (log_msg).split (r"\n"):
-            if "ERROR" in line or "Error" in line:
-                response = line
-        result = dict (changed = False, failed = True)
-    else:
-        # now wait till reload
-        while True:
-            try:
-                #  install operation done
-                if not is_install_in_progress(module):
-                    break
-                sleep(5)
-            # or socket exception when reload
-            except:
+    response = ''
+    prompt = re.compile(r'[\r\n]?[\w+\-\.:\/\[\]]+(?:>|#)')
+    ask = re.compile(r'[\r\n]?\[yes\/no]:\[\w+]\s')
+
+    # wait for either command prompt or activate prompt
+    while True:
+        try:
+            response += module.connection.shell.shell.recv(1024)
+
+            # if activate prompt then send yes
+            if ask.search(response):
+                module.connection.shell.shell.send('yes\n')
                 break
 
-    # show result
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).splitlines ()
+            # if command prompt then it probably is error response
+            elif prompt.search(response):
+                if 'aborted' in response:
+                    module.fail_json(msg=response)
+                break
+        except:
+            break
 
-    module.exit_json (**result)
+    # now wait till reload
+    while True:
+        try:
+            #  install operation done
+            if not is_install_in_progress(module):
+                break
+            sleep(5)
+        # or socket exception when reload
+        except:
+            break
+
+    # show result
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).splitlines()
+
+    module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

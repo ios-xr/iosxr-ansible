@@ -5,4 +5,4 @@ export ANSIBLE_LIBRARY=$IOSXRDIR/local/library
 export ANSIBLE_CONFIG=$IOSXRDIR/local/ansible_cfg
 export YDK_DIR=$BASEDIR/ydk-py/cisco-ios-xr
 export YDK_CORE_DIR=$BASEDIR/ydk-py/core
-export PYTHONPATH=$YDK_DIR:$YDK_CORE_DIR:$IOSXRDIR/local/common
+export PYTHONPATH=$BASEDIR/ansible/ansible/lib:$YDK_DIR:$YDK_CORE_DIR:$IOSXRDIR/local/common

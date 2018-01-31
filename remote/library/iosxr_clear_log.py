@@ -19,7 +19,6 @@
 #------------------------------------------------------------------------------
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.iosxr import iosxr_argument_spec
 
 DOCUMENTATION = """
 ---
@@ -29,30 +28,8 @@ short_description: Clear log
 description:
   - Clear system log
 
-provider options:
-  host:
-    description:
-      - IP address or hostname (resolvable by Ansible control host) of
-        the target IOS-XR node.
-    required: true
-  username:
-    description:
-      - username used to login to IOS-XR
-    required: false
-    default: none
-  password:
-    description:
-      - password used to login to IOS-XR
-    required: false
-    default: none
-"""
-
 EXAMPLES = """
 - iosxr_clear_log:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
 """
 
 RETURN = """
@@ -65,18 +42,22 @@ stdout_lines:
 """
 
 def main():
-    spec = dict (provider = dict (required = True))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
-    command = "/bin/echo yes > yes"
-    (rc, out, err) = module.run_command (command, use_unsafe_shell = True)
-    command = "source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- clr_logging < yes"
-    (rc, out, err) = module.run_command (command, use_unsafe_shell = True)
+    module = AnsibleModule(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+        ),
+        supports_check_mode = False
+    )
   
-    result = dict (changed = True)
-    result["stdout"] = out if out != "" else err
-    return module.exit_json (**result)
+    command = '/bin/echo yes > yes'
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+    command = 'source /etc/profile ; PATH=/pkg/sbin:/pkg/bin:${PATH} nsenter -t 1 -n -- clr_logging < yes'
+    (rc, out, err) = module.run_command(command, use_unsafe_shell=True)
+  
+    result = dict(changed=True)
+    result['stdout'] = out if out != "" else err
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
     main()

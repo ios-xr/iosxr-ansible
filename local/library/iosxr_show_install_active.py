@@ -23,28 +23,34 @@ from ydk.providers import NetconfServiceProvider
 from ydk.services import CRUDService
 from ydk.models.cisco_ios_xr.Cisco_IOS_XR_spirit_install_instmgr_oper import SoftwareInstall
 
-def main ():
-    module = AnsibleModule (argument_spec = 
-                                dict (provider = dict (required = True)))
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            host = dict(required=True),
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+        ),
+        supports_check_mode = False
+    )
 
     args = module.params
 
     # establish ssh connection
-    provider = NetconfServiceProvider (address = args["host"],
-                                       port=830,
-                                       username = args["username"],
-                                       password = args["password"],
-                                       protocol="ssh")
+    provider = NetconfServiceProvider(address=args['host'],
+                                      port=830,
+                                      username=args['username'],
+                                      password=args['password'],
+                                      protocol='ssh')
     # establish CRUD service
-    crud = CRUDService ()
+    crud = CRUDService()
 
     # retrieve software install version
-    install = SoftwareInstall ()
-    info = crud.read (provider, install)
-    result = dict (changed = False)
-    result["stdout"] = "no active package"
+    install = SoftwareInstall()
+    info = crud.read(provider, install)
+    result = dict(changed=False)
+    result['stdout'] = "no active package"
     for package in info.active.active_package_info:
-      result["stdout"] = \
+      result['stdout'] = \
         "active_packages: %sboot_partition_name: %s\nlocation: %s\n" \
         "node_type: %s\nnumber_of_active_packages: %d" % \
         (package.active_packages,
@@ -53,7 +59,7 @@ def main ():
          package.node_type,
          package.number_of_active_packages)
 
-    return module.exit_json (**result)
+    return module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

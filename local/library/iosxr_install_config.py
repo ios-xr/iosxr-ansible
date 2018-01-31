@@ -18,10 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils._text import to_text
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
-from ansible.module_utils.connection import exec_command
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -30,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Commit configuration file on IOS-XR device
 description:
   - load and commit configuration file on IOS-XR device
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -47,8 +47,6 @@ provider options:
       - password used to login to IOS-XR
     required: false
     default: none
-
-module options:
   cfgname:
     description:
       - fully qualified config filename, e.g. tftp://192.168.1.1/user_add.cfg
@@ -72,12 +70,11 @@ module options:
 
 EXAMPLES = """
 - iosxr_install_config:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
-    cfgname: "tftp://192.168.1.1/add_user.cfg"
-    label: "bgp_config_commit"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
+    cfgname: 'tftp://192.168.1.1/add_user.cfg'
+    label: 'bgp_config_commit'
 
 """
 
@@ -90,61 +87,51 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPT_RE = [ r"[\r\n]?proceed\? \[no\]: $" ]
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[>|#|%|:](?:\s*)$'))
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 cfgname= dict (required = True),
-                 label= dict (required = False, default = None),
-                 replace= dict (required = False, type="bool", default = False),
-                 force= dict (required = False, type="bool", default = False))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            cfgname  = dict(required=True),
+            label    = dict(required=False, default=None),
+            replace  = dict(required=False, type='bool', default=False),
+            force    = dict(required=False, type='bool', default=False),
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    cfg_name = args["cfgname"]
-    label = args["label"]
-    force = args["force"]
-    replace = args["replace"]
+    cfg_name = args['cfgname']
+    label = args['label']
+    force = args['force']
+    replace = args['replace']
   
-    # enter config mode
-    command = "configure terminal"
-    rc, out, err = exec_command (module, command)
-    if rc != 0:
-        module.fail_json (msg="unable to enter configuration mode",
-                          err = to_text (err, errors="surrogate_or_strict"))
-
-    # load config command
-    command = "load " + cfg_name
-    rc, out, err = exec_command (module, command)
-    if rc != 0:
-        module.fail_json (msg="configuration loader failed",
-                          err = to_text (err, errors="surrogate_or_strict"))
+    commands = ['load ' + cfg_name]
+    commands.insert(0, 'configure terminal')
   
-    # commit configuration
-    commit_command = "commit "
+    commit_command = 'commit '
     if replace is True:
-        commit_command = commit_command + "replace "
+        commit_command = commit_command + 'replace '
     if force is True:
-        commit_command = commit_command + "force "
+        commit_command = commit_command + 'force '
     if label != None:
-        commit_command = commit_command + "label " + label
-    command = {"command": commit_command,
-               "prompt": CLI_PROMPT_RE,
-               "answer": "yes"}
-
-    response = run_commands (module, command)
+        commit_command = commit_command + 'label ' + label
+    commands.append(commit_command)
+    if replace is True:
+        commands.append('yes')
+    response = execute_command(module, commands)
   
-    result = dict (changed = True)
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    result = dict(changed=True)
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
     # show and log changes to file
-    response = run_commands (module, "show config commit changes last 1")
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
+    response = execute_command(module, "show config commit changes last 1")
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
 
-    module.exit_json (**result)
+    module.exit_json(**result)
 
 if __name__ == "__main__":
-  main ()
+  main()

@@ -18,7 +18,10 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
 from iosxr import *
 
 DOCUMENTATION = """
@@ -28,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Performs Cisco XML request to IOS-XR node
 description:
   - Performs Cisco XML request to IOS-XR node
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -45,8 +47,6 @@ provider options:
       - password used to login to IOS-XR
     required: false
     default: none
-
-module options:
   xmlfile:
     description:
       - XML file
@@ -62,10 +62,9 @@ module options:
 
 EXAMPLES = """
 - iosxr_xml_send:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
     xmlfile: xml/xml_get_config.xml
 """
 
@@ -78,13 +77,15 @@ stdout_lines:
   returned: always
 """
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 xmlfile = dict (required = True))
-    module = get_module (argument_spec = spec)
-
+def main():
+    module = get_module(
+        argument_spec = dict(
+            xmlfile = dict(required=True)
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    xml_file = args['xmlfile']
+    xml_file = module.params['xmlfile']
 
     result = dict(changed=False)
     xml_text = open(xml_file).read()
@@ -106,4 +107,4 @@ def main ():
         return module.exit_json(**result)
 
 if __name__ == "__main__":
-    main ()
+    main()

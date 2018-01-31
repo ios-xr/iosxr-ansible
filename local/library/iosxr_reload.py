@@ -18,8 +18,11 @@
 #
 #------------------------------------------------------------------------------
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.iosxr import iosxr_argument_spec, run_commands
+from ansible.module_utils.basic import *
+from ansible.module_utils.shell import *
+from ansible.module_utils.netcfg import *
+from iosxr_common import *
+from iosxr import *
 
 DOCUMENTATION = """
 ---
@@ -28,8 +31,7 @@ author: Adisorn Ermongkonchai
 short_description: Reload IOS-XR device
 description:
   - Restart specified IOS-XR device
-
-provider options:
+options:
   host:
     description:
       - IP address or hostname (resolvable by Ansible control host) of
@@ -45,8 +47,6 @@ provider options:
       - password used to login to IOS-XR
     required: true
     default: none
-
-module options:
   confirm:
     description:
       - make sure user really want to reload
@@ -68,10 +68,9 @@ module options:
 
 EXAMPLES = """
 - iosxr_reload:
-    provider:
-      host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_ssh_pass }}"
+    host: '{{ ansible_ssh_host }}'
+    username: cisco
+    password: cisco
     confirm: yes
 """
 
@@ -84,39 +83,41 @@ stdout_lines:
   returned: always
 """
 
-CLI_PROMPT_RE = [ r"[\r\n]?[confirm]" ]
+CLI_PROMPTS_RE.append(re.compile(r'[\r\n]?[a-zA-Z]{1}[a-zA-Z0-9-]*[confirm]]'))
 
-def main ():
-    spec = dict (provider = dict (required = True),
-                 confirm= dict (required = True),
-                 location= dict (required = False, default = None),
-                 force= dict (required = False, type="bool", default = False))
-    spec.update (iosxr_argument_spec)
-    module = AnsibleModule (argument_spec = spec)
-    
+def main():
+    module = get_module(
+        argument_spec = dict(
+            username = dict(required=False, default=None),
+            password = dict(required=False, default=None),
+            confirm  = dict(required=True),
+            location = dict(required=False, default=None),
+            force    = dict(required=False, type='bool', default=False)
+        ),
+        supports_check_mode = False
+    )
     args = module.params
-    force = args["force"]
-    location = args["location"]
+    force = args['force']
+    location = args['location']
 
-    result = dict (changed = False)
-    if args["confirm"] != "yes":
-        result["stdout"] = "reload aborted"
-        module.exit_json (**result)
- 
-    # setup reload command expecting specific prompt to return
-    reload_command = "reload "
+    result = dict(changed=False)
+    if args['confirm'] != 'yes':
+        result['stdout'] = "reload aborted"
+        module.exit_json(**result)
+  
+    reload_command = 'reload '
     if location != None:
-        reload_command = reload_command + "location %s " % location
+        reload_command = reload_command + 'location %s ' % location
     if force is True:
-        reload_command = reload_command + "force "
-    command = {"command": reload_command,
-               "prompt": CLI_PROMPT_RE,
-               "answer": "y"}
-    response = run_commands (module, command)
-
-    result["stdout"] = response
-    result["stdout_lines"] = str (result["stdout"]).split (r"\n")
-    module.exit_json (**result)
+        reload_command = reload_command + 'force '
+    commands = [reload_command]
+    commands.append('\r')
+    commands.append('\r')
+    response = execute_command(module, commands)
+  
+    result['stdout'] = response
+    result['stdout_lines'] = str(result['stdout']).split(r'\n')
+    module.exit_json(**result)
 
 if __name__ == "__main__":
-  main ()
+  main()
