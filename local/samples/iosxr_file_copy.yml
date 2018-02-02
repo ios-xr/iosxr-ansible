@@ -7,7 +7,7 @@
   - name: IOS-XR file copy
     iosxr_file_copy:
       host: "{{ ansible_host }}"
-      username: "{{ ansible_user }}"
+      username: "{{ ansible_ssh_user }}"
       password: "{{ ansible_ssh_pass }}"
       path: "{{ path }}"
       filename: "{{ filename }}"
