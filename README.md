@@ -5,7 +5,7 @@ __NOTE:__ This IOS-XR Ansible only supports up to Ansible version 2.3.
 In the nutshell, Ansible is an automation tool for configuring system,
 deploying software, and orchestrating services. Unlike Puppet and Chef which
 is an agent-based architecture, Ansible does not require daemon running or
-agent pre-installed on the target nodes to interact with the Ansible server.
+agent pre-installed on the target nodes to perform configuration tasks.
 Ansible could be specified to run either on local server or on remote
 node.
 
