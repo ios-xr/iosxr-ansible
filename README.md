@@ -1,8 +1,6 @@
 # Introduction to IOS-XR Ansible
 
-***************************************************************************
-*    NOTE: This IOS-XR Ansible only supports up to Ansible version 2.3.   *
-***************************************************************************
+__NOTE:__ This IOS-XR Ansible only supports up to Ansible version 2.3.
 
 In the nutshell, Ansible is an automation tool for configuring system,
 deploying software, and orchestrating services. Unlike Puppet and Chef which
